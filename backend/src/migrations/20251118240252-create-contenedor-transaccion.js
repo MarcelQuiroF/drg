@@ -1,25 +1,44 @@
 'use strict';
+
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('contenedor_transaccion', {
-      id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
-      orden_id: {
-        type: Sequelize.INTEGER,
+      id: { 
+        type: Sequelize.INTEGER, 
+        autoIncrement: true, 
+        primaryKey: true 
+      },
+      orden_id: { 
+        type: Sequelize.INTEGER, 
+        allowNull: true,
         references: { model: 'orden', key: 'id' },
         onDelete: 'SET NULL'
       },
-      cliente_id: {
-        type: Sequelize.INTEGER,
+      cliente_id: { 
+        type: Sequelize.INTEGER, 
+        allowNull: true,
         references: { model: 'cliente', key: 'id' },
         onDelete: 'SET NULL'
       },
-      fecha: { type: Sequelize.DATE },
-      activo: { type: Sequelize.BOOLEAN },
-      cantidad: { type: Sequelize.INTEGER },
-      tipo: { type: Sequelize.STRING(50) },
-      deletedAt: { type: Sequelize.DATE }
+      fecha: { type: Sequelize.DATE, allowNull: false },
+      activo: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: true },
+      cantidad: { type: Sequelize.INTEGER, allowNull: false, defaultValue: 0 },
+      tipo: { type: Sequelize.STRING(50), allowNull: false },
+
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('NOW()')
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('NOW()')
+      },
+      deletedAt: { type: Sequelize.DATE, allowNull: true }
     });
   },
+
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('contenedor_transaccion');
   }

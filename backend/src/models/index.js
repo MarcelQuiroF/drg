@@ -7,8 +7,14 @@ const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.js')[env];
 const db = {};
 
-const sequelize = new Sequelize(config.database, config.username, config.password, config);
+// Inicializamos Sequelize con DATABASE_URL
+const sequelize = new Sequelize(config.url, {
+  dialect: config.dialect,
+  dialectOptions: config.dialectOptions,
+  logging: config.logging || console.log
+});
 
+// 🔹 Carga de modelos automáticamente
 fs
   .readdirSync(__dirname)
   .filter(file => (file.indexOf('.') !== 0) && (file !== basename))
