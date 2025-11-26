@@ -1,40 +1,21 @@
 'use strict';
-
 module.exports = (sequelize, DataTypes) => {
   const Cliente = sequelize.define('Cliente', {
-    nombre: { 
-      type: DataTypes.STRING(100),
+    nombre: {
+      type: DataTypes.STRING,
       allowNull: false,
-      validate: {
-        notEmpty: { msg: "El nombre no puede estar vacío" }
-      }
+      validate: { notEmpty: true }
     },
     ci: { 
-      type: DataTypes.INTEGER,
-      allowNull: true
+      type: DataTypes.STRING,
+      validate: { 
+        len: { args: [5, 20], msg: "El CI debe tener entre 5 y 20 caracteres" } 
+      }
     },
-    telefono: { 
-      type: DataTypes.BIGINT,
-      allowNull: true
-    }
+    telefono: DataTypes.STRING
   }, {
     tableName: 'cliente',
-    paranoid: true,
-    timestamps: true,
-    underscored: true,
-
-    hooks: {
-      beforeCreate: (cliente) => {
-        console.log("Cliente se crea:", cliente.nombre);
-      },
-      beforeUpdate: (cliente) => {
-        console.log("Cliente se actualiza:", cliente.nombre);
-      },
-      beforeDestroy: (cliente) => {
-        console.log("Soft delete sobre cliente:", cliente.nombre);
-      }
-    }
+    paranoid: true
   });
-
   return Cliente;
 };

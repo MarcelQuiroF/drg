@@ -2,36 +2,27 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('reserva', {
-      id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
-      cliente_id: {
+    await queryInterface.createTable('registro_reserva', {
+      registro_id: {
         type: Sequelize.INTEGER,
-        references: { model: 'cliente', key: 'id' },
+        references: { model: 'registro', key: 'id' },
         onDelete: 'CASCADE',
-        allowNull: false
+        primaryKey: true
       },
-      hora: { type: Sequelize.DATE, allowNull: false },
-      mesa_id: {
+      reserva_id: {
         type: Sequelize.INTEGER,
-        references: { model: 'mesa', key: 'id' },
+        references: { model: 'reserva', key: 'id' },
         onDelete: 'CASCADE',
-        allowNull: false
+        primaryKey: true
       },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('NOW()')
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('NOW()')
-      },
+      
+      createdAt: { allowNull: false, type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      updatedAt: { allowNull: false, type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
       deletedAt: { type: Sequelize.DATE, allowNull: true }
     });
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('reserva');
+    await queryInterface.dropTable('registro_reserva');
   }
 };

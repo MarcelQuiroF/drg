@@ -15,24 +15,9 @@ module.exports = {
         allowNull: false 
       },
 
-      // Sequelize timestamps obligatorios
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('NOW()')
-      },
-
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('NOW()')
-      },
-
-      // Necesario para paranoid
-      deletedAt: {
-        type: Sequelize.DATE,
-        allowNull: true
-      }
+      createdAt: { allowNull: false, type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      updatedAt: { allowNull: false, type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      deletedAt: { type: Sequelize.DATE, allowNull: true }
     });
   },
 

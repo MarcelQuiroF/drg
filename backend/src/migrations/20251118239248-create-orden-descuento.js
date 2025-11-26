@@ -1,5 +1,4 @@
 'use strict';
-
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('orden_descuento', {
@@ -15,21 +14,11 @@ module.exports = {
         onDelete: 'CASCADE',
         primaryKey: true
       },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('NOW()')
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('NOW()')
-      },
+      // CAMBIO: Agregados Timestamps
+      createdAt: { allowNull: false, type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      updatedAt: { allowNull: false, type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
       deletedAt: { type: Sequelize.DATE, allowNull: true }
     });
   },
-
-  async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('orden_descuento');
-  }
+  async down(queryInterface, Sequelize) { await queryInterface.dropTable('orden_descuento'); }
 };

@@ -6,19 +6,10 @@ module.exports = {
       id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
       nombre: { type: Sequelize.STRING(100), allowNull: false },
       numero: { type: Sequelize.INTEGER, allowNull: false },
-      casilla: { type: Sequelize.INTEGER, allowNull: false },
       estado: { type: Sequelize.INTEGER, allowNull: false, defaultValue: 0 },
 
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('NOW()')
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('NOW()')
-      },
+      createdAt: { allowNull: false, type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      updatedAt: { allowNull: false, type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
       deletedAt: { type: Sequelize.DATE, allowNull: true }
     });
   },

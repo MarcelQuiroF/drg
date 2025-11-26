@@ -1,61 +1,47 @@
 'use strict';
+const bcrypt = require('bcrypt');
 
 module.exports = (sequelize, DataTypes) => {
   const Empleado = sequelize.define('Empleado', {
     nombre: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.STRING,
       allowNull: false,
-      validate: {
-        notEmpty: { msg: "El nombre no puede estar vacío" }
-      }
+      validate: { notEmpty: { msg: "El nombre es obligatorio" } }
     },
-    ci: {
-      type: DataTypes.BIGINT,
-      allowNull: true
-    },
-    telefono: {
-      type: DataTypes.BIGINT,
-      allowNull: true
+    ci: DataTypes.STRING,
+    telefono: DataTypes.STRING,
+    correo: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      unique: { msg: "Este correo ya está registrado" },
+      validate: { isEmail: { msg: "Debe ser un correo válido" } }
     },
     contrasenia: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.STRING,
       allowNull: false
     },
     rol: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.STRING,
       allowNull: false
     },
-    activo: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: true
-    },
-    direccion: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
-    correo: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-      validate: { isEmail: { msg: "Debe ser un correo válido" } }
-    }
+    activo: { type: DataTypes.BOOLEAN, defaultValue: true }
   }, {
     tableName: 'empleado',
     paranoid: true,
-    deletedAt: 'deletedAt',
-    timestamps: true,
     hooks: {
-      beforeCreate: (empleado) => {
-        console.log(`Creando empleado: ${empleado.nombre}`);
+      beforeCreate: async (empleado) => {
+        if (empleado.contrasenia) {
+          const salt = await bcrypt.genSalt(10);
+          empleado.contrasenia = await bcrypt.hash(empleado.contrasenia, salt);
+        }
       },
-      beforeUpdate: (empleado) => {
-        console.log(`Actualizando empleado ID ${empleado.id}`);
-      },
-      beforeDestroy: (empleado) => {
-        console.log(`Soft delete de empleado ID ${empleado.id}`);
+      beforeUpdate: async (empleado) => {
+        if (empleado.changed('contrasenia')) {
+          const salt = await bcrypt.genSalt(10);
+          empleado.contrasenia = await bcrypt.hash(empleado.contrasenia, salt);
+        }
       }
     }
   });
-
   return Empleado;
 };

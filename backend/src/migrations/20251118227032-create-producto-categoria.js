@@ -13,7 +13,11 @@ module.exports = {
         references: { model: 'categoria', key: 'id' },
         onDelete: 'CASCADE',
         primaryKey: true
-      }
+      },
+
+      createdAt: { allowNull: false, type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      updatedAt: { allowNull: false, type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      deletedAt: { type: Sequelize.DATE, allowNull: true }
     });
   },
   async down(queryInterface, Sequelize) {

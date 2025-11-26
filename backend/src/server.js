@@ -1,4 +1,56 @@
-//inicia el serviodr
+const app = require('./app');
+const sequelize = require('./models').sequelize;
 
-const app = require("./app");
-app.listen(3000, () => console.log("Servidor en puerto 3000"));
+const PORT = process.env.PORT || 3000;
+
+async function startServer() {
+    try {
+
+        await sequelize.authenticate();
+        console.log('Conexión a la base de datos (Supabase) exitosa.');
+
+        app.listen(PORT, () => {
+            console.log(`Servidor Express escuchando en http://localhost:${PORT}/api/v1`);
+        });
+
+    } catch (error) {
+        console.error('Error al iniciar el servidor o conectar a la DB:', error.message);
+        process.exit(1);
+    }
+}
+
+startServer();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// logger.error('Error fatal al iniciar el servidor:', error);
+// const logger = require('./config/logger'); // Si se usa

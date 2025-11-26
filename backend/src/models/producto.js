@@ -1,48 +1,21 @@
 'use strict';
-
 module.exports = (sequelize, DataTypes) => {
   const Producto = sequelize.define('Producto', {
-    nombre: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
-      validate: { notEmpty: { msg: "El nombre no puede estar vacío" } }
-    },
-    zona: {
-      type: DataTypes.STRING(50),
-      allowNull: false
-    },
+    nombre: { type: DataTypes.STRING, allowNull: false },
+    zona: DataTypes.STRING,
+    activado: { type: DataTypes.BOOLEAN, defaultValue: true },
     precio: {
-      type: DataTypes.DOUBLE,
+      type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
-      defaultValue: 0,
-      validate: { min: 0 }
+      validate: {
+        min: { args: [0], msg: "El precio no puede ser negativo" }
+      }
     },
-    estado: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: true
-    },
-    imagen: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    }
+    estado: { type: DataTypes.BOOLEAN, defaultValue: true },
+    imagen: DataTypes.STRING
   }, {
     tableName: 'producto',
-    paranoid: true,
-    deletedAt: 'deletedAt',
-    timestamps: true,
-    hooks: {
-      beforeCreate: (producto) => {
-        console.log(`Creando producto: ${producto.nombre}`);
-      },
-      beforeUpdate: (producto) => {
-        console.log(`Actualizando producto ID ${producto.id}`);
-      },
-      beforeDestroy: (producto) => {
-        console.log(`Soft delete producto ID ${producto.id}`);
-      }
-    }
+    paranoid: true
   });
-
   return Producto;
 };
