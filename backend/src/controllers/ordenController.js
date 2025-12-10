@@ -19,6 +19,52 @@ async function crear(req, res, next) {
     }
 }
 
+async function listarDescuentos(req, res, next) {
+    try {
+        const { id } = req.params; // ID de la orden
+        const descuentos = await ordenService.obtenerDescuentosPorOrden(id);
+        res.status(httpCodes.OK.code).json(descuentos);
+    } catch (error) {
+        next(error);
+    }
+}
+
+async function obtenerPorId(req, res, next) {
+    try {
+        const orden = await ordenService.obtenerOrdenPorId(req.params.id);
+        
+        if (!orden) {
+            return res.status(httpCodes.NOT_FOUND.code).json({ message: "Orden no encontrada." });
+        }
+
+        res.status(httpCodes.OK.code).json(orden);
+    } catch (error) {
+        next(error);
+    }
+}
+
+async function aplicarDescuento(req, res, next) {
+    try {
+        const { id } = req.params; // Viene de la URL /:id/descuento
+        const { porcentaje, monto, comentario } = req.body;
+
+        if (!porcentaje && !monto) {
+            return res.status(httpCodes.BAD_REQUEST.code).json({ 
+                message: "Debe enviar un porcentaje o un monto fijo." 
+            });
+        }
+
+        const resultado = await ordenService.aplicarDescuento(id, { porcentaje, monto, comentario });
+        
+        res.status(httpCodes.OK.code).json({
+            message: "Descuento aplicado correctamente.",
+            descuento: resultado
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
 async function listar(req, res, next) {
     try {
         const filtros = {
@@ -55,9 +101,23 @@ async function eliminar(req, res, next) {
     }
 }
 
+async function quitarDescuento(req, res, next) {
+    try {
+        const { ordenId, descuentoId } = req.params;
+        await ordenService.removerDescuento(ordenId, descuentoId);
+        res.status(httpCodes.OK.code).json({ message: "Descuento eliminado." });
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     crear,
+    quitarDescuento,
     listar,
     finalizar,
-    eliminar
+    eliminar,
+    obtenerPorId,
+    listarDescuentos,
+    aplicarDescuento
 };

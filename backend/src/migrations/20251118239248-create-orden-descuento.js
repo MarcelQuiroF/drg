@@ -14,7 +14,6 @@ module.exports = {
         onDelete: 'CASCADE',
         primaryKey: true
       },
-      // CAMBIO: Agregados Timestamps
       createdAt: { allowNull: false, type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
       updatedAt: { allowNull: false, type: Sequelize.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
       deletedAt: { type: Sequelize.DATE, allowNull: true }

@@ -48,7 +48,8 @@ Object.keys(db).forEach(modelName => {
 db.Categoria.belongsToMany(db.Juego, { 
   through: db.JuegoCategoria, 
   foreignKey: 'categoria_id',
-  otherKey: 'juego_id'
+  otherKey: 'juego_id',
+  
 });
 
 db.Juego.belongsToMany(db.Categoria, { 

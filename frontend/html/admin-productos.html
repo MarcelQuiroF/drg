@@ -1,0 +1,63 @@
+<link rel="stylesheet" href="../css/admin-productos.css">
+
+<header class="main-header">
+    <h1>Gestión de Productos</h1>
+    <div class="header-right">
+        <div class="search-box">
+            <i class='bx bx-search-alt-2'></i>
+            <input type="text" id="admin-search-input" placeholder="Buscar producto...">
+        </div>
+        <button class="btn-add" id="btn-nuevo-producto">
+            <i class='bx bx-plus'></i> Agregar Producto
+        </button>
+    </div>
+</header>
+
+<div class="contenido" id="admin-content-wrapper">
+    
+    <section class="filter-section">
+        <div class="filter-group js-cats">
+            <span class="filter-opt active" data-filter="all">Todos</span>
+            <span class="filter-opt" data-filter="comida">Comida</span>
+            <span class="filter-opt" data-filter="bebida">Bebidas</span>
+            <span class="filter-opt" data-filter="juego">Juegos</span>
+        </div>
+
+        <div class="filter-group js-stats">
+            <span class="filter-opt active" data-status="all">Todos</span>
+            <span class="filter-opt" data-status="active">Activo</span>
+            <span class="filter-opt" data-status="inactive">Inactivo</span>
+        </div>
+    </section>
+
+    <div class="content-area">
+        <div class="product-grid" id="admin-products-container">
+            <p style="text-align:center; color: #888; grid-column: 1/-1;">Cargando inventario...</p>
+        </div>
+    </div>
+
+</div>
+
+<template id="template-admin-card">
+    <div class="contenedor-producto">
+        <img src="" alt="Producto" class="prod-img">
+        
+        <div class="status-bar"></div>
+
+        <div class="prod-info">
+            <div class="prod-name"></div>
+            <div class="prod-cat"></div>
+        </div>
+
+        <div class="prod-footer">
+            <div class="price-box">
+                <span class="lbl-price">Precio:</span>
+                <span class="val-price"></span>
+            </div>
+            
+            <button class="btn-toggle-status" style="display: none;">Activar</button>
+        </div>
+        
+        <i class='bx bxs-pencil btn-edit-float' style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 50%; cursor: pointer; color: white; display: none;"></i>
+    </div>
+</template>

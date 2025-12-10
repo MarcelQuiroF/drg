@@ -1,0 +1,46 @@
+<div class="cabezeraCuerpo">
+    <div class="tituloCabecera">
+        <p>Nueva Reserva</p>
+    </div>
+    <div class="informacion"></div>
+</div>
+
+<div class="contenido" id="contenido">
+    <div class="formulario-datos-personales"> 
+        
+        <div class="campo-full">
+            <label for="cliente-select">Cliente:</label>
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+                <select id="cliente-select" style="flex-grow: 1; padding: 10px;">
+                    <option value="">Seleccione un cliente...</option>
+                </select>
+                <button id="btn-crear-cliente" style="padding: 10px 15px; background-color: #2e7d32; color: white; border: none; cursor: pointer; border-radius: 5px; font-weight: bold;">
+                    +
+                </button>
+            </div>
+        </div>
+
+        <div class="campo-full">
+            <label for="mesa-select">Mesa:</label>
+            <select id="mesa-select" style="width: 100%; padding: 10px; margin-bottom: 15px;">
+                <option value="">Seleccione una mesa...</option>
+            </select>
+        </div>
+
+        <div class="campos-dobles">
+            <div class="campo-half">
+                <label for="fecha">Fecha:</label>
+                <input type="date" id="fecha" style="width: 100%; padding: 10px;">
+            </div>
+            <div class="campo-half">
+                <label for="hora">Hora:</label>
+                <input type="time" id="hora" style="width: 100%; padding: 10px;">
+            </div>
+        </div>
+
+        <div class="botones" style="margin-top: 20px;">
+            <button class="confirmar">Guardar Reserva</button>
+            <button class="atras">Cancelar</button>
+        </div>
+    </div>
+</div>

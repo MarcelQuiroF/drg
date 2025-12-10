@@ -1,49 +1,54 @@
-const { Producto, Categoria } = require('../models');
+// AGREGAMOS 'ProductoCategoria' A LAS IMPORTACIONES
+const { Producto, Categoria, ProductoCategoria } = require('../models');
 
-// Crear producto y asignar categorías (si vienen)
+// Crear producto y asignar categorías
 async function crearProducto(datos, idsCategorias = []) {
     // 1. Crear el producto base
     const nuevoProducto = await Producto.create(datos);
 
-    // 2. Si vienen categorías, creamos la relación en la tabla intermedia
+    // 2. Si vienen categorías, creamos la relación MANUALMENTE
     if (idsCategorias && idsCategorias.length > 0) {
-        // setCategorias es un método mágico que crea Sequelize al definir la relación N:M
-        await nuevoProducto.setCategorias(idsCategorias);
+        // En lugar de usar el método mágico setCategorias que falla,
+        // preparamos los datos para la tabla intermedia.
+        const relaciones = idsCategorias.map(categoriaId => ({
+            producto_id: nuevoProducto.id,
+            categoria_id: categoriaId
+        }));
+
+        // Insertamos directamente en la tabla puente
+        await ProductoCategoria.bulkCreate(relaciones);
     }
 
-    // 3. Devolvemos el producto con sus categorías cargadas para confirmar
+    // 3. Devolvemos el producto con sus categorías
     return await Producto.findByPk(nuevoProducto.id, {
         include: [{
             model: Categoria,
             attributes: ['id', 'nombre'],
-            through: { attributes: [] } // Ocultar datos de la tabla puente
+            through: { attributes: [] } 
         }]
     });
 }
 
-// Modificamos esta función para aceptar filtros
+// Listar productos (Se mantiene igual)
 async function listarProductos(categoriaId = null) {
-    
-    // Configuración base del include
     const includeOption = {
         model: Categoria,
         attributes: ['id', 'nombre'],
         through: { attributes: [] }
     };
 
-    // Si nos pasan un ID de categoría, filtramos
     if (categoriaId) {
         includeOption.where = { id: categoriaId };
-        includeOption.required = true; // IMPORTANTE: Solo devuelve productos que coincidan con la categoría
+        includeOption.required = true;
     }
 
     return await Producto.findAll({
         include: [includeOption],
-        // Opcional: Ordenar por nombre para que se vea ordenado
         order: [['nombre', 'ASC']] 
     });
 }
 
+// Obtener por ID (Se mantiene igual)
 async function obtenerProductoPorId(id) {
     return await Producto.findByPk(id, {
         include: [{
@@ -54,7 +59,7 @@ async function obtenerProductoPorId(id) {
     });
 }
 
-// Actualizar producto y sus relaciones
+// Actualizar producto (MODIFICADO)
 async function actualizarProducto(id, datos, idsCategorias) {
     const producto = await Producto.findByPk(id);
     if (!producto) return null;
@@ -62,14 +67,27 @@ async function actualizarProducto(id, datos, idsCategorias) {
     // 1. Actualizar campos básicos
     await producto.update(datos);
 
-    // 2. Actualizar categorías si se enviaron (esto borra las viejas y pone las nuevas)
+    // 2. Actualizar categorías si se enviaron
     if (idsCategorias) {
-        await producto.setCategorias(idsCategorias);
+        // A. Borramos las relaciones viejas de este producto
+        await ProductoCategoria.destroy({
+            where: { producto_id: id }
+        });
+
+        // B. Insertamos las nuevas relaciones (si el array no está vacío)
+        if (idsCategorias.length > 0) {
+            const relaciones = idsCategorias.map(categoriaId => ({
+                producto_id: id,
+                categoria_id: categoriaId
+            }));
+            await ProductoCategoria.bulkCreate(relaciones);
+        }
     }
 
     return await obtenerProductoPorId(id);
 }
 
+// Eliminar (Se mantiene igual)
 async function eliminarProducto(id) {
     const producto = await Producto.findByPk(id);
     if (!producto) return null;
@@ -78,12 +96,10 @@ async function eliminarProducto(id) {
     return true;
 }
 
-// Toggle (Activar/Desactivar sin borrar) - Muy útil para menús
+// Toggle (Se mantiene igual)
 async function toggleEstado(id) {
     const producto = await Producto.findByPk(id);
     if (!producto) return null;
-    
-    // Invierte el valor booleano de 'activado'
     return await producto.update({ activado: !producto.activado });
 }
 

@@ -1,0 +1,53 @@
+<link rel="stylesheet" href="../css/impresion.css">
+
+<div class="cabezeraCuerpo no-print">
+    <div class="informacion">
+        <button class="btn-atras-impresion" id="btn-volver-productos">
+            <i class="fa-solid fa-arrow-left"></i> Volver
+        </button>
+    </div>
+</div>
+
+<div class="contenido-impresion">
+
+    <div class="contenedor-ticket" id="zona-cocina">
+        <div class="ticket-papel">
+            <div class="ticket-header">
+                <h3>COCINA</h3>
+                <p class="ticket-meta">Mesa: <span class="lbl-mesa">...</span></p>
+                <p class="ticket-meta">Orden: <span class="lbl-orden">...</span></p>
+                <p class="ticket-meta fecha-hora">...</p>
+            </div>
+            <hr>
+            <ul class="ticket-lista" id="lista-cocina">
+                </ul>
+        </div>
+        <button class="btn-imprimir no-print" id="btn-print-cocina">
+            <i class="fa-solid fa-print"></i> Imprimir Cocina
+        </button>
+    </div>
+
+    <div class="contenedor-ticket" id="zona-cafeteria">
+        <div class="ticket-papel">
+            <div class="ticket-header">
+                <h3>CAFETERÍA</h3>
+                <p class="ticket-meta">Mesa: <span class="lbl-mesa">...</span></p>
+                <p class="ticket-meta">Orden: <span class="lbl-orden">...</span></p>
+                <p class="ticket-meta fecha-hora">...</p>
+            </div>
+            <hr>
+            <ul class="ticket-lista" id="lista-cafeteria">
+                </ul>
+        </div>
+        <button class="btn-imprimir no-print" id="btn-print-cafeteria">
+            <i class="fa-solid fa-print"></i> Imprimir Cafetería
+        </button>
+    </div>
+
+</div>
+
+<div class="footer-impresion no-print">
+    <button class="btn-imprimir-todo" id="btn-print-todo">
+        <i class="fa-solid fa-copy"></i> IMPRIMIR AMBOS
+    </button>
+</div>

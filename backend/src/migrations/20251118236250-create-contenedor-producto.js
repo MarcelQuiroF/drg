@@ -4,7 +4,6 @@ module.exports = {
     await queryInterface.createTable('contenedor_producto', {
       id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
       
-      // CAMBIO: Relación directa con Orden (1 Orden tiene N Contenedores)
       orden_id: { 
         type: Sequelize.INTEGER, 
         allowNull: false,

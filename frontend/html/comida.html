@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio</title>
+    <link rel="stylesheet" href="../css/comida.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="contenedorPrincipal">
+        
+        <div class="barraLateral">
+            <div class="logo">
+                <div class="iconoLogo">
+                    <!-- Icono Dragón -->
+                    <img src="../assets/íconos/iconoDragon.png" alt="Logo"> 
+                </div>
+                <span>MESA DRAGÓN</span>
+            </div>
+
+            <nav class="barraNavegable">
+                <p class="seccionBarra">Gestión</p>
+                <ul>
+                    <li class="itemBarra">
+                        <div class="iconoContenedor">
+                            <!-- Icono Mesas -->
+                            <img src="../assets/íconos/iconoMesa.png" alt="Icono Mesas">
+                        </div>
+                        <a href="../html/mesas.html">Mesas</a>
+                    </li>
+                    <li class="itemBarraActivo">
+                        <div class="iconoContenedor">
+                            <!-- Icono Comida -->
+                            <img src="../assets/íconos/iconoComida.png" alt="Icono Comida">
+                        </div>
+                        <a href="../html/comida.html">Comida</a>
+                    </li>
+                    <li class="itemBarra">
+                        <div class="iconoContenedor">
+                            <!-- Icono Juegos -->
+                            <img src="../assets/íconos/iconoAjedrez.png" alt="Icono Juegos">
+                        </div>
+                        <a href="../html/juegos.html">Juegos</a>
+                    </li>
+                    <li class="itemBarra">
+                        <div class="iconoContenedor">
+                            <!-- Icono Órdenes -->
+                            <img src="../assets/íconos/iconoPortapapeles.png" alt="Icono Órdenes">
+                        </div>
+                        <a href="../html/ordenes.html">Órdenes</a>
+                    </li>
+                </ul>
+
+                <p class="seccionBarra">Catálogo</p>
+                <ul>
+                    <li class="itemBarra">
+                        <div class="iconoContenedor">
+                            <!-- Icono Biblioteca -->
+                            <img src="../assets/íconos/iconoBibliotecaJuegos.png" alt="Icono Biblioteca">
+                        </div>
+                        <a href="../html/biblioteca.html">Biblioteca</a>
+                    </li>
+                    <li class="itemBarra">
+                        <div class="iconoContenedor">
+                            <!-- Icono Menú -->
+                            <img src="../assets/íconos/iconoMenuComida.png" alt="Icono Menú">
+                        </div>
+                        <a href="../html/menu.html">Menú</a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="cerrarDiaBoton">
+                <div class="iconoContenedor">
+                    <!-- Icono Cerrar Día -->
+                    <img src="../assets/íconos/iconoCerrar.png" alt="Icono Cerrar Día">
+                </div> 
+                <span>Cerrar día</span>
+            </div>
+        </div>
+        
+        <div class="contenedorDerecho">
+            
+            <div class="cabezera">
+                <div class="controlesUsuario">
+                    <div class="iconoDeControl">
+                        <!-- Icono Sol/Modo Oscuro -->
+                        <image src="../assets/íconos/iconoSol.png" alt="Modo oscuro">
+                    </div>
+                    <div class="profile-image">
+                        <!-- Imagen Usuario -->
+                        <img src="../assets/imágenes/imagenUsuario.jpg" alt="Usuario"> 
+                    </div>
+                </div>
+            </div>
+
+            <div class="cuerpo">
+                
+                <div class="cabezeraCuerpo">
+                    <!-- Sección de Título y Botón Principal -->
+                    <h1 class="tituloSeccion">Productos</h1>
+                </div>
+                
+                <div class="contenido">
+                    <div class="barraIzquierda">
+                        <h4>Mesa 1</h4>
+                        <div class="botones">
+                            <button class="categoria">
+                                <i class='bxr  bx-burger-alt' alt="imagenComida"></i> 
+                            </button>
+                            <button class="categoria">
+                                <i class='bxr  bx-burger-alt'></i> 
+                            </button>
+                            <button class="categoria">
+                                <i class='bxr  bx-gaming'></i> 
+                            </button>
+                        </div>
+                        <div class="barraBusqueda">
+                            <input type="text" placeholder="Búsqueda">
+                            <i class='bxr  bx-search'></i> 
+                        </div>
+                        <div class="listaProductos">
+                            <div id="producto">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cuerpoContenido">
+                        <div class="listaProductosMesa">
+                            <div id="productosMesa">
+                            </div>
+                        </div>
+                        <div class="contenedorControl">
+                            <button class="agregarDescuento"></button>
+                            
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>

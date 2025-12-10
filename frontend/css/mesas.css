@@ -1,0 +1,450 @@
+/*
+ * --------------------------------
+ * 1. VARIABLES Y ESTILOS GLOBALES
+ * --------------------------------
+ */
+
+:root {
+    --color-primary: #d11d22; /* Rojo Dragón */
+    --color-text-dark: #333;
+    --color-text-light: #fff;
+    --color-bg-light: #fff; /* Blanco */
+    --color-bg-app: #e8e8e8; /* Gris claro de fondo derecho */
+    
+    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    padding: 0; /*Sangría*/
+    font-family: var(--font-family);
+}
+
+body {
+    background-color: rgb(21, 21, 21); /* Fondo exterior oscuro */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ---------------------------------- */
+/* --- 2. CONTENEDOR PRINCIPAL (.contenedorPrincipal) --- */
+/* ---------------------------------- */
+.contenedorPrincipal {
+    display: flex; /* Divide en Barra Lateral y Contenedor Derecho */
+    width: 90%;
+    max-width: 1200px;
+    height: 90%;
+    
+    background-color: var(--color-bg-light);
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 30px;
+    overflow: hidden;
+}
+
+/* ---------------------------------- */
+/* --- 3. BARRA LATERAL (.barraLateral) --- */
+/* ---------------------------------- */
+.barraLateral {
+    width: 200px;
+    min-width: 200px;
+    background-color: var(--color-bg-light); 
+    border-right: 1px solid #ccc;
+    padding: 10px 0; /*Espacio del encabezado hacia ariba*/
+    display: flex;
+    flex-direction: column; /* Apila Logo, Nav y Botón de Cierre */
+    flex-shrink: 0;
+}
+
+/* Estilos internos: Logo */
+.logo {
+    display: flex;
+    align-items: center;
+    padding: 0 20px 10px 20px;
+    font-weight: bold;
+    color: var(--color-primary);
+    
+    margin-bottom: 10px;
+}
+.iconoLogo {
+    margin-right: 10px;
+}
+.iconoLogo img {
+    width: 30px; 
+    height: 30px;
+}
+
+/* Estilos internos: Navegación (.barraNavegable) */
+.seccionBarra {
+    font-size: 0.8em;
+    font-weight: 700;
+    
+    color: #737373;
+    padding: 0px 40px;
+    margin-top: 20px;
+}
+.barraNavegable ul {
+    list-style: none; /* ELIMINA LOS PUNTOS DE LA LISTA xd*/
+}
+
+/* Ítems de Navegación */
+.itemBarra, .itemBarraActivo {
+    display: flex;
+    align-items: center;
+    padding: 10px 40px;
+    cursor: pointer;
+    transition: background-color 0.35s;
+}
+
+.itemBarra a, .itemBarraActivo a {
+    text-decoration: none;
+    color: black;
+    font-size: 0.95em;
+    font-weight: 600;
+}
+.itemBarra:hover {
+    background-color: #f0f0f0;
+}
+
+/* Ítem Activo */
+.itemBarraActivo {
+    background-color: #f7f7f7; 
+    position: relative;
+}
+.itemBarraActivo a {
+    color: var(--color-primary); 
+    font-weight: 700;
+}
+.itemBarraActivo::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background-color: var(--color-primary); 
+    border-radius: 0 2px 2px 0;
+}
+
+/* Espacio para Íconos */
+.iconoContenedor {
+    margin-right: 10px;
+    width: 20px; 
+    text-align: center;
+    height: 20px; 
+    
+}
+.iconoContenedor img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Botón Cerrar Día */
+.cerrarDiaBoton {
+    display: flex;
+    align-items: center;
+    padding: 10px 40px;
+    border-top: 0px solid #eee;
+    margin-top: auto; /* Empuja el elemento al final de la barra */
+    cursor: pointer;
+    font-size: 0.9em;
+    color: var(--color-text-dark);
+    transition: background-color 0.35s;
+}
+
+.cerrarDiaBoton:hover {
+  background-color: #f0f0f0;
+}
+
+/* ---------------------------------- */
+/* --- 4. CONTENEDOR DERECHO (.contenedorDerecho) --- */
+/* ---------------------------------- */
+.contenedorDerecho {
+    flex-grow: 1; /* Ocupa el espacio horizontal restante */
+    display: flex;
+    flex-direction: column; /* Apila Cabecera y Cuerpo */
+    background-color: var(white);
+}
+
+/* ---------------------------------- */
+/* --- 5. CABECERA (.cabezera) --- */
+/* ---------------------------------- */
+.controlesUsuario {
+  display: flex;  
+  align-items: center;
+  gap: 15px;
+}
+.cabezera {
+    flex-shrink: 0;
+    padding: 10px 20px;
+    background-color: var(--color-bg-light); 
+    border-bottom: 2px solid #ccc; 
+    display: flex;
+    justify-content: flex-end; 
+    align-items: center;
+}
+
+.profile-image {
+    width: 35px;        /* 1. Define el ancho (ej: 35 píxeles) */
+    height: 35px;       /* 2. Define la altura (debe ser igual al ancho para ser un círculo) */
+    border-radius: 50%; /* 3. Convierte el cuadrado en un CÍRCULO */
+    overflow: hidden;   /* 4. Esconde cualquier parte de la imagen que se salga de este círculo */
+}
+
+.profile-image img {
+    width: 100%;        /* 5. Fuerza a la imagen a ocupar el 100% del ancho del contenedor (35px) */
+    height: 100%;       /* 6. Fuerza a la imagen a ocupar el 100% de la altura del contenedor (35px) */
+    object-fit: contain;  
+}
+
+
+
+
+
+/* ---------------------------------- */
+/* --- 6. CUERPO (.cuerpo) --- */
+/* ---------------------------------- */
+.cuerpo {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column; 
+    padding: 0px 40px;
+    /* Por ahora, dejamos overflow-y: hidden, para que el scroll lo maneje .contenido */
+    overflow-y: hidden;
+}
+
+
+
+
+
+/* ---------------------------------- */
+/* --- 7. ENCABEZADO DEL CUERPO (.cabezeraCuerpo) --- */
+/* ---------------------------------- */
+.cabezeraCuerpo {
+    flex-shrink: 0; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tituloCabecera {
+    flex-shrink: 0;
+    font-weight: bold;
+    align-items: center;
+    font-size: 1.6em;
+}
+
+.informacion {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.contenedorMesa {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0px 0px;
+}
+
+
+.contenedorMesa img {
+    width: 70px;        /* 1. Define el ancho */
+    height: 50px;       /* 2. Define la altura (debe ser igual al ancho para ser un círculo) */
+    overflow: hidden;  
+}
+
+.contenedorMesa p {
+    font-size: 1.2em;
+    font-weight: 700;
+    
+    padding: 0px 15px;
+
+}
+
+.dropDownPiso {
+  /* --- 1. Propiedades Clave para Personalización --- */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  
+  border: none;
+  border-radius: 8px;
+
+  /* --- 2. Colores y Tipografía --- */
+  
+  background-color: #ff5a5e;
+  color: white;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  
+  /* --- 3. Espaciado y Posicionamiento --- */
+  padding: 10px 50px 10px 15px;   
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FFFFFF' width='24px' height='24px'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center; 
+  background-size: 35px 35px; 
+}
+
+/* --- 4. Estado de Foco (Recomendado) --- */
+.dropDownPiso:focus {
+  outline: none;
+}
+
+/* Opcional: Estilo al pasar el ratón */
+.dropDownPiso:hover {
+  filter: brightness(1.1);
+  cursor: pointer;
+  background-color: #d11d22; /*  CAMBIAR  */
+}
+
+
+
+/* ---------------------------------- */
+/* --- 8. RECUADRO DE CONTENIDO (.contenido) --- */
+/* ---------------------------------- */
+.contenido {
+    flex-grow: 1; 
+    background-color: #f1f1f1; 
+    padding: 20px;
+    overflow-y: auto; /* ¡CLAVE PARA EL SCROLL INTERNO! */
+}
+
+/* ------------------------------------------------ */
+/* --- 9. ESTILOS DE LAS TARJETAS DE MESA (DINÁMICO) --- */
+/* ------------------------------------------------ */
+
+/* --- Estilos del Contenedor Principal (Grid para las columnas) --- */
+#mesas-container {
+    /* Usamos Grid para que las tarjetas se ajusten automáticamente en varias columnas */
+    display: grid;
+    /* Define columnas con un ancho mínimo de 280px */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+    gap: 20px;
+    padding: 0;
+    margin-top: 0px; /* Separación del encabezado */
+}
+
+/* --- Estilos Base para la Tarjeta (Div .mesa-card) --- */
+.mesa-card {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    
+    /* Usamos Flexbox verticalmente para estructurar header, cuerpo y footer */
+    display: flex;
+    flex-direction: column;
+    min-height: 200px; 
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+.mesa-card:hover {
+    /* Efecto al pasar el ratón */
+    transform: translateY(-3px); /* Pequeño movimiento hacia arriba */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+}
+
+/* --- Estilos de Estado (Color de Fondo y Texto) --- */
+
+/* ESTADO 1: Disponible (Fondo Blanco/Gris Claro, Texto Oscuro) */
+.estado-1 {
+    background-color: #fcfcfc; 
+    border-color: #ddd;
+    color: var(--color-text-dark); /* Texto oscuro */
+}
+.estado-1 .mesa-header {
+    color: #555; /* Texto del estado ligeramente gris */
+}
+
+/* ESTADO 2: En Uso (Fondo Marrón/Café, Texto Blanco) */
+.estado-2 {
+    background-color: #b29374; /* Marrón/café */
+    border-color: #b29374;
+    color: var(--color-text-light); /* Texto blanco */
+}
+.estado-2 .mesa-header, 
+.estado-2 .mesa-nombre, 
+.estado-2 .capacidad-texto {
+    color: var(--color-text-light);
+}
+
+/* ESTADO 3: Reservado (Fondo Azul/Celeste, Texto Blanco) */
+.estado-3 {
+    background-color: #38b6ff; /* Azul vivo */
+    border-color: #38b6ff;
+    color: var(--color-text-light); /* Texto blanco */
+}
+.estado-3 .mesa-header, 
+.estado-3 .mesa-nombre, 
+.estado-3 .capacidad-texto {
+    color: var(--color-text-light);
+}
+
+/* --- Elementos de la Tarjeta --- */
+
+/* Encabezado: "Disponible", "Reservado", etc. */
+.mesa-header {
+    font-weight: bold;
+    font-size: 1em;
+    padding-bottom: 10px;
+}
+
+/* Cuerpo: Imagen de la Mesa */
+.mesa-cuerpo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1; /* Ocupa el espacio central restante */
+}
+
+.mesa-icono {
+    width: 150px; 
+    height: 120px;
+    object-fit: contain; /* Asegura que la imagen no se distorsione */
+}
+
+/* Footer: Nombre y Capacidad Máxima */
+.mesa-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    margin-top: 5px;
+    /* Línea divisoria sutil (por defecto oscura) */
+    border-top: 1px solid rgba(0, 0, 0, 0.1); 
+}
+
+/* Footer de Estados Oscuros (Asegura la visibilidad de la línea en blanco) */
+.estado-2 .mesa-footer,
+.estado-3 .mesa-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Nombre de la Mesa ("Mesa 1") */
+.mesa-nombre {
+    font-weight: 600;
+    font-size: 1.1em;
+    margin: 0;
+}
+
+/* Contenedor de Capacidad ("máx: 8") */
+.mesa-capacidad {
+    display: flex;
+    align-items: center;
+    gap: 5px; 
+    font-size: 0.9em;
+    margin: 0;
+}
+
+.icono-persona {
+    width: 26px;
+    height: 26px;
+    align-items: center;
+    justify-content: center;
+}

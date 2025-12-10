@@ -4,7 +4,6 @@ module.exports = {
     await queryInterface.createTable('contenedor_juego', {
       id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
       
-      // CAMBIO: Agregada referencia a Orden
       orden_id: { 
         type: Sequelize.INTEGER, 
         allowNull: false,
@@ -20,7 +19,7 @@ module.exports = {
       },
       
       hora_inicio: { type: Sequelize.TIME, allowNull: false },
-      hora_fin: { type: Sequelize.TIME, allowNull: false },
+      hora_fin: { type: Sequelize.TIME, allowNull: true },
       cantidad: { type: Sequelize.INTEGER, allowNull: false },
       comentario: { type: Sequelize.STRING(255), allowNull: true },
 

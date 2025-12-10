@@ -1,0 +1,43 @@
+<div class="cabezeraCuerpo">
+    <div class="tituloCabecera">
+        <p>Asistencia</p>
+    </div>
+    <div class="informacion"></div>
+</div>
+
+<div class="contenido" id="contenido">
+    <div class="contenedor-global-asistencia">
+        <div class="cabecera-informacion-horario">
+            <span>Horario laboral:</span>
+            <span id="txt-horario-hoy" style="font-weight: bold; color: #2e7d32;"></span>
+        </div>
+
+        <div class="cuerpo-asistencia">
+            <div class="cabecera-tabla">
+                <span>Empleado</span>
+                <span>Llegada</span>
+                <span>Confirmación</span>
+            </div>
+
+            <div class="contenedor-empleado" id="lista-asistencias"></div>
+        </div>
+
+        <div class="botones-asistencia">
+            <button class="btn-asistencia" id="btn-ir-registro">Registrar llegada (Empleado)</button>
+            <button class="btn-asistencia" id="btn-refrescar">Actualizar Lista</button>
+            
+            <button class="btn-asistencia" id="btn-confirmar-lote" style="background-color: #2e7d32; color: white; display: none;">
+                Confirmar Seleccionados
+            </button>
+        </div>
+    </div>
+</div>
+
+<template id="template-asistencia-card">
+    <div class="tarjeta-empleado">
+        <img src="../assets/imágenes/imagenUsuario.jpg" style="width: 40px; height: 40px; border-radius: 50%;">
+        <span class="nombre-empleado"></span>
+        <span class="hora-llegada"></span>
+        <input type="checkbox" class="check-aprobar">
+    </div>
+</template>

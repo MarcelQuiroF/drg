@@ -7,7 +7,7 @@ const { authorize } = require('../middlewares/roleMiddleware');
 router.use(authenticate);
 
 router.get('/', productoController.listar);
-
+router.get('/:id', productoController.obtenerPorId);
 router.post('/', authorize(['ADMIN']), productoController.crear);
 router.put('/:id', authorize(['ADMIN']), productoController.actualizar); 
 router.delete('/:id', authorize(['ADMIN']), productoController.eliminar);

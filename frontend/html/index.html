@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema DRG</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.boxicons.com/3.0.4/fonts/basic/boxicons.min.css">
+</head>
+<body>
+    <div class="dark-mode-btn" id="dark-mode-btn">
+        <i class='bx bx-moon' style='color:#000000'></i> 
+        <i class='bx bxs-sun' style='color:#000000'></i> 
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="header">
+            <div class="menu-btn" id="menu-btn">
+                <i class='bx bx-caret-left' style='color:#000000'></i>
+            </div>
+            <div class="brand">
+                <img src="../assets/íconos/iconoDragon.png" alt="logo">
+                <span>MESA DRAGÓN</span>
+            </div>
+        </div>
+
+        <div class="menu-container">
+            <ul class="menu">
+                <li class="menu-item menu-item-static active">
+                    <a href="#" class="menu-link" id="menu-mesas">
+                        <i class='bx bxs-outdoor-dining'></i> 
+                        <span>Mesas</span>
+                    </a>
+                </li>
+                <li class="menu-item menu-item-static">
+                    <a href="#" class="menu-link" id="menu-reservar">
+                        <i class="fa-solid fa-ticket"></i>
+                        <span>Reservar</span>
+                    </a>
+                </li>
+                 <li class="menu-item menu-item-static">
+                    <a href="#" class="menu-link" id="menu-productos">
+                        <i class='bx  bx-dish'></i> 
+                        <span>Productos</span>
+                    </a>
+                </li>
+                <li class="menu-item menu-item-static">
+                    <a href="#" class="menu-link" id="menu-ordenes">
+                        <i class='bx  bxs-list-ul-square'></i> 
+                        <span>Órdenes</span>
+                    </a>
+                </li>
+                <li class="menu-item menu-item-static">
+                    <a href="#" class="menu-link" id="menu-asistencia">
+                        <i class="fa-solid fa-business-time"></i>
+                        <span>Asistencia</span>
+                    </a>
+                </li>
+                 
+            </ul>
+        </div>
+
+        <div class="footer">
+            <ul class="menu">
+                <li class="menu-item menu-item-static">
+                    <a href="#" class="menu-link">
+                        <i class='bx bxs-cog'></i> 
+                        <span>Ajustes</span>
+                    </a>
+                </li>
+            </ul>
+            <ul class="menu">
+                <li class="menu-item menu-item-static">
+                    <a href="cerrado.html" class="menu-link">
+                        <i class='bx bxs-folder-check'></i> 
+                        <span>Cerrar día</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="user">
+                <div class="user-img">
+                    <img src="../assets/imágenes/imagenUsuario.jpg" alt="user">
+                </div>
+                <div class="user-data">
+                    <span class="name" id="user-name">Cargando...</span>
+                    <span class="email" id="user-role">...</span>
+                </div>
+                <div class="user-icon" id="logout-btn" style="cursor: pointer;">
+                    <i class='bx bxs-arrow-out-right-square-half'></i> 
+                </div>
+            </div>
+        </div>
+    </div>
+        
+    <div class="cuerpo" id="cuerpo">
+    
+    </div>
+        
+    <script type="module" src="../js/main.js"></script>
+</body>
+</html>

@@ -14,6 +14,11 @@ const ordenRoute = require('./routes/ordenRoute');
 const contenedorProductoRoute = require('./routes/contenedorProductoRoute');
 const contenedorJuegoRoute = require('./routes/contenedorJuegoRoute');
 const transaccionRoute = require('./routes/transaccionRoute');
+const clienteRoute = require('./routes/clienteRoute');
+const reservaRoute = require('./routes/reservaRoute');
+const comandaRoute = require('./routes/comandaRoute');
+const asistenciaRoute = require('./routes/asistenciaRoute');
+const reporteRoute = require('./routes/reporteRoute');
 const app = express();
 
 app.use(cors()); 
@@ -34,6 +39,13 @@ app.use(`${API_PREFIX}/ordenes`, ordenRoute);
 app.use(`${API_PREFIX}/ordenes-productos`, contenedorProductoRoute);
 app.use(`${API_PREFIX}/ordenes-juegos`, contenedorJuegoRoute);
 app.use(`${API_PREFIX}/pagos`, transaccionRoute);
+app.use(`${API_PREFIX}/clientes`, clienteRoute);
+app.use(`${API_PREFIX}/reservas`, reservaRoute);
+app.use(`${API_PREFIX}/comandas`, comandaRoute);
+app.use(`${API_PREFIX}/asistencias`, asistenciaRoute);
+app.use(`${API_PREFIX}/reportes`, reporteRoute);
+
+
 
 app.use(notFoundHandler); 
 app.use(errorHandler); 

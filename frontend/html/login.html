@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de Sesión - DRG</title>
+    <link rel="stylesheet" href="../css/login.css">
+</head>
+<body>
+    <div class="contenedorLogin">
+        <div class="seccionFormulario">
+            <h1 class="title">Inicio de sesión</h1>
+            <p class="subtitle">Gestiona los empleados o gestiona las órdenes y pedidos de los clientes de Mesa Dragón.</p>
+
+            <form id="loginForm">
+                <div class="input-group">
+                    <input type="text" id="ci" placeholder="Cédula de Identidad" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" placeholder="Contraseña" required>
+                </div>
+                
+                <div class="options">
+                    <a href="#" class="forgot-password"></a>
+                </div>
+
+                <button type="submit" class="btn primary-btn">Iniciar sesión</button>
+
+                <div class="separator">O</div>
+
+                <button type="button" class="btn google-btn">
+                    <img src="../assets/íconos/googleIcono.png" alt="Google Icon" class="google-icon">
+                    Continuar con Google (Desactivado)
+                </button>
+            </form>
+        </div>
+        <div class="branding-section">
+            <img src="../assets/imágenes/MesaDragonLogoTransparente.png" alt="Mesa Dragón Logo" class="dragon-logo">
+        </div>
+    </div>
+    
+    <script type="module" src="../js/login.js"></script>
+</body>
+</html>

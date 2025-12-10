@@ -1,0 +1,1163 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
+}
+:root {
+    --color-bg: #EBECF2;
+    --color-surface: #FFFFFF;
+    --color-border: #9A9EB2;
+    --color-text-primary: #000;
+    --color-text-secondary: #3F435D;
+    --color-tooltip-bg: #2A2E33;
+    --color-tooltip-text: #fff;
+    --shadow-border: rgba(0, 0, 0, 0.1);
+    --user-bg-color: #FAFAFC;
+}
+
+body.dark-mode{
+    --color-bg: #3A3D4D;
+    --color-surface: #12141A;
+    --color-border: #2B2D3B;
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #9CA2B8;
+    --color-tooltip-bg: #FFF;
+    --color-tooltip-text: #000;
+    --shadow-border: rgba(255, 255, 255, 0.1);
+    --user-bg-color: #FAFAFC;
+}
+
+
+/* Body */
+body {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    background-color: var(--color-bg);
+    transition: color 0.5s ease,
+    background-color 0.3s ease, left 0.5s ease;
+}
+
+/*Sidebar*/
+.sidebar {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    width: 15rem;
+    height: 100%;
+    padding: 1.4rem 1rem 0 1rem;
+    background-color: var(--color-surface);
+    box-shadow: 1px 0px 10px var(--shadow-border);
+    transition: width 0.5s ease;
+}
+
+.sidebar.minimize{
+    width: 4.94rem;
+}
+
+
+/*menu btn*/
+.menu-btn {
+    position: absolute;
+    top: 3.5%;
+    right: -0.87rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background-color: #fff;
+    color: #757575;
+    box-shadow: 2px 2px 5px var(--shadow-border);
+    cursor: pointer;
+    transition: right 0.3s ease;
+}
+
+.menu-btn i {
+    font-size: 1.5rem;
+}
+.sidebar.minimize .menu-btn {
+    right: -2.2rem;
+}
+
+.sidebar.minimize .menu-btn i {
+    display: inline-block; /* importante para que transform funcione */
+    transform: rotate(180deg);
+    transition: transform 0.3s ease; /* opcional, para animación suave */
+}
+
+
+/*Brand*/
+.brand {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding-left: 0.455rem;
+    margin-bottom: 1.8rem;
+    overflow: hidden;
+}
+
+.brand img {
+    width: 2.2rem;
+}
+
+.brand span {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+}
+
+/* Header */
+.header {
+    width: 100%;
+}
+
+/*Menu container*/
+.menu-container{
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+}
+.menu{
+    width: 100%;
+    display:flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.menu img {
+    margin-left: 0.8rem;
+    margin-right: 0.8rem;
+}
+
+.menu .menu-item{
+    position: relative;
+    list-style: none;
+    overflow: hidden;
+}
+
+.menu .menu-link{
+    display: flex;
+    padding: 0.55rem 0;
+    color: var(--color-text-secondary);
+    border-radius: 0.3rem;
+    text-decoration: none;
+}
+
+.menu-item:hover .menu-link,
+.sub-menu .sub-menu-link:hover,
+.menu-item.active .menu-link{
+    color: var(--color-text-primary);
+    background-color: var(--color-bg);
+    transition: 0.3s ease;
+}
+
+.menu-link i{
+    color: var(--color-text-secondary);
+    font-size: 1.35rem;
+    padding: 0 0.8rem;
+    transition: color 0.3s ease;
+}
+
+body.dark-mode .menu-link i {
+    color:var(--color-text-primary);
+}
+
+.menu-link i:last-child{
+    margin-left: auto;
+    transition: 0.3s ease;
+}
+
+.menu-item.sub-menu-toggle .menu-link i:last-child{
+    transform: rotate(180deg);
+}
+
+.sidebar.minimize .menu-link i:last-child{
+    display: none;
+}
+
+.menu-link span{
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.sidebar.minimize .menu-item:hover,
+.sidebar.minimize .menu-item.sub-menu-toggle {
+    overflow: visible;
+}
+
+.sidebar.minimize .menu-item:hover span,
+.sidebar.minimize .menu-item.sub-menu-toggle span{
+    position: absolute;
+    left: 4.2rem;
+    padding: 0.5rem;
+    background-color: var(--color-tooltip-bg);
+    border-radius: 0.4rem;
+    color: var(--color-tooltip-text);
+    transition: all 0.3s ease;
+}
+
+/*Sub menu*/
+.sub-menu {
+    height: 0;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    left: 0;
+}
+
+.sidebar.minimize .sub-menu{
+    position: absolute;
+    left: 4.2rem;
+    top: 3rem;
+    background-color: var(--color-surface);
+    border-radius: 0.2rem;
+}
+
+
+.sidebar.minimize .sub-menu::before{
+    width: 0;
+}
+
+.sidebar.minimize .sub-menu a{
+    margin: 0 0.5rem;
+}
+.sub-menu .sub-menu-link{
+    display: flex;
+    margin-left: 2.5rem;
+    padding: 0.55rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    border-radius: 0.3rem;
+}
+
+.sub-menu::before{
+    content:"";
+    position: absolute;
+    height: 100%;
+    width: 0.07rem;
+    margin-left: 1.4rem;
+    background-color: var(--color-border);
+}
+
+/* Footer */
+
+.footer{
+    width: 100%;
+    padding: 1rem 0;
+    box-shadow: 0 -0.02rem 0 0 var(--color-border);
+}
+
+.user{
+    display: flex;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.user:hover{
+    background-color: var(--color-bg);
+    border-radius: 0.4rem;
+    cursor: pointer;
+}
+
+.user-img{
+    display: flex;
+    margin: 0 0.7rem 0 0.35rem;
+}
+.user-img img{
+    width: 2.2rem;
+    height: 2.2rem;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.user-data{
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.user-data .name{
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+}
+
+.user-data .email{
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+}
+
+.user-icon{
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--color-text-secondary);
+}
+
+/* Modo oscuro*/
+.dark-mode-btn{
+    position: absolute;
+    width: 2.4rem;
+    height: 2.4rem;
+    bottom: 2rem;
+    right: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 1px 2px var(--shadow-border);
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.dark-mode-btn i {
+    font-size: 1.5rem;
+    position: absolute;
+    transition: 0.3s ease;
+}
+
+.dark-mode-btn i:last-child{
+    transform: translateY(150%);
+    transition: 0.3s ease;
+}
+
+body.dark-mode .dark-mode-btn i:last-child{
+    transform: translateY(0%);
+    transition: 0.3s ease;
+}
+
+body.dark-mode .dark-mode-btn i:first-child{
+    transform: translateY(-150%);
+    transition: 0.3s ease;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ---------------------------------- */
+/* --- 6. CUERPO (.cuerpo) --- */
+/* ---------------------------------- */
+.cuerpo {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column; 
+    padding: 0px 40px;
+    /* Por ahora, dejamos overflow-y: hidden, para que el scroll lo maneje .contenido */
+    overflow-y: hidden;
+    margin-left: 13.7rem;
+    transition: margin-left 0.5s ease;
+}
+
+.sidebar.minimize ~ .cuerpo {
+    margin-left: 4.94rem; /* mismo ancho de .sidebar.minimize */
+}
+
+
+
+/* ---------------------------------- */
+/* --- 7. ENCABEZADO DEL CUERPO (.cabezeraCuerpo) --- */
+/* ---------------------------------- */
+.cabezeraCuerpo {
+    flex-shrink: 0; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tituloCabecera {
+    flex-shrink: 0;
+    font-weight: bold;
+    align-items: center;
+    font-size: 1.6em;
+    color: var(--color-text-primary)
+}
+
+.informacion {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.contenedorMesa {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0px 0px;
+}
+
+
+.contenedorMesa img {
+    width: 70px;        /* 1. Define el ancho */
+    height: 50px;       /* 2. Define la altura (debe ser igual al ancho para ser un círculo) */
+    overflow: hidden;  
+}
+
+.contenedorMesa p {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    padding: 0px 15px;
+
+}
+
+.dropDownPiso {
+  /* --- 1. Propiedades Clave para Personalización --- */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  
+  border: none;
+  border-radius: 8px;
+
+  /* --- 2. Colores y Tipografía --- */
+  
+  background-color: #ff5a5e;
+  color: white;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  
+  /* --- 3. Espaciado y Posicionamiento --- */
+  padding: 10px 50px 10px 15px;   
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FFFFFF' width='24px' height='24px'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center; 
+  background-size: 35px 35px; 
+}
+
+/* --- 4. Estado de Foco (Recomendado) --- */
+.dropDownPiso:focus {
+  outline: none;
+}
+
+/* Opcional: Estilo al pasar el ratón */
+.dropDownPiso:hover {
+  filter: brightness(1.1);
+  cursor: pointer;
+  background-color: #d11d22; /*  CAMBIAR  */
+}
+
+
+
+
+
+
+
+
+
+/* ---------------------------------- */
+/* --- 8. RECUADRO DE CONTENIDO (.contenido) --- */
+/* ---------------------------------- */
+.contenido {
+    flex-grow: 1; 
+    background-color: var(--color-surface); 
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* ¡CLAVE PARA EL SCROLL INTERNO! */
+}
+
+/* ------------------------------------------------ */
+/* --- 9. ESTILOS DE LAS TARJETAS DE MESA (DINÁMICO) --- */
+/* ------------------------------------------------ */
+
+/* --- Estilos del Contenedor Principal (Grid para las columnas) --- */
+#mesas-container {
+    /* Usamos Grid para que las tarjetas se ajusten automáticamente en varias columnas */
+    display: grid;
+    /* Define columnas con un ancho mínimo de 280px */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+    gap: 20px;
+    padding: 0;
+    margin-top: 0px; /* Separación del encabezado */
+}
+
+/* --- Estilos Base para la Tarjeta (Div .mesa-card) --- */
+.mesa-card {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    
+    /* Usamos Flexbox verticalmente para estructurar header, cuerpo y footer */
+    display: flex;
+    flex-direction: column;
+    min-height: 200px; 
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+.mesa-card:hover {
+    /* Efecto al pasar el ratón */
+    transform: translateY(-3px); /* Pequeño movimiento hacia arriba */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+}
+
+/* --- Estilos de Estado (Color de Fondo y Texto) --- */
+
+/* ESTADO 1: Disponible (Fondo Blanco/Gris Claro, Texto Oscuro) */
+.estado-1 {
+    background-color: var(--color-bg); 
+    border-color: #ddd;
+    color: var(--color-text-primary); /* Texto oscuro */
+}
+.estado-1 .mesa-header {
+    color: var(--color-text-primary); /* Texto del estado ligeramente gris */
+}
+
+/* ESTADO 2: En Uso (Fondo Marrón/Café, Texto Blanco) */
+.estado-2 {
+    background-color: #b29374; /* Marrón/café */
+    border-color: #b29374;
+    color: var(--color-text-light); /* Texto blanco */
+}
+.estado-2 .mesa-header, 
+.estado-2 .mesa-nombre, 
+.estado-2 .capacidad-texto {
+    color: var(--color-text-light);
+}
+
+/* ESTADO 3: Reservado (Fondo Azul/Celeste, Texto Blanco) */
+.estado-3 {
+    background-color: #38b6ff; /* Azul vivo */
+    border-color: #38b6ff;
+    color: var(--color-text-light); /* Texto blanco */
+}
+.estado-3 .mesa-header, 
+.estado-3 .mesa-nombre, 
+.estado-3 .capacidad-texto {
+    color: var(--color-text-light);
+}
+
+/* --- Elementos de la Tarjeta --- */
+
+/* Encabezado: "Disponible", "Reservado", etc. */
+.mesa-header {
+    font-weight: bold;
+    font-size: 1em;
+    padding-bottom: 10px;
+}
+
+/* Cuerpo: Imagen de la Mesa */
+.mesa-cuerpo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1; /* Ocupa el espacio central restante */
+}
+
+.mesa-icono {
+    width: 150px; 
+    height: 120px;
+    object-fit: contain; /* Asegura que la imagen no se distorsione */
+}
+
+/* Footer: Nombre y Capacidad Máxima */
+.mesa-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    margin-top: 5px;
+    /* Línea divisoria sutil (por defecto oscura) */
+    border-top: 1px solid var(--color-text-secondary); 
+}
+
+/* Footer de Estados Oscuros (Asegura la visibilidad de la línea en blanco) */
+.estado-2 .mesa-footer,
+.estado-3 .mesa-footer {
+    border-top: 1px solid var(--color-tooltip-bg);
+}
+
+/* Nombre de la Mesa ("Mesa 1") */
+.mesa-nombre {
+    font-weight: 600;
+    font-size: 1.1em;
+    margin: 0;
+}
+
+/* Contenedor de Capacidad ("máx: 8") */
+.mesa-capacidad {
+    display: flex;
+    align-items: center;
+    gap: 5px; 
+    font-size: 0.9em;
+    margin: 0;
+}
+
+.icono-persona {
+    width: 26px;
+    height: 26px;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===================== PRODUCTOS ===================== */
+
+/* Mantener los div fijos con borde */
+.barra-principal {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 2px solid gray;
+}
+
+.barra-principal .titulo {
+    color: var(--color-text-primary);
+    font-size: 22px;
+    font-weight: bold;
+    align-self: center;
+    margin-bottom: 10px;
+}
+
+/* Fija también el otro lado */
+.cuerpo-productos {
+    width: 70%;
+    border-left: 2px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Lista de productos scrolleable */
+.lista-productos {
+    padding: 10px;
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-top: 10px;
+}
+
+/* Producto individual */
+.producto-card {
+    display: flex;
+    gap: 10px;
+    border: 1px solid #aaa;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.producto-card:hover {
+    background-color: #999;
+    transition: 0.3s;
+    transform: translateY(-3px); /* Pequeño movimiento hacia arriba */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+}
+
+/* Imagen */
+.producto-img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+}
+
+/* BOTONES de categoría cuadrados */
+.botones-categoria {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.btn-categoria {
+    width: 100%;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 26px;
+    border-radius: 10px;
+    border: 1px solid #999;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-categoria:hover {
+    background-color: #999;
+    transition: 0.3s;
+    transform: translateY(-3px); /* Pequeño movimiento hacia arriba */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+}
+
+/* Búsqueda */
+.barra-busqueda {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+    border: 1px solid #999;
+    border-radius: 10px;
+    padding: 5px 10px;
+}
+
+.input-busqueda {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+}
+
+.input input {
+    width: 100%;
+}
+
+/* Cuerpo de productos */
+.cuerpo-productos {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.contenedor-productos-mesa {
+    flex-grow: 1;
+    overflow-y: auto;
+    height: 70vh;
+    
+}
+
+.contenedor-control {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+}
+
+.agregar-descuento {
+    color: var(--color-text-primary);
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+    border: 2px solid gray;
+    padding: 5px;
+    margin-bottom: 10px;
+    border-radius: 7px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.agregar-descuento:hover {
+    background-color: #999;
+    transition: 0.3s;
+    transform: translateY(-3px); /* Pequeño movimiento hacia arriba */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+}
+
+.agregar-descuento i {
+    align-self: center;
+    font-size: 20px;
+    padding: 0px 10px 0px 0px;
+}
+
+.contenedor-informacion {
+    border: 2px solid gray;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-weight: bold;
+}
+
+.informacion-total {
+    color: var(--color-text-primary);
+    display: flex;
+    justify-content: space-between;
+}
+
+.botones {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    color: var(--user-bg-color);
+}
+
+.botones button {
+    background-color: var(--color-border);
+    color: var(--color-text-primary);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.botones button:hover {
+    background-color: var(--color-text-secondary);
+    transition: 0.3s;
+    transform: translateY(-3px); /* Pequeño movimiento hacia arriba */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*-------------------------------*/
+/* --      ASISTENCIA          --*/
+/*-------------------------------*/
+/* Global */
+.contenedor-global-asistencia {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Cabecera */
+.cabecera-informacion-horario {
+    color: var(--color-text-primary);
+    display: flex;
+    width: 70%;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.cabecera-informacion-horario :last-child {
+    font-weight: bold;
+    color: blue;
+}
+
+/* Cuerpo */
+.cuerpo-asistencia {
+    color: var(--color-text-primary);
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    margin-top: 8vh;
+}
+
+.cabecera-tabla {
+    border: 2px solid red;
+    display: flex;
+    justify-content: space-between;
+    padding: 0px 10px;
+}
+
+.cabecera-tabla span {
+    font-weight: bold;
+}
+
+.cabecera-tabla :last-child {
+    margin-left: 10px;
+}
+
+.cabecera-tabla span:nth-of-type(2) {
+    margin-left: auto;
+}
+
+/* Contenedor empleado */
+.contenedor-empleado {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    width: 80vh;
+    border: 2px solid var(--color-text-primary);
+    height: 300px;
+}
+
+/* Tarjeta empleado */
+.tarjeta-empleado {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    padding: 10px 20px;
+    border: 2px solid gray;
+    border-radius: 7px;
+    margin: 10px 0px;
+}
+
+.tarjeta-empleado span {
+    padding: 0px 10px;
+}
+
+.tarjeta-empleado span:last-of-type{
+    margin-left: auto;
+}
+
+.tarjeta-empleado :last-child{
+    margin-left: 60px;
+    margin-right: 40px;
+    cursor: pointer;
+    transform: scale(1.5);
+}
+
+/* footer botones */
+.botones-asistencia {
+    display: flex;
+    justify-content: center;
+}
+
+.botones-asistencia button {
+    border-radius: 7px;
+    border: 2px solid gray;
+    margin: 10px;
+    padding: 3px 20px;
+    cursor: pointer;
+}
+
+.botones-asistencia button:hover {
+    background-color: #999;
+    transition: 0.3s;
+    transform: translateY(-3px); /* Pequeño movimiento hacia arriba */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+}
+
+
+/* Contenedor del formulario (el que contiene todo lo añadido) */
+.formulario-login {
+    width: 350px; /* Ancho para que se vea compacto */
+    padding: 20px;
+    background-color: transparent; /* El formulario en sí no tiene fondo, solo los campos */
+    /* Opcional: Centrarlo visualmente */
+    margin: 0 auto;
+    color: var(--color-text-primary);
+}
+
+/* Estilo para cada par de label/input (Nombre/Contraseña) */
+.campo {
+   margin-bottom: 20px;
+}
+
+
+/* Estilo para las etiquetas (Nombre: y Contraseña:) */
+.campo label {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: var(--color-text-primary)
+}
+
+/* Estilo para los campos de texto (input) */
+.campo input {
+    width: 100%;
+    padding: 8px 0; /* Padding vertical para el alto del campo */
+    border: none; /* Sin borde aparente */
+    border-bottom: 2px solid #555; /* Borde inferior para simular la línea divisoria */
+     background-color: transparent; /* Fondo transparente */
+     color: #ffffff; /* Texto de entrada blanco */
+    box-sizing: border-box;
+    color: var(--color-text-primary)
+    /* La línea oscura sobre la etiqueta la simulamos con el borde inferior del campo */
+}
+
+/* Contenedor de los botones */
+.botones {
+ display: flex;
+ justify-content: space-between; /* Para separar los botones */
+margin-top: 30px;
+}
+
+/* Estilo base para los botones */
+.botones button {
+ width: 48%; /* Para que ambos ocupen casi todo el ancho con una pequeña separación */
+ padding: 10px 15px;
+ border: none;
+ font-weight: bold;
+ cursor: pointer;
+ transition: background-color 0.3s;
+color: white;
+border-radius: 0; /* Sin bordes redondeados */
+}
+
+/* Estilo para el botón 'Confirmar' (Rojo oscuro) */
+.botones .confirmar {
+ background-color: #a33333; /* Rojo similar al de la imagen */
+}
+
+.botones .confirmar:hover {
+ background-color: #8a2a2a;
+}
+
+/* Estilo para el botón 'Atras' (Rojo oscuro, mismo estilo visual) */
+.botones .atras {
+ background-color: #a33333; /* Mismo color para 'Atras' */
+}
+
+.botones .atras:hover {
+ background-color: #8a2a2a;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Estilos generales para simular el fondo oscuro (si no se aplicó antes) */
+/* Contenedor principal para centrar la tabla y el botón */
+
+.reserva-container {
+    width: 600px; /* Ajusta el ancho según sea necesario para la tabla */
+    background-color: transparent;
+    margin: 0 auto;
+}
+
+/* Estilo de la tabla */
+.tabla-reserva {
+    width: 100%;
+    border-collapse: collapse; /* Elimina el espacio entre bordes de celdas */
+    margin-bottom: 20px;
+    background-color: #2e2e2e; /* Fondo de la tabla un poco más claro que el body */
+    color: #ffffff;
+}
+
+/* Estilo para el encabezado (thead) */
+.tabla-reserva thead th {
+    background-color: #a33333; /* Rojo oscuro para el encabezado */
+    color: white;
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #a33333; /* Borde del mismo color */
+}
+
+/* Estilo para las celdas del cuerpo (tbody) */
+.tabla-reserva tbody td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #444444; /* Borde gris oscuro para las divisiones */
+    /* Para la celda vacía grande */
+    height: 150px; /* Altura para simular el espacio en blanco inferior */
+}
+
+/* Estilo para la primera columna con el icono de lápiz */
+.tabla-reserva tbody tr:first-child td:first-child {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.icono-lapiz {
+    font-size: 14px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+/* Estilo para el botón de registro */
+.boton-registro {
+    display: flex;
+    justify-content: center; /* Centra el botón horizontalmente */
+    margin-top: 30px;
+}
+
+.registrar-reserva {
+    background-color: #a33333; /* Rojo oscuro similar al encabezado */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border-radius: 0;
+    width: 250px; /* Ancho para que se vea como en la imagen */
+}
+
+.registrar-reserva:hover {
+    background-color: #8a2a2a;
+}

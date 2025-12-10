@@ -1,0 +1,107 @@
+    <link rel="stylesheet" href="../css/productos.css">
+
+    <div class="cabezeraCuerpo">
+        <div class="tituloCabecera">
+            <p>Productos</p>
+        </div>
+        <div class="informacion">
+        </div>
+    </div>
+
+    <div class="contenido">
+
+        <div class="barra-principal">
+            <div class="titulo">
+                Mesa x
+            </div>
+
+            <div class="botones-categoria">
+            <button class="btn-categoria" id="btn-cat-comida">
+                <i class="fa-solid fa-burger"></i>
+            </button>
+
+            <button class="btn-categoria" id="btn-cat-bebida">
+                <i class="fa-solid fa-wine-glass"></i>
+            </button>
+
+            <button class="btn-categoria" id="btn-cat-juego">
+                <i class="fa-solid fa-gamepad"></i>
+            </button>
+        </div>
+
+            <div class="barra-busqueda">
+                <div class="input">
+                    <input class="input-busqueda" type="text" placeholder="Búsqueda">
+                </div>
+                <div class="icono-busqueda">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+            </div>
+
+            <div class="lista-productos">
+                <div id="productos-container"></div>
+            </div>
+        </div>   
+
+        <div class="cuerpo-productos">
+            <div class="contenedor-productos-mesa">
+                <div id="mesa-productos"></div>
+            </div>
+
+            <div class="contenedor-control">
+
+                
+
+
+
+
+                <div class="agregar-descuento" style="cursor: pointer;"> <span>Agregar Descuento</span>
+                <i class="fa-solid fa-circle-plus"></i>
+            </div>
+            <div class="contenedor-informacion">
+                <div class="informacion-total">
+                    <span>Total:</span>
+                    <span id="total-mesa">$0.00</span>
+                </div>
+                <div class="botones">
+                    <button class="imprimir">Imprimir</button>
+                    <button class="cobrar">Cobrar</button>
+                </div>
+            </div>
+            </div>
+        </div>
+
+    </div>
+
+    <template id="template-producto-card">
+    <div class="producto-card">
+        <div class="producto-info">
+            <img class="img-producto" src="" alt="Producto" style="width: 80px; height: 80px; object-fit: cover; margin-bottom: 10px; border-radius: 10px;">
+            
+            <h3 class="nombre-producto"></h3>
+            <p class="precio-producto"></p>
+            
+            <p class="detalle-juego" style="display: none; font-size: 0.7em; color: #888; margin-top: 5px;"></p>
+        </div>
+    </div>
+</template>
+
+<template id="template-item-orden">
+    <div class="item-orden" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.95em;">
+        
+        <div style="display:flex; align-items:center; max-width: 65%;">
+            
+            <i class="fa-solid fa-circle-minus btn-restar" style="color: #ff5a5e; cursor: pointer; margin-right: 8px; font-size: 1.1em;" title="Restar 1"></i>
+
+            <div style="display:flex; flex-direction:column;">
+                <span class="item-texto" style="color: #444;"></span>
+                <small class="item-comentario-texto" style="color: #e67e22; font-size: 0.8em; font-style: italic;"></small>
+            </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap: 8px;">
+            <i class="fa-regular fa-comment-dots btn-comentario" style="cursor:pointer; color: #aaa; font-size: 1.1em;" title="Agregar comentario"></i>
+            <span class="item-subtotal" style="font-weight:bold;"></span>
+        </div>
+    </div>
+</template>

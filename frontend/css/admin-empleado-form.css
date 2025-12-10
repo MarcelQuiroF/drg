@@ -1,0 +1,194 @@
+/* --- CONTENEDOR PRINCIPAL --- */
+.main-container {
+    border: 2px solid #fff;
+    border-radius: 15px;
+    background: #000;
+    padding: 30px;
+    width: 100%;
+    max-width: 900px;
+    box-shadow: 0 0 20px rgba(255,255,255,.08);
+}
+
+.content {
+    display: flex;
+    gap: 40px;
+}
+
+/* --- SECCIÓN IMAGEN (Izquierda) --- */
+.img-box {
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.img-container {
+    width: 100%;
+    height: 220px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    margin-bottom: 15px;
+}
+
+.img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.upload-btn {
+    border: 1px solid #fff;
+    color: #fff;
+    background: transparent;
+    padding: 8px 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: .3s;
+    width: 100%;
+}
+
+.upload-btn:hover {
+    background: #fff;
+    color: #000;
+}
+
+/* --- SECCIÓN CAMPOS (Derecha) --- */
+.fields {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    color: #fff;
+}
+
+.field {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: bold;
+}
+
+.field label {
+    width: 110px; /* Ancho fijo para alineación */
+    color: #fff;
+}
+
+input[type="text"], 
+input[type="password"],
+input[type="month"],
+select {
+    background: transparent;
+    border: 1px solid #fff;
+    color: #fff;
+    padding: 10px;
+    border-radius: 7px;
+    font-size: 16px;
+    flex: 1;
+    outline: none;
+}
+
+select option {
+    background: #111;
+    color: #fff;
+}
+
+/* --- LISTA DE ATRASOS --- */
+.atrasos-box {
+    margin-top: 10px;
+    border: 1px solid #fff;
+    border-radius: 10px;
+    padding: 15px;
+    max-height: 150px;
+    overflow-y: auto;
+    background-color: #0a0a0a;
+}
+
+.atraso-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #333;
+    color: #ccc;
+    font-size: 14px;
+}
+
+.atraso-item:last-child {
+    border-bottom: none;
+}
+
+/* Scrollbar para atrasos */
+.atrasos-box::-webkit-scrollbar { width: 6px; }
+.atrasos-box::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+
+/* --- SUELDO --- */
+.salary-display {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 15px;
+    color: #fff;
+    font-size: 16px;
+    padding: 15px;
+    border: 1px dashed #444;
+    border-radius: 10px;
+}
+
+.salary-display span {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* --- BOTONES INFERIORES --- */
+.back-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 35px;
+    gap: 20px;
+}
+
+.back-btn {
+    background: #fff;
+    color: #000;
+    padding: 12px 40px;
+    font-weight: bold;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: .2s;
+    border: none;
+}
+
+.back-btn:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+}
+
+/* RESPONSIVE */
+@media(max-width: 768px) {
+    .content {
+        flex-direction: column;
+        align-items: center;
+    }
+    .img-box, .fields {
+        width: 100%;
+    }
+    .field {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    .field label {
+        width: 100%;
+    }
+    input, select {
+        width: 100%;
+    }
+}

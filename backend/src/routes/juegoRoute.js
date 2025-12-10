@@ -10,6 +10,8 @@ router.use(authenticate);
 
 router.get('/', juegoController.listar);
 
+router.get('/:id', juegoController.obtenerPorId);
+
 
 router.post('/', authorize(['ADMIN']), juegoController.crear);
 router.put('/:id', authorize(['ADMIN']), juegoController.actualizar);

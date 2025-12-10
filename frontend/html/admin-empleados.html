@@ -1,0 +1,50 @@
+<link rel="stylesheet" href="../css/admin-empleados.css">
+
+<header class="main-header">
+    <h1>Gestión de Empleados</h1>
+    <div class="header-right">
+        <div class="search-box">
+            <i class='bx bx-search'></i>
+            <input type="text" id="search-employee" placeholder="Buscar empleado...">
+        </div>
+        <button class="btn-add" id="btn-nuevo-empleado"><i class='bx bx-plus'></i> Agregar Empleado</button>
+    </div>
+</header>
+
+<section class="filter-section">
+    <div class="filter-group js-roles">
+        <span class="filter-opt active" data-role="all">Todos</span>
+        <span class="filter-opt" data-role="Cajero">Cajero</span>
+        <span class="filter-opt" data-role="Barista">Barista</span>
+        <span class="filter-opt" data-role="Cocina">Cocina</span>
+        <span class="filter-opt" data-role="Mesero">Mesero</span>
+        <span class="filter-opt" data-role="Admin">Admin</span>
+    </div>
+
+    <div class="filter-group js-status">
+        <span class="filter-opt active" data-status="all">Todos</span>
+        <span class="filter-opt" data-status="active">Activo</span>
+        <span class="filter-opt" data-status="inactive">Inactivo</span>
+    </div>
+</section>
+
+<div class="content-area">
+    <div class="employee-grid" id="employee-grid">
+        <p style="color: #666; grid-column: 1/-1; text-align: center;">Cargando empleados...</p>
+    </div>
+</div>
+
+<template id="template-employee-card">
+    <div class="contenedor-empleado">
+        <img src="" class="emp-img" alt="Foto">
+        <div class="status-bar"></div>
+        <div class="emp-info">
+            <div class="emp-name"></div>
+            <div class="emp-role"></div>
+        </div>
+        <div class="emp-footer">
+            <button class="btn-pago">Ver Pago</button> 
+            <button class="btn-activar">Activar</button>
+        </div>
+    </div>
+</template>

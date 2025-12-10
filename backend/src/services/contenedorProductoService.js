@@ -35,7 +35,6 @@ async function actualizarTotalOrden(ordenId, transaction) {
 
 async function agregarItem(datos) {
     return await sequelize.transaction(async (t) => {
-
         const orden = await Orden.findByPk(datos.orden_id, { transaction: t });
         if (!orden) throw new Error("La orden no existe.");
         if (orden.finalizado) throw new Error("No se pueden agregar productos a una orden finalizada.");
@@ -43,20 +42,47 @@ async function agregarItem(datos) {
         const producto = await Producto.findByPk(datos.producto_id, { transaction: t });
         if (!producto) throw new Error("El producto no existe.");
 
-        const nuevoItem = await ContenedorProducto.create({
-            orden_id: datos.orden_id,
-            producto_id: datos.producto_id,
-            cantidad: datos.cantidad,
-            comentario: datos.comentario,
-            cantidad_recibido: datos.cantidad,
-            cantidad_preparando: 0,
-            cantidad_terminado: 0,
-            cantidad_enviado: 0
-        }, { transaction: t });
+        const itemExistente = await ContenedorProducto.findOne({
+            where: {
+                orden_id: datos.orden_id,
+                producto_id: datos.producto_id
+            },
+            transaction: t
+        });
 
+        let itemFinal;
+
+        if (itemExistente) {
+
+            const nuevaCantidad = itemExistente.cantidad + parseInt(datos.cantidad);
+            const nuevoRecibido = itemExistente.cantidad_recibido + parseInt(datos.cantidad);
+
+            await itemExistente.update({
+                cantidad: nuevaCantidad,
+                cantidad_recibido: nuevoRecibido,
+
+            }, { transaction: t });
+
+            itemFinal = itemExistente;
+
+        } else {
+  
+            itemFinal = await ContenedorProducto.create({
+                orden_id: datos.orden_id,
+                producto_id: datos.producto_id,
+                cantidad: datos.cantidad,
+                comentario: datos.comentario,
+                cantidad_recibido: datos.cantidad,
+                cantidad_preparando: 0,
+                cantidad_terminado: 0,
+                cantidad_enviado: 0
+            }, { transaction: t });
+        }
+
+ 
         await actualizarTotalOrden(datos.orden_id, t);
 
-        return await ContenedorProducto.findByPk(nuevoItem.id, {
+        return await ContenedorProducto.findByPk(itemFinal.id, {
             include: [{ model: Producto, attributes: ['id', 'nombre', 'precio'] }],
             transaction: t
         });

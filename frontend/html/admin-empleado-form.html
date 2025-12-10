@@ -1,0 +1,72 @@
+<link rel="stylesheet" href="../css/admin-empleado-form.css">
+
+<div class="contenido" style="display:flex; justify-content:center; align-items:center; height:100%;">
+    <div class="main-container">
+        <div class="content">
+            <div class="img-box">
+                <div class="img-container">
+                    <img id="preview-img" src="../assets/imágenes/imagenUsuario.jpg" alt="Foto Perfil">
+                </div>
+                <input type="file" id="file-input" accept="image/*" style="display: none;">
+                <button class="upload-btn" id="btn-upload-img"><i class='bx bx-upload'></i>Subir foto</button>
+            </div>
+
+            <div class="fields">
+                <div class="field">
+                    <label>Nombre:</label>
+                    <input type="text" id="nombre">
+                </div>
+
+                <div class="field">
+                    <label>CI:</label>
+                    <input type="text" id="ci">
+                </div>
+                
+                <div class="field">
+                    <label>Correo:</label>
+                    <input type="text" id="correo">
+                </div>
+
+                <div class="field">
+                    <label>Teléfono:</label>
+                    <input type="text" id="telefono">
+                </div>
+                
+                <div class="field" id="password-field-container">
+                     <label>Contraseña:</label>
+                     <input type="password" id="contrasenia" placeholder="(Dejar vacío para no cambiar)">
+                </div>
+
+                <div class="field">
+                    <label>Rol:</label>
+                    <select id="rol">
+                        <option value="CAJERO">Cajero</option>
+                        <option value="COCINA">Cocina</option>
+                        <option value="MESERO">Mesero</option>
+                        <option value="ADMIN">Admin</option>
+                        </select>
+                </div>
+
+                <div class="field">
+                    <label>Mes/Año:</label>
+                    <input type="month" id="mes-calculo" style="color-scheme: dark;"> 
+                    </div>
+
+                <label style="color:#fff;margin-top:5px;"><b>Atrasos del mes:</b></label>
+                <div class="atrasos-box" id="atrasos-list">
+                    </div>
+
+                <div class="salary-display">
+                    <span>Sueldo Base: <b id="sueldo-base">2500 Bs</b></span> 
+                    <span>Descuentos: <b id="total-descuentos" style="color:#ff6565;">0 Bs</b></span>
+                    <span>Sueldo Neto: <b id="sueldo-neto" style="color:#00ffea;">2500 Bs</b></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="back-container" style="gap: 20px;">
+            <button class="back-btn" id="btn-guardar" style="background-color: #00a8ff; color: white; border: none;">Guardar</button>
+            <button class="back-btn" id="btn-atras">Atrás</button>
+        </div>
+    </div>
+</div>

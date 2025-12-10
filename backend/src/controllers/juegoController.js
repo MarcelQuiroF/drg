@@ -19,6 +19,21 @@ async function crear(req, res, next) {
     }
 }
 
+async function obtenerPorId(req, res, next) {
+    try {
+        const { id } = req.params;
+        const juego = await juegoService.obtenerJuegoPorId(id);
+
+        if (!juego) {
+            return res.status(httpCodes.NOT_FOUND.code).json({ message: "Juego no encontrado." });
+        }
+
+        res.status(httpCodes.OK.code).json(juego);
+    } catch (error) {
+        next(error);
+    }
+}
+
 async function listar(req, res, next) {
     try {
 
@@ -60,5 +75,6 @@ module.exports = {
     crear,
     listar,
     actualizar,
-    eliminar
+    eliminar,
+    obtenerPorId
 };

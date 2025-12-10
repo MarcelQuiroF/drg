@@ -1,15 +1,13 @@
 const { Juego, Categoria } = require('../models');
 
 async function crearJuego(datos, idsCategorias = []) {
-    // 1. Crear el juego base
+
     const nuevoJuego = await Juego.create(datos);
 
-    // 2. Asignar categorías si existen
     if (idsCategorias && idsCategorias.length > 0) {
         await nuevoJuego.setCategorias(idsCategorias);
     }
 
-    // 3. Devolver juego con sus categorías
     return await obtenerJuegoPorId(nuevoJuego.id);
 }
 
@@ -20,7 +18,7 @@ async function listarJuegos(categoriaId = null) {
         through: { attributes: [] }
     };
 
-    // Filtro por categoría
+
     if (categoriaId) {
         includeOption.where = { id: categoriaId };
         includeOption.required = true; 
@@ -46,10 +44,8 @@ async function actualizarJuego(id, datos, idsCategorias) {
     const juego = await Juego.findByPk(id);
     if (!juego) return null;
 
-    // Actualizamos campos del juego
     await juego.update(datos);
 
-    // Actualizamos categorías si se enviaron
     if (idsCategorias) {
         await juego.setCategorias(idsCategorias);
     }

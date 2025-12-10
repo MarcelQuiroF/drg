@@ -47,7 +47,11 @@ async function agregarJuego(datos) {
             juego_id: datos.juego_id,
             cantidad: datos.cantidad,
             comentario: datos.comentario,
-            hora_inicio: new Date(),
+            
+
+            hora_inicio: new Date().toTimeString().split(' ')[0], 
+            
+
         }, { transaction: t });
 
         await actualizarTotalOrden(datos.orden_id, t);

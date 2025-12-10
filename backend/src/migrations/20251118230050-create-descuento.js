@@ -4,7 +4,6 @@ module.exports = {
     await queryInterface.createTable('descuento', {
       id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
       porcentaje: { type: Sequelize.INTEGER, allowNull: false },
-      // CAMBIO: Integer a Decimal (Dinero)
       monto: { type: Sequelize.DECIMAL(10, 2), allowNull: false },
       comentario: { type: Sequelize.STRING(255), allowNull: true },
 

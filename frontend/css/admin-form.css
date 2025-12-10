@@ -1,0 +1,252 @@
+/* --- VARIABLES Y RESET --- */
+:root {
+    --bg-body: #000000;
+    --bg-card: #121212;
+    --text-white: #ffffff;
+    --text-grey: #888888;
+    --border-color: #333;
+    --input-bg: #1e1e1e;
+    --accent-red: #cc0000;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* El contenedor principal que inyectamos en .contenido */
+#form-producto-wrapper {
+    width: 100%;
+    min-height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Alineado arriba con un poco de margen */
+    padding-top: 20px;
+}
+
+/* --- TARJETA PRINCIPAL DEL FORMULARIO --- */
+.main-container {
+    background-color: var(--bg-body);
+    border: 2px solid #fff; /* Borde blanco estilo wireframe */
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 900px;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.05);
+    position: relative;
+}
+
+h2 {
+    font-size: 24px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* --- ESTRUCTURA FLEXIBLE (IMAGEN IZQ - CAMPOS DER) --- */
+.form-content {
+    display: flex;
+    gap: 50px;
+    margin-top: 30px;
+}
+
+/* --- SECCIÓN IMAGEN --- */
+.image-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 250px;
+    flex-shrink: 0;
+}
+
+.image-display {
+    width: 100%;
+    height: 250px;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-display img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.upload-button {
+    background: transparent;
+    border: 1px solid #fff;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.upload-button:hover {
+    background: #fff;
+    color: #000;
+}
+
+/* --- SECCIÓN CAMPOS --- */
+.fields-section {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.form-group label {
+    color: #fff;
+    font-weight: bold;
+    font-size: 16px;
+    width: 100px; /* Ancho fijo para etiquetas */
+    text-align: left;
+}
+
+/* Inputs y Selects */
+input[type="text"], 
+input[type="number"], 
+select {
+    background-color: transparent;
+    border: 1px solid #fff;
+    color: #fff;
+    padding: 12px 15px;
+    border-radius: 10px;
+    font-size: 16px;
+    outline: none;
+    flex-grow: 1; /* Ocupar espacio restante */
+}
+
+input:focus, select:focus {
+    border-color: var(--accent-red);
+    box-shadow: 0 0 8px rgba(204, 0, 0, 0.3);
+}
+
+/* Ajustes específicos de inputs */
+#precio {
+    max-width: 120px;
+    text-align: right;
+}
+
+/* Grupo de Categoría y Zona (Dos columnas) */
+.category-group {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.zone-group {
+    flex-shrink: 0;
+}
+
+.zone-group label {
+    width: auto; /* La etiqueta Zona es corta */
+    margin-right: 10px;
+}
+
+.select-wrapper {
+    flex-grow: 1;
+    position: relative;
+}
+
+/* Arreglo para opciones de select en fondo negro */
+select option {
+    background-color: #000;
+    color: #fff;
+    padding: 10px;
+}
+
+/* --- BOTONES DE ACCIÓN (ABAJO) --- */
+.save-button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+    gap: 20px;
+}
+
+.save-button {
+    background-color: #fff;
+    color: #000;
+    border: none;
+    padding: 15px 50px;
+    border-radius: 30px;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.save-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+}
+
+.cancel-button {
+    background-color: transparent;
+    color: #fff;
+    border: 1px solid #fff;
+    padding: 15px 40px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.cancel-button:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+/* --- RESPONSIVE (Móvil) --- */
+@media (max-width: 768px) {
+    .form-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .image-section {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .fields-section {
+        width: 100%;
+    }
+
+    .form-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .form-group label {
+        width: 100%;
+    }
+    
+    input, select {
+        width: 100%;
+    }
+
+    .category-group {
+        flex-direction: column;
+    }
+}

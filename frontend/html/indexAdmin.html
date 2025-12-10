@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración - DRG</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <div class="dark-mode-btn" id="dark-mode-btn">
+        <i class='bx bx-moon' style='color:#000000'></i> 
+        <i class='bx bxs-sun' style='color:#000000'></i> 
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="header">
+            <div class="menu-btn" id="menu-btn">
+                <i class='bx bx-caret-left' style='color:#000000'></i>
+            </div>
+            <div class="brand">
+                <img src="../assets/íconos/iconoDragon.png" alt="logo">
+                <span>DRG ADMIN</span>
+            </div>
+        </div>
+
+        <div class="menu-container">
+            <ul class="menu">
+                
+                <li class="menu-item menu-item-static active">
+                    <a href="#" class="menu-link" id="menu-admin-registros">
+                        <i class='bx bxs-bar-chart-alt-2'></i> 
+                        <span>Ver registros</span>
+                    </a>
+                </li>
+
+                <li class="menu-item menu-item-static">
+                    <a href="#" class="menu-link" id="menu-admin-empleados">
+                        <i class='bx bxs-user-detail'></i> 
+                        <span>Gestionar empleado</span>
+                    </a>
+                </li>
+
+                <li class="menu-item menu-item-static">
+                    <a href="#" class="menu-link" id="menu-admin-productos">
+                        <i class='bx bxs-package'></i> 
+                        <span>Gestionar productos</span>
+                    </a>
+                </li>
+
+                <li class="menu-item menu-item-static">
+                    <a href="#" class="menu-link" id="menu-admin-espacio">
+                        <i class='bx bxs-map-alt'></i> 
+                        <span>Gestionar espacio</span>
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+
+        <div class="footer">
+            <div class="user">
+                <div class="user-img">
+                    <img src="../assets/imágenes/imagenUsuario.jpg" alt="user">
+                </div>
+                <div class="user-data">
+                    <span class="name" id="user-name">Cargando...</span>
+                    <span class="email" id="user-role">ADMIN</span>
+                </div>
+                <div class="user-icon" id="logout-btn" style="cursor: pointer;">
+                    <i class='bx bxs-arrow-out-right-square-half'></i> 
+                </div>
+            </div>
+        </div>
+    </div>
+        
+    <div class="cuerpo" id="cuerpo">
+        </div>
+        
+    <script type="module" src="../js/main.js"></script>
+</body>
+</html>

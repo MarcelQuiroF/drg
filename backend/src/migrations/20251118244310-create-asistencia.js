@@ -18,7 +18,7 @@ module.exports = {
 
       descuento_id: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: { model: 'descuento_atraso', key: 'id' },
         onDelete: 'CASCADE'
       },

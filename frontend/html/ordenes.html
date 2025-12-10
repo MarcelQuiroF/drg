@@ -1,0 +1,29 @@
+<link rel="stylesheet" href="../css/ordenes.css">
+
+<div class="cabezeraCuerpo">
+    <div class="tituloCabecera">
+        <p>Órdenes Activas</p>
+    </div>
+</div>
+
+<div class="contenido ordenes-grid" id="contenido"></div>
+
+<template id="template-orden-card">
+    <div class="orden-card">
+        <div class="orden-header">
+            <span class="orden-id"></span> 
+            <span class="orden-badge">Activa</span>
+        </div>
+        
+        <div class="orden-body">
+            <i class='bx bxs-dish orden-icon'></i>
+            <h3 class="orden-mesa"></h3> 
+            <p class="orden-hora"></p> 
+        </div>
+
+        <div class="orden-footer">
+            <span class="label-total">Total:</span>
+            <span class="monto-total"></span> 
+        </div>
+    </div>
+</template>

@@ -19,6 +19,15 @@ async function crear(req, res, next) {
         next(error);
     }
 }
+async function obtenerPorId(req, res, next) {
+    try {
+        const producto = await productoService.obtenerProductoPorId(req.params.id);
+        if (!producto) return res.status(httpCodes.NOT_FOUND.code).json({ message: "Producto no encontrado" });
+        res.status(httpCodes.OK.code).json(producto);
+    } catch (error) { next(error); }
+}
+
+
 
 async function listar(req, res, next) {
     try {
@@ -69,5 +78,6 @@ module.exports = {
     crear,
     listar,
     actualizar,
-    eliminar
+    eliminar,
+    obtenerPorId
 };

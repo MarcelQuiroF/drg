@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Día Cerrado</title>
+    <link rel="stylesheet" href="../css/cerrado.css">
+</head>
+<body>
+
+    <div class="card">
+        <div class="card-image">
+            <img src="../assets/imágenes/imagenDragonCerrado.svg" alt="Logo Dragon">
+        </div>
+
+        <div class="card-content">
+            <div class="title-container">
+                <span class="title-small">DIA</span>
+                <span class="title-large">CERRADO</span>
+            </div>
+
+            <p class="card-text">
+                Se cerró el día, haga click en el botón ‘EDITAR’<br>
+                para cambiar los datos del día de<br>
+                <span id="fecha-cierre" style="font-weight: bold;">--/--/----</span>.<br><br>
+                Los datos se subirán a las 00:00 hrs. del<br>
+                siguiente día.
+            </p>
+
+            <div class="buttons-container">
+                <button class="btn btn-salir" id="btn-salir">SALIR</button>
+                <button class="btn btn-editar" id="btn-editar">EDITAR</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Poner fecha de hoy
+            const hoy = new Date().toLocaleDateString();
+            document.getElementById('fecha-cierre').textContent = hoy;
+
+            // 2. Botón SALIR (Cierra sesión y te manda al login, pero el día sigue cerrado)
+            document.getElementById('btn-salir').addEventListener('click', () => {
+                // Borramos el token de usuario pero NO la marca de día cerrado
+                localStorage.removeItem('token_drg');
+                localStorage.removeItem('usuario_rol');
+                window.location.href = 'login.html';
+            });
+
+            // 3. Botón EDITAR (Abre el candado para que puedas entrar)
+            document.getElementById('btn-editar').addEventListener('click', () => {
+                // Borramos la marca de cierre
+                localStorage.removeItem('dia_cerrado');
+                // Te mandamos al login para que entres de nuevo
+                window.location.href = 'login.html';
+            });
+        });
+    </script>
+
+</body>
+</html>

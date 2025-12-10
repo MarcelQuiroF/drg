@@ -1,0 +1,94 @@
+/* ESTILOS DE PANTALLA */
+.contenido-impresion {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 20px;
+    flex-wrap: wrap;
+}
+
+.contenedor-ticket {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.ticket-papel {
+    background: white;
+    width: 300px; /* Ancho estándar de ticket */
+    min-height: 400px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border: 1px solid #ddd;
+    font-family: 'Courier New', Courier, monospace; /* Fuente tipo ticket */
+}
+
+.ticket-header { text-align: center; margin-bottom: 10px; }
+.ticket-header h3 { margin: 0 0 10px 0; border-bottom: 2px solid black; padding-bottom: 5px; }
+.ticket-meta { margin: 2px 0; font-size: 0.9em; }
+
+.ticket-lista { list-style: none; padding: 0; margin: 10px 0; }
+.ticket-lista li { 
+    display: flex; 
+    justify-content: space-between; 
+    margin-bottom: 8px; 
+    border-bottom: 1px dashed #ccc; 
+    padding-bottom: 5px;
+}
+.ticket-cant { font-weight: bold; margin-right: 10px; }
+
+/* Botones */
+.btn-imprimir, .btn-imprimir-todo, .btn-atras-impresion {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+}
+.btn-imprimir { background-color: #333; }
+.btn-imprimir:hover { background-color: #000; }
+
+.btn-imprimir-todo { background-color: #2e7d32; font-size: 1.2em; padding: 15px 30px; width: 100%; max-width: 640px; margin: 20px auto; display: block; }
+.btn-atras-impresion { background-color: #666; }
+
+.footer-impresion { width: 100%; }
+
+/* --- TRUCO DE IMPRESIÓN --- */
+@media print {
+    /* 1. Ocultar todo lo que no sea ticket */
+    body * {
+        visibility: hidden;
+    }
+    
+    /* 2. Ocultar elementos con clase no-print (botones, sidebar, headers) */
+    .no-print, .sidebar, .dark-mode-btn, .cabezeraCuerpo {
+        display: none !important;
+    }
+
+    /* 3. Hacer visibles solo los tickets */
+    .contenido-impresion, .contenido-impresion * {
+        visibility: visible;
+    }
+
+    /* 4. Posicionar los tickets para el papel */
+    .contenido-impresion {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        display: block; /* Quitar flex para imprimir uno tras otro */
+    }
+
+    .ticket-papel {
+        box-shadow: none;
+        border: none;
+        width: 100%; /* Ocupar ancho de papel */
+        page-break-after: always; /* Cortar hoja después de cada ticket */
+    }
+
+    /* LÓGICA PARA IMPRIMIR SOLO UNO */
+    body.print-cocina #zona-cafeteria { display: none; }
+    body.print-cafeteria #zona-cocina { display: none; }
+}
