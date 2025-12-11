@@ -21,8 +21,17 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
+    imagen: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     tiempo_partida: DataTypes.INTEGER,
-    activado: { type: DataTypes.BOOLEAN, defaultValue: true }
+    activado: { type: DataTypes.BOOLEAN, defaultValue: true },
+    enlace: {
+    type: DataTypes.STRING,
+    allowNull: true
+    }
+    
   }, {
     tableName: 'juego',
     paranoid: true

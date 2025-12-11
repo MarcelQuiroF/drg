@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Catálogo de Juegos DRG</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="../css/catalogo-cliente.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="logo-area">
+            <img src="../assets/íconos/iconoDragon.png" alt="DRG">
+            <span>DRG Games</span>
+        </div>
+        <button class="icon-btn"><i class='bx bx-search'></i></button>
+    </header>
+
+    <div class="category-scroll">
+        <button class="cat-pill active" data-cat="all">Todos</button>
+        <button class="cat-pill" data-cat="Estrategia">Estrategia</button>
+        <button class="cat-pill" data-cat="Familiar">Familiar</button>
+        <button class="cat-pill" data-cat="Party">Party</button>
+        <button class="cat-pill" data-cat="Cartas">Cartas</button>
+    </div>
+
+    <main class="games-container" id="lista-juegos">
+        <p class="loading-text">Cargando diversión...</p>
+    </main>
+
+    <template id="card-juego-cliente">
+        <div class="game-card">
+            <div class="game-img-box">
+                <img src="" alt="Juego" class="game-img">
+                <span class="game-badge"></span> </div>
+            <div class="game-content">
+                <h3 class="game-title"></h3>
+                <div class="game-specs">
+                    <span class="spec"><i class='bx bx-user'></i> <span class="players-txt"></span></span>
+                    <span class="spec"><i class='bx bx-time'></i> <span class="time-txt"></span></span>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="../js/catalogoCliente.js"></script>
+</body>
+</html>

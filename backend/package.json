@@ -10,7 +10,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "//activado: producto, juego",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",

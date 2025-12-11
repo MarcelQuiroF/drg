@@ -1,9 +1,11 @@
+// 1. IMPORTANTE: Agregar esta línea para poder usar los modelos en 'listar'
+const { Juego, Categoria } = require('../models'); 
+
 const juegoService = require('../services/juegoService');
 const httpCodes = require('../utils/httpCodes');
 
 async function crear(req, res, next) {
     try {
-
         const { categorias, ...datosJuego } = req.body;
 
         if (!datosJuego.nombre || !datosJuego.precio || !datosJuego.jugadores_min || !datosJuego.jugadores_max) {
@@ -36,9 +38,15 @@ async function obtenerPorId(req, res, next) {
 
 async function listar(req, res, next) {
     try {
-
-        const { categoria_id } = req.query;
-        const juegos = await juegoService.listarJuegos(categoria_id);
+        // Ahora sí funcionará porque importamos 'Juego' y 'Categoria' arriba
+        const juegos = await Juego.findAll({
+            include: [{
+                model: Categoria,
+                attributes: ['id', 'nombre'], 
+                through: { attributes: [] }   
+            }]
+        });
+        
         res.status(httpCodes.OK.code).json(juegos);
     } catch (error) {
         next(error);
@@ -61,7 +69,6 @@ async function actualizar(req, res, next) {
 
 async function eliminar(req, res, next) {
     try {
-        
         const exito = await juegoService.eliminarJuego(req.params.id);
         if (!exito) return res.status(httpCodes.NOT_FOUND.code).json({ message: "Juego no encontrado." });
         
