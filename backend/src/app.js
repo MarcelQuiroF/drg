@@ -19,6 +19,7 @@ const reservaRoute = require('./routes/reservaRoute');
 const comandaRoute = require('./routes/comandaRoute');
 const asistenciaRoute = require('./routes/asistenciaRoute');
 const reporteRoute = require('./routes/reporteRoute');
+const configuracionRoutes = require('./routes/configuracionRoutes');
 const app = express();
 
 app.use(cors()); 
@@ -44,7 +45,7 @@ app.use(`${API_PREFIX}/reservas`, reservaRoute);
 app.use(`${API_PREFIX}/comandas`, comandaRoute);
 app.use(`${API_PREFIX}/asistencias`, asistenciaRoute);
 app.use(`${API_PREFIX}/reportes`, reporteRoute);
-
+app.use(`${API_PREFIX}/configuracion`, configuracionRoutes);
 
 
 app.use(notFoundHandler); 
@@ -55,35 +56,4 @@ module.exports = app;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// const logger = require('./config/logger'); // Si ya lo tienes implementado
+// const logger = require('./config/logger'); 

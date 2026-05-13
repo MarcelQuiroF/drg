@@ -8,9 +8,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     activo: { type: DataTypes.BOOLEAN, defaultValue: true },
     cantidad: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.DECIMAL(10, 2), 
       allowNull: false,
-      defaultValue: 0,
+      defaultValue: 0.00,
       validate: {
         min: { args: [0], msg: "La cantidad no puede ser negativa" }
       }

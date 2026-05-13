@@ -13,7 +13,6 @@ async function marcarLlegada(req, res, next) {
 
         const nuevaAsistencia = await asistenciaService.registrarLlegada(ci, contrasenia);
         
-        // Mensaje dinámico si llegó tarde
         const mensaje = nuevaAsistencia.descuento_id 
             ? "Llegada registrada con ATRASO (Descuento aplicado)." 
             : "Llegada registrada exitosamente (A tiempo).";
@@ -33,7 +32,6 @@ async function listar(req, res, next) {
 
         const { pendientes, fecha } = req.query;
         
-        // Si no envían fecha, usamos HOY por defecto
         const fechaFiltro = fecha || new Date().toISOString().split('T')[0]; 
 
         const asistencias = await asistenciaService.listarAsistencias(

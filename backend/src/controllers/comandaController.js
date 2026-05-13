@@ -3,7 +3,6 @@ const httpCodes = require('../utils/httpCodes');
 
 async function listar(req, res, next) {
     try {
-        // ?zona=COCINA o ?zona=BARRA
         const { zona } = req.query; 
         const comandas = await comandaService.listarPendientes(zona);
         res.status(httpCodes.OK.code).json(comandas);

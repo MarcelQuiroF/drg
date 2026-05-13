@@ -8,8 +8,15 @@ module.exports = (sequelize, DataTypes) => {
     },
     ci: { 
       type: DataTypes.STRING,
+      allowNull: true,
       validate: { 
-        len: { args: [5, 20], msg: "El CI debe tener entre 5 y 20 caracteres" } 
+        customLen(value) {
+          if (value && value.trim().length > 0) {
+            if (value.length < 5 || value.length > 20) {
+              throw new Error("El CI debe tener entre 5 y 20 caracteres");
+            }
+          }
+        }
       }
     },
     telefono: DataTypes.STRING
@@ -18,4 +25,4 @@ module.exports = (sequelize, DataTypes) => {
     paranoid: true
   });
   return Cliente;
-};
+};  

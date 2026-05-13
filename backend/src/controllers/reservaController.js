@@ -13,13 +13,16 @@ async function crear(req, res, next) {
         const nueva = await reservaService.crearReserva(req.body);
         res.status(httpCodes.CREATED.code).json(nueva);
     } catch (error) {
+        if (error.message === "La reserva debe ser para una fecha futura." || 
+            error.message.includes("ya está reservada")) {
+            return res.status(httpCodes.BAD_REQUEST.code).json({ message: error.message });
+        }
         next(error);
     }
 }
 
 async function listar(req, res, next) {
     try {
-        // ?fecha=2023-11-25
         const { fecha } = req.query;
         const reservas = await reservaService.listarReservas({ fecha });
         res.status(httpCodes.OK.code).json(reservas);

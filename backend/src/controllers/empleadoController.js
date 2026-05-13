@@ -51,11 +51,8 @@ async function obtenerPerfil(req, res, next) {
     }
 }
 
-// --- AGREGAR ESTA NUEVA FUNCIÓN ---
 async function listar(req, res, next) {
     try {
-        // Buscamos todos los empleados
-        // attributes: exclude -> Para no enviar la contraseña al frontend
         const empleados = await Empleado.findAll({
             attributes: { exclude: ['contrasenia'] },
             order: [['nombre', 'ASC']]

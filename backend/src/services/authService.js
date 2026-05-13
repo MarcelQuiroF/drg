@@ -6,23 +6,32 @@ const httpCodes = require('../utils/httpCodes');
 
 async function login(ci, contrasenia) {
     try {
+        console.log("--- Login Attempt ---");
+        console.log("Searching for CI:", ci);
 
         const empleado = await Empleado.findOne({ 
             where: { ci: ci }
         });
 
         if (!empleado) {
-            return null; 
+            console.log("Empleado no encontrado");
+            return null;
         }
-        const isPasswordValid = await comparePassword(contrasenia, empleado.contrasenia);
 
+        console.log("Found Employee:", empleado.nombre);
+        console.log("Is active?:", empleado.activo);
+
+        const isPasswordValid = await comparePassword(contrasenia, empleado.contrasenia);
+        
         if (!isPasswordValid) {
-            return null; 
+            return null;
         }
         
         if (!empleado.activo) {
-             return null; 
+             console.log("Empleado inactivo");
+             return null;
         }
+
 
         const tokenPayload = {
             id: empleado.id,
@@ -40,10 +49,9 @@ async function login(ci, contrasenia) {
             token,
             empleado: empleadoSeguro
         };
-
     } catch (error) {
-        console.error("Error en el servicio de login:", error);
-        throw new Error("Error interno del servidor durante el login.");
+        console.error("Error in login service:", error);
+        throw new Error("Internal server error during login.");
     }
 }
 

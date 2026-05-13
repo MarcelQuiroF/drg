@@ -21,7 +21,7 @@ async function crear(req, res, next) {
 
 async function listarDescuentos(req, res, next) {
     try {
-        const { id } = req.params; // ID de la orden
+        const { id } = req.params;
         const descuentos = await ordenService.obtenerDescuentosPorOrden(id);
         res.status(httpCodes.OK.code).json(descuentos);
     } catch (error) {
@@ -45,7 +45,7 @@ async function obtenerPorId(req, res, next) {
 
 async function aplicarDescuento(req, res, next) {
     try {
-        const { id } = req.params; // Viene de la URL /:id/descuento
+        const { id } = req.params;
         const { porcentaje, monto, comentario } = req.body;
 
         if (!porcentaje && !monto) {
@@ -80,7 +80,6 @@ async function listar(req, res, next) {
 
 async function finalizar(req, res, next) {
     try {
-        // PATCH /api/v1/ordenes/:id/finalizar
         const orden = await ordenService.finalizarOrden(req.params.id);
         res.status(httpCodes.OK.code).json({
             message: "Orden finalizada y mesa liberada.",
@@ -107,6 +106,7 @@ async function quitarDescuento(req, res, next) {
         await ordenService.removerDescuento(ordenId, descuentoId);
         res.status(httpCodes.OK.code).json({ message: "Descuento eliminado." });
     } catch (error) {
+        console.error("ERROR REAL EN QUITAR DESCUENTO:", error); 
         next(error);
     }
 }

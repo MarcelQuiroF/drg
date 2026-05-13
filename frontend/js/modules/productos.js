@@ -1,8 +1,13 @@
 import { authFetch } from '../api.js';
 import { cargarImpresionPage } from './impresion.js';
+import { cargarHTML, activarMenu, mostrarNotificacion, cerrarNotificacion } from '../utils.js';
+import { initMesas } from './mesas.js';
 
 
 let ORDEN_ACTUAL_ID = null; 
+let ITEM_PARA_COMENTAR = null;
+let ITEM_PARA_ELIMINAR = null;
+
 
 
 export const cargarProductosPage = async (mesaId) => {
@@ -31,28 +36,29 @@ export const cargarProductosPage = async (mesaId) => {
     }
 };
 
+
 const verificarOrdenActiva = async (mesaId) => {
     try {
-
         const res = await authFetch(`/ordenes?mesa_id=${mesaId}&finalizado=false`);
         if(res && res.ok){
             const ordenes = await res.json();
             if(ordenes.length > 0){
-
                 ORDEN_ACTUAL_ID = ordenes[0].id;
+                // Load existing notes into the textarea
+                const notepad = document.getElementById('notepad-textarea');
+                if(notepad) notepad.value = ordenes[0].notas || "";
+                
                 actualizarTotalVisual(ordenes[0].total);
                 cargarDetalleOrden(ORDEN_ACTUAL_ID);
-            } else {
-
+            }  else {
                 const panelMesa = document.getElementById('mesa-productos');
                 if(panelMesa) panelMesa.innerHTML = '';
                 actualizarTotalVisual(0);
             }
-        }
-    } catch (error) {
-        console.error("Error verificando orden:", error);
-    }
+            }
+    } catch (error) { console.error(error); }
 };
+
 
 
 const cargarProductos = async (tipo) => {
@@ -84,6 +90,14 @@ const cargarProductos = async (tipo) => {
     } catch (error) {
         contenedor.innerHTML = '<p>Error cargando datos.</p>';
         console.error(error);
+    }
+};
+
+const mostrarErrorDescuento = (mensaje) => {
+    const errorEl = document.getElementById('discount-error-msg');
+    if (errorEl) {
+        errorEl.textContent = mensaje;
+        errorEl.className = 'error-text-visible';
     }
 };
 
@@ -165,7 +179,7 @@ const agregarItemAOrden = async (item, esJuego) => {
                 method: 'POST',
                 body: JSON.stringify({ mesa_id: mesaId })
             });
-            if(!resOrden.ok) return alert("Error abriendo mesa.");
+            if(!resOrden.ok) return mostrarNotificacion("Error", "No se pudo abrir la mesa.");
             const dataOrden = await resOrden.json();
             ORDEN_ACTUAL_ID = dataOrden.orden.id;
         }
@@ -188,7 +202,7 @@ const agregarItemAOrden = async (item, esJuego) => {
         if(resItem.ok){
             verificarOrdenActiva(sessionStorage.getItem("mesaSeleccionada"));
         } else {
-            alert("Error agregando item");
+            mostrarNotificacion("Error", "No se pudo agregar el producto.");
         }
 
     } catch (error) {
@@ -266,9 +280,9 @@ const cargarDetalleOrden = async (ordenId) => {
                 iconComentario.classList.replace('fa-comment-dots', 'fa-comment');
                 iconComentario.style.color = '#e67e22'; 
             }
-            iconComentario.addEventListener('click', async () => {
-                const nuevoComentario = prompt("Nota:", item.comentario || "");
-                if (nuevoComentario !== null) guardarComentario(item.id, item.tipo, nuevoComentario);
+            iconComentario.addEventListener('click', () => {
+                ITEM_PARA_COMENTAR = { id: item.id, tipo: item.tipo };
+                abrirModalComentario(item.comentario || "");
             });
 
             const btnRestar = clon.querySelector('.btn-restar');
@@ -310,9 +324,7 @@ const cargarDetalleOrden = async (ordenId) => {
                 divIzquierdo.prepend(btnBasura);
 
                 btnBasura.addEventListener('click', async () => {
-                    if(confirm("¿Quitar este descuento?")){
-                        await eliminarDescuento(ordenId, desc.id);
-                    }
+                    prepararEliminacionDescuento(ordenId, desc.id, desc.nombre);
                 });
 
                 contenedor.appendChild(clon);
@@ -324,20 +336,21 @@ const cargarDetalleOrden = async (ordenId) => {
     }
 };
 
-const eliminarDescuento = async (ordenId, descuentoId) => {
-    try {
-        const res = await authFetch(`/ordenes/${ordenId}/descuento/${descuentoId}`, {
-            method: 'DELETE'
-        });
+const prepararEliminacionDescuento = (ordenId, descuentoId, nombreDescuento) => {
+    // Contamos todas las filas en el panel de la orden (productos, juegos y descuentos)
+    const totalFilas = document.querySelectorAll('#mesa-productos .item-orden').length;
 
-        if (res.ok) {
-            verificarOrdenActiva(sessionStorage.getItem("mesaSeleccionada"));
-        } else {
-            alert("Error al eliminar descuento.");
-        }
-    } catch (error) {
-        console.error("Error eliminando descuento:", error);
-    }
+    const esUltimoItem = (totalFilas === 1);
+
+    ITEM_PARA_ELIMINAR = { 
+        id: descuentoId, 
+        ordenId: ordenId,
+        nombre: nombreDescuento, 
+        tipo: 'descuento',
+        esUltimoItem: esUltimoItem 
+    };
+
+    abrirModalEliminar(nombreDescuento, esUltimoItem);
 };
 
 const guardarComentario = async (itemId, tipo, comentario) => {
@@ -358,7 +371,7 @@ const guardarComentario = async (itemId, tipo, comentario) => {
         if (res.ok) {
             cargarDetalleOrden(sessionStorage.getItem("mesaSeleccionada") ? ORDEN_ACTUAL_ID : null); 
         } else {
-            alert("No se pudo guardar el comentario. (Verifica si es un Juego y si el backend lo permite)");
+            mostrarNotificacion("Error", "Hubo un problema al guardar la nota del producto.");
         }
     } catch (error) {
         console.error("Error guardando comentario:", error);
@@ -368,10 +381,7 @@ const guardarComentario = async (itemId, tipo, comentario) => {
 const gestionarCantidad = async (item, cambio) => {
     try {
         const nuevaCantidad = item.cantidad + cambio;
-        
-        let endpoint = item.tipo === 'producto' 
-            ? '/ordenes-productos' 
-            : '/ordenes-juegos';
+        let endpoint = item.tipo === 'producto' ? '/ordenes-productos' : '/ordenes-juegos';
 
         if (nuevaCantidad > 0) {
             const res = await authFetch(`${endpoint}/${item.id}`, {
@@ -380,12 +390,12 @@ const gestionarCantidad = async (item, cambio) => {
             });
             if(res.ok) verificarOrdenActiva(sessionStorage.getItem("mesaSeleccionada"));
         } else {
-            if(confirm(`¿Eliminar ${item.nombre} de la orden?`)){
-                const res = await authFetch(`${endpoint}/${item.id}`, {
-                    method: 'DELETE'
-                });
-                if(res.ok) verificarOrdenActiva(sessionStorage.getItem("mesaSeleccionada"));
-            }
+            const totalFilas = document.querySelectorAll('#mesa-productos .item-orden').length;
+            
+            const esUltimoItem = (totalFilas === 1);
+
+            ITEM_PARA_ELIMINAR = { ...item, endpoint, esUltimoItem }; 
+            abrirModalEliminar(item.nombre, esUltimoItem);
         }
     } catch (error) {
         console.error("Error gestionando cantidad:", error);
@@ -398,10 +408,122 @@ const actualizarTotalVisual = (total) => {
     if(el) el.textContent = `Bs ${parseFloat(total).toFixed(2)}`;
 };
 
+const initNotepadLogic = () => {
+    const btn = document.getElementById('btn-notepad');
+    const modal = document.getElementById('notepad-modal');
+    const textarea = document.getElementById('notepad-textarea');
+    const closeBtn = document.getElementById('close-notepad');
+
+    const closeAndSave = async () => {
+        if (!modal.classList.contains('notepad-visible')) return;
+        
+        modal.classList.remove('notepad-visible');
+        
+        if (ORDEN_ACTUAL_ID && textarea) {
+            try {
+                await authFetch(`/ordenes/${ORDEN_ACTUAL_ID}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ notas: textarea.value })
+                });
+                console.log("Auto-save complete.");
+            } catch (err) {
+                console.error("Failed to save notes:", err);
+            }
+        }
+    };
+
+    btn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        modal.classList.toggle('notepad-visible');
+        if (modal.classList.contains('notepad-visible')) {
+            textarea.focus();
+        }
+    });
+
+    closeBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeAndSave();
+    });
+
+    document.addEventListener('click', (e) => {
+        const isInsideModal = modal?.contains(e.target);
+        const isButton = btn?.contains(e.target);
+        
+        if (modal?.classList.contains('notepad-visible') && !isInsideModal && !isButton) {
+            closeAndSave();
+        }
+    });
+};
+
+const abrirModalComentario = (comentarioActual) => {
+    const modal = document.getElementById('comment-modal');
+    const overlay = document.getElementById('modal-overlay');
+    const textarea = document.getElementById('comment-textarea');
+
+    textarea.value = comentarioActual;
+    modal.classList.add('custom-modal-visible');
+    overlay.classList.add('modal-overlay-visible');
+    textarea.focus();
+};
+
+const cerrarModalComentario = () => {
+    document.getElementById('comment-modal').classList.remove('custom-modal-visible');
+    document.getElementById('modal-overlay').classList.remove('modal-overlay-visible');
+    ITEM_PARA_COMENTAR = null;
+};
+
+const abrirModalEliminar = (nombreProducto, esUltimoItem = false) => {
+    const modal = document.getElementById('delete-modal');
+    const overlay = document.getElementById('modal-overlay');
+    const message = document.getElementById('delete-modal-message');
+
+    if (esUltimoItem) {
+        message.innerHTML = `
+            <div style="color: #d9534f; font-weight: bold; margin-bottom: 10px;">
+                <i class="fa-solid fa-triangle-exclamation"></i> ¡Atención!
+            </div>
+            <strong>"${nombreProducto}"</strong> es el único item en la orden. 
+            Al eliminarlo, la orden se cerrará
+        `;
+    } else {
+        message.textContent = `¿Eliminar "${nombreProducto}" de la orden?`;
+    }
+    
+    modal.classList.add('custom-modal-visible');
+    overlay.classList.add('modal-overlay-visible');
+};
+
+const cerrarModalEliminar = () => {
+    document.getElementById('delete-modal').classList.remove('custom-modal-visible');
+    document.getElementById('modal-overlay').classList.remove('modal-overlay-visible');
+    ITEM_PARA_ELIMINAR = null;
+};
+
+const abrirModalDescuento = () => {
+    const modal = document.getElementById('discount-modal');
+    const overlay = document.getElementById('modal-overlay');
+    const errorEl = document.getElementById('discount-error-msg');
+    
+    if (errorEl) errorEl.className = 'error-text-hidden';
+    document.getElementById('discount-amount-input').value = "";
+    document.getElementById('discount-reason-input').value = "";
+
+    modal.classList.add('custom-modal-visible');
+    overlay.classList.add('modal-overlay-visible');
+};
+
+const cerrarModalDescuento = () => {
+    document.getElementById('discount-modal').classList.remove('custom-modal-visible');
+    document.getElementById('modal-overlay').classList.remove('modal-overlay-visible');
+};
+
+
 const inicializarEventosProductos = () => {
     document.getElementById('btn-cat-comida')?.addEventListener('click', () => cargarProductos('comida'));
     document.getElementById('btn-cat-bebida')?.addEventListener('click', () => cargarProductos('bebida'));
     document.getElementById('btn-cat-juego')?.addEventListener('click', () => cargarProductos('juego'));
+    document.getElementById('btn-close-notification')?.addEventListener('click', cerrarNotificacion);
+    document.getElementById('close-notification-modal')?.addEventListener('click', cerrarNotificacion);
 
     const inputBusqueda = document.querySelector(".input-busqueda");
     if(inputBusqueda){
@@ -414,90 +536,293 @@ const inicializarEventosProductos = () => {
         });
     }
 
+    initNotepadLogic();
+
+    document.getElementById('btn-save-comment')?.addEventListener('click', async () => {
+        if (ITEM_PARA_COMENTAR) {
+            const nuevoComentario = document.getElementById('comment-textarea').value;
+            await guardarComentario(ITEM_PARA_COMENTAR.id, ITEM_PARA_COMENTAR.tipo, nuevoComentario);
+            cerrarModalComentario();
+        }
+    });
+
+    document.getElementById('btn-cancel-comment')?.addEventListener('click', cerrarModalComentario);
+    document.getElementById('close-comment-modal')?.addEventListener('click', cerrarModalComentario);
+
+    document.getElementById('modal-overlay')?.addEventListener('click', cerrarModalComentario);
+
     const btnDescuento = document.querySelector(".agregar-descuento");
     if (btnDescuento) {
-        btnDescuento.addEventListener("click", async () => {
-            if (!ORDEN_ACTUAL_ID) return alert("No hay orden activa para aplicar descuento.");
-
-            const tipo = prompt("Escriba 'P' para Porcentaje (%) o 'M' para Monto Fijo ($):");
-            if (!tipo) return;
-
-            let body = {};
-            
-            if (tipo.toUpperCase() === 'P') {
-                const val = prompt("Ingrese el porcentaje (ej. 10 para 10%):");
-                if(!val || isNaN(val)) return alert("Valor inválido");
-                body.porcentaje = parseFloat(val);
-            } else if (tipo.toUpperCase() === 'M') {
-                const val = prompt("Ingrese el monto a descontar (ej. 20):");
-                if(!val || isNaN(val)) return alert("Valor inválido");
-                body.monto = parseFloat(val);
-            } else {
-                return alert("Opción no válida. Use P o M.");
-            }
-
-            const comentario = prompt("Motivo del descuento (Opcional):");
-            body.comentario = comentario || "Descuento general";
-
-            try {
-                const res = await authFetch(`/ordenes/${ORDEN_ACTUAL_ID}/descuento`, {
-                    method: 'POST',
-                    body: JSON.stringify(body)
-                });
-
-                if (res.ok) {
-                    alert("Descuento aplicado correctamente.");
-                    verificarOrdenActiva(sessionStorage.getItem("mesaSeleccionada"));
-                } else {
-                    const err = await res.json();
-                    alert("Error: " + err.message);
-                }
-            } catch (error) {
-                console.error(error);
-                alert("Error de conexión.");
-            }
+        btnDescuento.addEventListener("click", () => {
+            if (!ORDEN_ACTUAL_ID) return mostrarNotificacion("Aviso", "Debes seleccionar una mesa con orden activa. Agrega un producto primero");
         });
     }
+
+    document.getElementById('btn-apply-discount')?.addEventListener('click', async () => {
+        const tipo = document.getElementById('discount-type-select').value;
+        const valor = parseFloat(document.getElementById('discount-amount-input').value);
+        const motivo = document.getElementById('discount-reason-input').value.trim();
+
+        if (isNaN(valor) || valor <= 0) {
+            return mostrarErrorDescuento("Por favor, ingrese un monto válido.");
+        }
+
+        if (motivo === "" || motivo.length < 3) {
+            return mostrarErrorDescuento("El motivo es obligatorio (mín. 3 caracteres).");
+        }
+
+        let body = { comentario: motivo };
+        if (tipo === 'P') {
+            body.porcentaje = valor;
+        } else {
+            body.monto = valor;
+        }
+
+        try {
+            const res = await authFetch(`/ordenes/${ORDEN_ACTUAL_ID}/descuento`, {
+                method: 'POST',
+                body: JSON.stringify(body)
+            });
+
+            if (res.ok) {
+                cerrarModalDescuento();
+                verificarOrdenActiva(sessionStorage.getItem("mesaSeleccionada"));
+            } else {
+                const err = await res.json();
+                mostrarErrorDescuento("Error: " + err.message);
+            }
+        } catch (error) {
+            console.error(error);
+            mostrarErrorDescuento("Error de conexión con el servidor.");
+        }
+    });
+
+    document.getElementById('btn-cancel-discount')?.addEventListener('click', cerrarModalDescuento);
+    document.getElementById('close-discount-modal')?.addEventListener('click', cerrarModalDescuento);
 
     const btnCobrar = document.querySelector(".cobrar");
-    if(btnCobrar){
-        btnCobrar.addEventListener("click", async () => {
-            if(!ORDEN_ACTUAL_ID) return alert("No hay orden para cobrar.");
-            
-            const montoTexto = document.getElementById('total-mesa').textContent.replace('Bs ', '');
-            const monto = parseFloat(montoTexto);
-
-            if(confirm(`¿Confirmar pago FINAL de Bs ${monto}? (Se cerrará la mesa)`)){
-                try {
-                    const res = await authFetch('/pagos', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            orden_id: ORDEN_ACTUAL_ID,
-                            cantidad: monto,
-                            tipo: "EFECTIVO"
-                        })
-                    });
-                    
-                    if(res.ok){
-                        alert("¡Pago exitoso! Mesa liberada.");
-                        cargarProductosPage(sessionStorage.getItem("mesaSeleccionada"));
-                    } else {
-                        alert("Error al procesar pago.");
-                    }
-                } catch (error) { console.error(error); }
-            }
+    if (btnCobrar) {
+        btnCobrar.addEventListener("click", () => {
+            if (!ORDEN_ACTUAL_ID) return mostrarNotificacion("Aviso", "No hay orden activa para cobrar.");
+            abrirModalPago();
         });
     }
+    // --- LÓGICA DE COBRO MIXTO ---
+
+const abrirModalPago = () => {
+    const modal = document.getElementById('payment-modal');
+    const btnConfirmar = document.getElementById('btn-confirm-payment');
+    const inputQR = document.getElementById('input-pago-qr');
+    const inputEfe = document.getElementById('input-pago-efectivo');
+    
+    const totalTexto = document.getElementById('total-mesa').textContent.replace('Bs ', '');
+    const totalMonto = parseFloat(totalTexto);
+
+    document.getElementById('payment-total-display').textContent = `Bs ${totalMonto.toFixed(2)}`;
+    
+    // --- ESTADO INICIAL (PAGO RÁPIDO) ---
+    inputQR.value = "";
+    // Por defecto, llenamos el valor de efectivo con el total
+    inputEfe.value = totalMonto.toFixed(2); 
+    inputEfe.placeholder = "0.00";
+
+    // El botón se activa de inmediato porque el monto ya está cubierto
+    btnConfirmar.disabled = false;
+    btnConfirmar.style.opacity = "1";
+    btnConfirmar.style.cursor = "pointer";
+
+    document.getElementById('payment-error-msg').className = 'error-text-hidden';
+    document.getElementById('payment-change-display').textContent = "Bs 0.00";
+
+    // --- LÓGICA DINÁMICA ---
+
+    const calcularSaldos = (evento) => {
+        // Si el usuario empieza a escribir en QR, limpiamos el VALOR de efectivo
+        // para que entre en modo "Placeholder retroactivo"
+        if (evento.target.id === 'input-pago-qr' && inputQR.value.trim() !== "") {
+            inputEfe.value = ""; 
+        }
+
+        const qr = parseFloat(inputQR.value) || 0;
+        const efe = parseFloat(inputEfe.value) || 0;
+        const pagado = qr + efe;
+        
+        // Actualizamos el placeholder de efectivo basado en lo que hay en QR
+        const faltante = Math.max(0, totalMonto - qr);
+        inputEfe.placeholder = faltante.toFixed(2);
+
+        // Cálculo de sobrante (Vuelto)
+        const sobrante = Math.max(0, pagado - totalMonto);
+        const displaySobrante = document.getElementById('payment-change-display');
+        displaySobrante.textContent = `Bs ${sobrante.toFixed(2)}`;
+        displaySobrante.style.color = sobrante > 0 ? "#2e7d32" : "#333";
+
+        // Validación del botón Confirmar (Margen 0.01 Bs)
+        if (pagado >= totalMonto - 0.01) {
+            btnConfirmar.disabled = false;
+            btnConfirmar.style.opacity = "1";
+            btnConfirmar.style.cursor = "pointer";
+            document.getElementById('payment-error-msg').className = 'error-text-hidden';
+        } else {
+            btnConfirmar.disabled = true;
+            btnConfirmar.style.opacity = "0.5";
+            btnConfirmar.style.cursor = "not-allowed";
+        }
+    };
+
+    // Si el usuario borra todo el QR, devolvemos el total al campo de efectivo
+    inputQR.addEventListener('input', (e) => {
+        if (inputQR.value === "" && inputEfe.value === "") {
+            inputEfe.value = totalMonto.toFixed(2);
+        }
+        calcularSaldos(e);
+    });
+
+    inputEfe.addEventListener('input', calcularSaldos);
+
+    modal.classList.add('custom-modal-visible');
+    document.getElementById('modal-overlay').classList.add('modal-overlay-visible');
+};
+
+const cerrarModalPago = () => {
+    document.getElementById('payment-modal').classList.remove('custom-modal-visible');
+    document.getElementById('modal-overlay').classList.remove('modal-overlay-visible');
+};
+
+
+// Eventos de botones del modal
+document.getElementById('btn-cancel-payment')?.addEventListener('click', cerrarModalPago);
+document.getElementById('close-payment-modal')?.addEventListener('click', cerrarModalPago);
+
+document.getElementById('btn-confirm-payment')?.addEventListener('click', async () => {
+    const totalMonto = parseFloat(document.getElementById('total-mesa').textContent.replace('Bs ', ''));
+    const qr = parseFloat(document.getElementById('input-pago-qr').value) || 0;
+    const efe = parseFloat(document.getElementById('input-pago-efectivo').value) || 0;
+    const pagado = qr + efe;
+
+    // Validación con redondeo (Epsilon de 0.01 Bs)
+    if (pagado < totalMonto - 0.01) {
+        const errorEl = document.getElementById('payment-error-msg');
+        errorEl.textContent = `Monto insuficiente. Faltan Bs ${(totalMonto - pagado).toFixed(2)}`;
+        errorEl.className = 'error-text-visible';
+        return;
+    }
+
+    // Preparar transacciones para el backend
+    const pagosArray = [];
+    if (qr > 0) pagosArray.push({ tipo: 'QR', monto: qr });
+    if (efe > 0) {
+        // Si pagó de más en efectivo, registramos solo lo necesario para saldar la orden
+        // El resto se considera vuelto entregado.
+        const montoEfectivoReal = (qr >= totalMonto) ? 0 : totalMonto - qr;
+        if (montoEfectivoReal > 0) {
+            pagosArray.push({ tipo: 'EFECTIVO', monto: montoEfectivoReal.toFixed(2) });
+        }
+    }
+
+    try {
+        const res = await authFetch(`/ordenes/${ORDEN_ACTUAL_ID}/finalizar`, {
+            method: 'POST',
+            body: JSON.stringify({ pagos: pagosArray })
+        });
+
+        if (res.ok) {
+            cerrarModalPago();
+            mostrarNotificacion("¡Éxito!", "Pago procesado y mesa liberada.", false);
+            cargarProductosPage(sessionStorage.getItem("mesaSeleccionada"));
+        } else {
+            const err = await res.json();
+            mostrarNotificacion("Error", err.message || "Error al procesar el pago.");
+        }
+    } catch (error) {
+        console.error(error);
+        mostrarNotificacion("Error", "Error de conexión.");
+    }
+});
+
+
+
+
+
+
+
+
+
+    document.getElementById('modal-overlay')?.addEventListener('click', () => {
+        cerrarNotificacion();
+        
+        if (typeof cerrarModalComentario === 'function') cerrarModalComentario();
+        if (typeof cerrarModalEliminar === 'function') cerrarModalEliminar();
+        if (typeof cerrarModalDescuento === 'function') cerrarModalDescuento();
+    });
 
     const btnImprimir = document.querySelector(".imprimir");
     if (btnImprimir) {
     btnImprimir.addEventListener("click", () => {
-        if (!ORDEN_ACTUAL_ID) return alert("No hay orden activa para imprimir.");
+        if (!ORDEN_ACTUAL_ID) return mostrarNotificacion("Aviso", "No hay productos para imprimir.");
 
         const mesaId = sessionStorage.getItem("mesaSeleccionada");
         cargarImpresionPage(ORDEN_ACTUAL_ID, mesaId);
     });
     }
 
+    document.getElementById('btn-confirm-delete')?.addEventListener('click', async () => {
+        if (ITEM_PARA_ELIMINAR) {
+            try {
+                let res;
+                
+                if (ITEM_PARA_ELIMINAR.tipo === 'descuento') {
+                    res = await authFetch(`/ordenes/${ITEM_PARA_ELIMINAR.ordenId}/descuento/${ITEM_PARA_ELIMINAR.id}`, {
+                        method: 'DELETE'
+                    });
+                } else {
+                    res = await authFetch(`${ITEM_PARA_ELIMINAR.endpoint}/${ITEM_PARA_ELIMINAR.id}`, {
+                        method: 'DELETE'
+                    });
+                }
+
+                if (res.ok) {
+                    if (ITEM_PARA_ELIMINAR.esUltimoItem && ORDEN_ACTUAL_ID) {
+                        await authFetch(`/ordenes/${ORDEN_ACTUAL_ID}`, {
+                            method: 'DELETE'
+                        });
+
+                        console.log("Orden vacía eliminada. Volviendo a mesas...");
+
+                        cargarHTML("../html/mesas.html", initMesas); 
+                        activarMenu('menu-mesas');
+                        sessionStorage.removeItem("mesaSeleccionada");
+                    } else {
+                        verificarOrdenActiva(sessionStorage.getItem("mesaSeleccionada"));
+                    }
+                }
+            } catch (error) {
+                console.error("Error al eliminar item/descuento:", error);
+            } finally {
+                cerrarModalEliminar();
+            }
+        }
+    });
+
+    document.getElementById('btn-close-notification')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        cerrarNotificacion();
+    });
+
+    document.getElementById('close-notification-modal')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        cerrarNotificacion();
+    });
+
+    document.getElementById('modal-overlay')?.addEventListener('click', () => {
+        cerrarNotificacion();
+        cerrarModalComentario();
+        cerrarModalEliminar();
+        cerrarModalDescuento();
+    });
+
+    document.getElementById('btn-cancel-delete')?.addEventListener('click', cerrarModalEliminar);
+    document.getElementById('close-delete-modal')?.addEventListener('click', cerrarModalEliminar);
     
+
 };

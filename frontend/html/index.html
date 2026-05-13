@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema DRG</title>
+    <title>Sistema DRG - Mesa Dragón</title>
     <link rel="stylesheet" href="../css/style.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="../css/reservas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.boxicons.com/3.0.4/fonts/basic/boxicons.min.css">
 </head>
+
 <body>
     <div class="dark-mode-btn" id="dark-mode-btn">
         <i class='bx bx-moon' style='color:#000000'></i> 
@@ -40,15 +41,9 @@
                         <span>Reservar</span>
                     </a>
                 </li>
-                 <li class="menu-item menu-item-static">
-                    <a href="#" class="menu-link" id="menu-productos">
-                        <i class='bx  bx-dish'></i> 
-                        <span>Productos</span>
-                    </a>
-                </li>
                 <li class="menu-item menu-item-static">
                     <a href="#" class="menu-link" id="menu-ordenes">
-                        <i class='bx  bxs-list-ul-square'></i> 
+                        <i class='bx bxs-list-ul-square'></i> 
                         <span>Órdenes</span>
                     </a>
                 </li>
@@ -58,7 +53,6 @@
                         <span>Asistencia</span>
                     </a>
                 </li>
-                 
             </ul>
         </div>
 
@@ -82,7 +76,6 @@
 
             <div class="user">
                 <div class="user-img">
-                    <img src="../assets/imágenes/imagenUsuario.jpg" alt="user">
                 </div>
                 <div class="user-data">
                     <span class="name" id="user-name">Cargando...</span>
@@ -94,11 +87,154 @@
             </div>
         </div>
     </div>
-        
-    <div class="cuerpo" id="cuerpo">
-    
+
+    <div class="cuerpo" id="cuerpo"></div>
+
+    <div id="modal-overlay" class="modal-overlay-hidden"></div>
+
+    <div id="notification-modal" class="custom-modal-hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="notification-title">Notificación</h3>
+                <span id="close-notification-modal" class="close-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="notification-message" style="text-align: center; padding: 15px 0;"></p>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-close-notification" class="btn-primary">Aceptar</button>
+            </div>
+        </div>
     </div>
-        
+    
+    <div id="delete-modal" class="custom-modal-hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirmar Eliminación</h3>
+                <span id="close-delete-modal" class="close-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="delete-modal-message"></p>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-confirm-delete" class="btn-primary">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="reserva-modal" class="custom-modal-hidden">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 id="reserva-modal-titulo">Nueva Reserva</h3>
+                <span id="close-reserva-modal" class="close-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="formulario-reserva">
+                    <div class="form-group">
+                        <label>Cliente</label>
+                        <div class="input-group">
+                            <div class="searchable-select-container">
+                                <input type="text" id="cliente-search" placeholder="Escribe nombre o teléfono..." autocomplete="off">
+                                <input type="hidden" id="cliente-select-id"> <div id="cliente-options-results" class="search-results-hidden">
+                                    </div>
+                            </div>
+                            <button id="btn-crear-cliente-reserva" class="btn-plus">+</button>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Piso</label>
+                            <select id="piso-select">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Mesa</label>
+                            <select id="mesa-select-form">
+                                <option value="">Seleccione...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Fecha</label>
+                            <input type="date" id="fecha-reserva">
+                        </div>
+                        <div class="form-group">
+                            <label>Hora</label>
+                            <input type="time" id="hora-reserva">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-guardar-reserva" class="btn-primary">Guardar Reserva</button>
+            </div>
+
+            <div id="reserva-error-msg" class="error-text-hidden"></div>
+        </div>
+    </div>
+
+    <div id="cliente-modal" class="custom-modal-hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nuevo Cliente</h3>
+                <span id="close-cliente-modal" class="close-btn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Nombre Completo</label>
+                    <input type="text" id="new-nombre" placeholder="Ej: Juan Perez">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>CI / NIT</label>
+                        <input type="text" id="new-ci" placeholder="1234567">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="text" id="new-telf" placeholder="70012345">
+                    </div>
+                </div>
+                <div id="cliente-error-msg" class="error-text-hidden"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-guardar-cliente-modal" class="btn-primary" style="background-color: #2e7d32;">Guardar Cliente</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-reserva-modal" class="custom-modal-hidden">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header" style="background-color: #3F435D;">
+                <h3 style="color: white;">Tiempos de reserva (minutos)</h3>
+                <span id="close-settings-modal" class="close-btn" style="color: white;">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Tolerancia de la reserva</label>
+                    <input type="number" id="input-tolerancia" placeholder="Ej: 20">
+                    <small>Tiempo extra antes de cancelar la reserva por inasistencia.</small>
+                </div>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>Bloquear creación de reserva</label>
+                    <input type="number" id="input-ventana-bloqueo" placeholder="Ej: 120">
+                    <small>Margen de seguridad entre reservas para no crear una reserva en una mesa ocupada.</small>
+                </div>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>Ventana de Llegada temprana</label>
+                    <input type="number" id="input-ventana-llegada" placeholder="Ej: 30">
+                    <small>Margen para detectar al cliente automaticamente al abrir una orden en una reserva.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-save-settings" class="btn-primary" style="background-color: #3F435D;">Guardar Configuración</button>
+            </div>
+        </div>
+</div>
+
     <script type="module" src="../js/main.js"></script>
 </body>
 </html>

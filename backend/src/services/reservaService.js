@@ -1,23 +1,46 @@
-const { Reserva, Cliente, Mesa } = require('../models');
+const { Reserva, Cliente, Mesa, Configuracion} = require('../models');
 const { Op } = require('sequelize');
 
 
-async function verificarDisponibilidad(mesaId, fechaHora) {
-    const fechaInicio = new Date(fechaHora);
+async function verificarDisponibilidad(mesaId, fechaHora, excludeReservaId = null) {
+    
+    const configBuffer = await Configuracion.findOne({ where: { clave: 'ventana_bloqueo' } });
+    const bufferMinutes = configBuffer ? configBuffer.valor : 120;
+    const bufferMs = bufferMinutes * 60 * 1000;
 
-    const dosHorasAntes = new Date(fechaInicio.getTime() - 2 * 60 * 60 * 1000);
-    const dosHorasDespues = new Date(fechaInicio.getTime() + 2 * 60 * 60 * 1000);
+    const fechaInicio = new Date(fechaHora);
+    const rangoInicio = new Date(fechaInicio.getTime() - bufferMs);
+    const rangoFin = new Date(fechaInicio.getTime() + bufferMs);
 
     const conflicto = await Reserva.findOne({
         where: {
             mesa_id: mesaId,
+            id: { [Op.ne]: excludeReservaId },
+            estado: { [Op.in]: ['PENDIENTE', 'LLEGO'] },
             hora: {
-                [Op.between]: [dosHorasAntes, dosHorasDespues]
+                [Op.between]: [rangoInicio, rangoFin]
             }
         }
     });
 
     return !conflicto; 
+}
+
+async function procesarExpiraciones() {
+    const config = await Configuracion.findOne({ where: { clave: 'minutos_tolerancia' } });
+    const toleranciaMins = config ? config.valor : 20;
+    
+    const limiteExpiracion = new Date(new Date().getTime() - (toleranciaMins * 60 * 1000));
+
+    await Reserva.update(
+        { estado: 'EXPIRADA' },
+        {
+            where: {
+                estado: 'PENDIENTE',
+                hora: { [Op.lt]: limiteExpiracion }
+            }
+        }
+    );
 }
 
 async function crearReserva(datos) {
@@ -34,15 +57,17 @@ async function crearReserva(datos) {
 
     const disponible = await verificarDisponibilidad(datos.mesa_id, datos.hora);
     if (!disponible) {
-        throw new Error("La mesa ya está reservada en un horario cercano (±2 horas).");
+        throw new Error("La mesa ya está reservada en un horario cercano.");
     }
 
     return await Reserva.create(datos);
 }
 
-async function listarReservas(filtros = {}) {
-    const whereClause = {};
 
+async function listarReservas(filtros = {}) {
+    await procesarExpiraciones();
+
+    const whereClause = {};
 
     if (filtros.fecha) {
         const [anio, mes, dia] = filtros.fecha.split('-');
@@ -53,13 +78,7 @@ async function listarReservas(filtros = {}) {
     } 
 
     else {
-
-        const hace30Min = new Date(new Date().getTime() - 30 * 60 * 1000);
-
-
-        whereClause.hora = {
-            [Op.gte]: hace30Min
-        };
+        whereClause.estado = 'PENDIENTE';
     }
 
     return await Reserva.findAll({
@@ -76,15 +95,14 @@ async function actualizarReserva(id, datos) {
     const reserva = await Reserva.findByPk(id);
     if (!reserva) throw new Error("Reserva no encontrada.");
 
-
     if (datos.hora || datos.mesa_id) {
-
         const mesaId = datos.mesa_id || reserva.mesa_id;
         const horaNueva = datos.hora || reserva.hora;
 
         const disponible = await verificarDisponibilidad(mesaId, horaNueva);
+        
         if (!disponible && (mesaId !== reserva.mesa_id || new Date(horaNueva).getTime() !== new Date(reserva.hora).getTime())) {
-
+            throw new Error("La mesa ya tiene una reserva en ese horario.");
         }
     }
 

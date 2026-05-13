@@ -15,7 +15,6 @@ async function crear(req, res, next) {
 
 async function listar(req, res, next) {
     try {
-        // ?busqueda=juan
         const { busqueda } = req.query;
         const clientes = await clienteService.listarClientes(busqueda);
         res.status(httpCodes.OK.code).json(clientes);

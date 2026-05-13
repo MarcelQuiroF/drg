@@ -38,7 +38,6 @@ async function obtenerPorId(req, res, next) {
 
 async function listar(req, res, next) {
     try {
-        // Ahora sí funcionará porque importamos 'Juego' y 'Categoria' arriba
         const juegos = await Juego.findAll({
             include: [{
                 model: Categoria,

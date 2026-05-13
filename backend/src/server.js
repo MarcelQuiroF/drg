@@ -7,7 +7,7 @@ async function startServer() {
     try {
 
         await sequelize.authenticate();
-        console.log('Conexión a la base de datos (Supabase) exitosa.');
+        console.log('Conexión a la base de datos exitosa.');
 
         app.listen(PORT, () => {
             console.log(`Servidor Express escuchando en http://localhost:${PORT}/api/v1`);

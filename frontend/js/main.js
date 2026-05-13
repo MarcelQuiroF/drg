@@ -1,4 +1,5 @@
 import { authFetch } from './api.js';
+import { cerrarNotificacion } from './utils.js';
 import { cargarHTML } from './utils.js';
 
 // --- MÓDULOS OPERATIVOS (CAJERO/MESERO) ---
@@ -34,6 +35,28 @@ if (path.includes('indexAdmin.html') && rol !== 'ADMIN') {
 /* ---------------------------------------------------- */
 /* 2. INICIALIZACIÓN DE LA APP */
 /* ---------------------------------------------------- */
+document.addEventListener('click', (e) => {
+    if (e.target.id === 'modal-overlay' || e.target.id === 'btn-close-notification' || e.target.id === 'close-notification-modal') {
+        cerrarNotificacion();
+    }
+});
+
+
+document.addEventListener('click', (e) => {
+    // If the user clicks the dark overlay, close any active modal
+    if (e.target.id === 'modal-overlay') {
+        cerrarNotificacion();
+        
+        // Manual trigger for the delete modal since it uses a local let for the ID
+        const deleteModal = document.getElementById('delete-modal');
+        if (deleteModal && deleteModal.classList.contains('custom-modal-visible')) {
+            // Trigger the X button click or call your close function
+            document.getElementById('close-delete-modal')?.click();
+        }
+    }
+});
+
+
 document.addEventListener('DOMContentLoaded', async () => {
     
     // Referencias UI Globales

@@ -1,37 +1,5 @@
-const { ContenedorProducto, ContenedorJuego, Orden, Producto, Juego, sequelize } = require('../models');
-
-async function actualizarTotalOrden(ordenId, transaction) {
-    const itemsProducto = await ContenedorProducto.findAll({
-        where: { orden_id: ordenId },
-        include: [{ model: Producto, attributes: ['precio'] }],
-        transaction
-    });
-
-    let totalProductos = 0;
-    itemsProducto.forEach(item => {
-        if (item.Producto) {
-            totalProductos += parseFloat(item.Producto.precio) * item.cantidad;
-        }
-    });
-
-    const itemsJuego = await ContenedorJuego.findAll({
-        where: { orden_id: ordenId },
-        include: [{ model: Juego, attributes: ['precio'] }],
-        transaction
-    });
-
-    let totalJuegos = 0;
-    itemsJuego.forEach(item => {
-        if (item.Juego) {
-            totalJuegos += parseFloat(item.Juego.precio) * item.cantidad;
-        }
-    });
-
-    await Orden.update(
-        { total: totalProductos + totalJuegos },
-        { where: { id: ordenId }, transaction }
-    );
-}
+const { ContenedorProducto, ContenedorJuego, Orden, Producto, Juego, Descuento, sequelize } = require('../models');
+const { actualizarTotalOrden } = require('../utils/orderUtils');
 
 async function agregarItem(datos) {
     return await sequelize.transaction(async (t) => {

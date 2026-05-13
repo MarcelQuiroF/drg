@@ -9,7 +9,7 @@ router.post('/marcar', asistenciaController.marcarLlegada);
 router.use(authenticate); 
 
 router.get('/horario-hoy', asistenciaController.verHorarioHoy);
-router.get('/', authorize(['ADMIN']), asistenciaController.listar);
-router.patch('/:id/aprobar', authorize(['ADMIN']), asistenciaController.aprobar);
+router.get('/', asistenciaController.listar);
+router.patch('/:id/aprobar', asistenciaController.aprobar);
 
 module.exports = router;

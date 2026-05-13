@@ -6,12 +6,14 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       validate: {
         isFuture(value) {
-
           if (value <= new Date()) {
             throw new Error("La reserva debe ser para una fecha y hora futura");
           }
         }
       }
+    }, estado: {
+    type: DataTypes.ENUM('PENDIENTE', 'LLEGO', 'CANCELADA', 'EXPIRADA'),
+    defaultValue: 'PENDIENTE'
     },
     cliente_id: DataTypes.INTEGER,
     mesa_id: DataTypes.INTEGER

@@ -10,15 +10,16 @@ router.get('/', ordenController.listar);
 router.get('/:id', ordenController.obtenerPorId);
 router.post('/', ordenController.crear); 
 
-router.patch('/:id/finalizar', authorize(['ADMIN', 'CAJERO']), ordenController.finalizar);
+router.post('/:id/finalizar', authorize(['ADMIN', 'CAJERO', 'MESERO']), ordenController.finalizar);
 
 
 
-router.delete('/:id', authorize(['ADMIN']), ordenController.eliminar);
 
-router.post('/:id/descuento', authorize(['ADMIN', 'CAJERO']), ordenController.aplicarDescuento);
+router.delete('/:id', authorize(['ADMIN', 'CAJERO', 'MESERO']), ordenController.eliminar);
+
+router.post('/:id/descuento', authorize(['ADMIN', 'CAJERO', 'MESERO']), ordenController.aplicarDescuento);
 
 router.get('/:id/descuentos', authorize(['ADMIN', 'CAJERO', 'MESERO']), ordenController.listarDescuentos);
-router.delete('/:ordenId/descuento/:descuentoId', authorize(['ADMIN', 'CAJERO']), ordenController.quitarDescuento);
+router.delete('/:ordenId/descuento/:descuentoId', authorize(['ADMIN', 'CAJERO', 'MESERO']), ordenController.quitarDescuento);
 
 module.exports = router;

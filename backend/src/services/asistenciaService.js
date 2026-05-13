@@ -83,7 +83,6 @@ async function listarAsistencias(soloPendientes = false, fecha = null) {
         where.aprobado = false;
     }
 
-    // --- NUEVO: FILTRO DE FECHA ---
     if (fecha) {
 
         const [anio, mes, dia] = fecha.split('-');

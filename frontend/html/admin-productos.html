@@ -1,5 +1,7 @@
+<!-- Enlace al CSS unificado -->
 <link rel="stylesheet" href="../css/admin-productos.css">
 
+<!-- CABECERA PRINCIPAL -->
 <header class="main-header">
     <h1>Gestión de Productos</h1>
     <div class="header-right">
@@ -13,51 +15,153 @@
     </div>
 </header>
 
+<!-- CONTENIDO PRINCIPAL -->
 <div class="contenido" id="admin-content-wrapper">
-    
+    <!-- SECCIÓN DE FILTROS -->
     <section class="filter-section">
         <div class="filter-group js-cats">
             <span class="filter-opt active" data-filter="all">Todos</span>
-            <span class="filter-opt" data-filter="comida">Comida</span>
-            <span class="filter-opt" data-filter="bebida">Bebidas</span>
-            <span class="filter-opt" data-filter="juego">Juegos</span>
+            <span class="filter-opt" data-filter="COCINA">Cocina</span>
+            <span class="filter-opt" data-filter="CAFETERIA">Cafetería</span> 
+            <span class="filter-opt" data-filter="JUEGO">Juegos</span>
         </div>
 
         <div class="filter-group js-stats">
             <span class="filter-opt active" data-status="all">Todos</span>
-            <span class="filter-opt" data-status="active">Activo</span>
-            <span class="filter-opt" data-status="inactive">Inactivo</span>
+            <span class="filter-opt" data-status="active">Activos</span>
+            <span class="filter-opt" data-status="inactive">Inactivos</span>
         </div>
     </section>
 
+    <!-- ÁREA DE GRILLA DE PRODUCTOS -->
     <div class="content-area">
         <div class="product-grid" id="admin-products-container">
-            <p style="text-align:center; color: #888; grid-column: 1/-1;">Cargando inventario...</p>
+            <!-- Las tarjetas se cargan dinámicamente aquí -->
         </div>
     </div>
-
 </div>
 
+<!-- CAPA DE FONDO (OVERLAY) PARA MODALES -->
+<div id="modal-overlay" class="modal-overlay-hidden"></div>
+
+<!-- MODAL DE PRODUCTO (NUEVO/EDITAR) -->
+<div id="product-modal" class="custom-modal-hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="form-title">Nuevo Producto</h2>
+            <span id="close-modal" class="close-btn">&times;</span>
+        </div>
+        
+        <div class="modal-body-scroll">
+            <div class="form-content-flex">
+                <!-- Columna Izquierda: Imagen y Tags -->
+                <div class="image-upload-section">
+                    <div class="preview-container">
+                        <img id="preview-img" src="../assets/productos/default-burger.png" alt="preview">
+                    </div>
+                    <input type="file" id="file-input" accept="image/*" style="display: none;">
+                    <button class="btn-upload" id="btn-upload-img">
+                        <i class='bx bx-upload'></i> Subir Imagen
+                    </button>
+                    
+                    <div id="category-tags" class="tags-container">
+                        <!-- Tags de categorías seleccionadas -->
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: Campos de texto -->
+                <div class="fields-section">
+                    <div class="admin-form-group">
+                        <label>Nombre del Producto:</label>
+                        <input type="text" id="prod-nombre" placeholder="Ej: Pizza Napolitana">
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label>Precio (Bs):</label>
+                        <input type="number" id="prod-precio" placeholder="0.00" step="0.01">
+                    </div>
+
+                    <div class="admin-form-row">
+                        <div class="admin-form-group">
+                            <label>Zona / Tipo:</label>
+                            <select id="prod-zona">
+                                <option value="COCINA">Cocina</option>
+                                <option value="CAFETERIA">Cafetería</option>
+                                <option value="JUEGO">Juego</option>
+                            </select>
+                        </div>
+                        <div class="admin-form-group">
+                            <label>Estado:</label>
+                            <select id="prod-activado">
+                                <option value="true">Activo</option>
+                                <option value="false">Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Campos exclusivos para Juegos -->
+                    <div id="game-only-fields" style="display: none;" class="admin-form-row">
+                        <div class="admin-form-group">
+                            <label>Jugadores Mín:</label>
+                            <input type="number" id="prod-jug-min" min="1" value="1">
+                        </div>
+                        <div class="admin-form-group">
+                            <label>Jugadores Máx:</label>
+                            <input type="number" id="prod-jug-max" min="1" value="4">
+                        </div>
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label>Categorías:</label>
+                        <div class="category-search-container">
+                            <input type="text" id="category-search-input" placeholder="Buscar categoría...">
+                            <div id="category-results" class="search-results-dropdown hidden"></div>
+                        </div>
+                    </div>
+
+                    <p id="form-error-msg" class="error-text-hidden" style="text-align: center; margin-top: 10px;"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-secondary" id="btn-cancelar">Cancelar</button>
+            <button class="btn-primary" id="btn-guardar">Guardar Cambios</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE CONFIRMACIÓN DE ESTADO (ACTIVAR/DESACTIVAR) -->
+<div id="status-modal" class="custom-modal-hidden">
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+        <div class="modal-header" style="border-bottom: none;">
+            <h2 id="status-modal-title"></h2> 
+            <span id="close-status-modal" class="close-btn">&times;</span>
+        </div>
+        <div class="modal-body" style="padding: 10px 0 30px 0;">
+            <p id="status-modal-message" style="color: var(--text-grey); font-size: 1.1rem; line-height: 1.4;"></p>
+        </div>
+        <div class="modal-footer" style="justify-content: center; border-top: none;">
+            <button class="btn-primary" id="btn-status-confirm" style="padding: 12px 50px; width: 100%; border-radius: 25px;">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<!-- TEMPLATE PARA TARJETAS DE PRODUCTO -->
 <template id="template-admin-card">
     <div class="contenedor-producto">
+        <i class='bx bxs-pencil btn-edit-float'></i>
         <img src="" alt="Producto" class="prod-img">
-        
         <div class="status-bar"></div>
-
         <div class="prod-info">
             <div class="prod-name"></div>
             <div class="prod-cat"></div>
         </div>
-
         <div class="prod-footer">
             <div class="price-box">
-                <span class="lbl-price">Precio:</span>
                 <span class="val-price"></span>
             </div>
-            
-            <button class="btn-toggle-status" style="display: none;">Activar</button>
+            <button class="btn-toggle-status">Toggle</button>
         </div>
-        
-        <i class='bx bxs-pencil btn-edit-float' style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 50%; cursor: pointer; color: white; display: none;"></i>
     </div>
 </template>

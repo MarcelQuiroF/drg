@@ -1,4 +1,4 @@
-const { Mesa, Piso, Reserva, sequelize } = require('../models');
+const { Mesa, Piso, Reserva, Configuracion, sequelize } = require('../models');
 const { Op } = require('sequelize');
 
 async function crearMesa(datos) {
@@ -12,15 +12,28 @@ async function crearMesa(datos) {
 
 async function listarMesas(pisoId = null) {
     await actualizarEstadosReservas();
+    const ahora = new Date();
 
     const queryOptions = {
-        include: [{ model: Piso, attributes: ['nombre'] }],
-        order: [['numero', 'ASC']]
+        include: [
+            { model: Piso, attributes: ['nombre'] },
+            { 
+                model: Reserva, 
+                where: { 
+                    estado: 'PENDIENTE',
+                    hora: { [Op.gt]: ahora } 
+                },
+                required: false,
+                attributes: ['hora'],
+            }
+        ],
+        order: [
+            ['numero', 'ASC'],
+            [Reserva, 'hora', 'ASC'] 
+        ]
     };
 
-    if (pisoId) {
-        queryOptions.where = { piso_id: pisoId };
-    }
+    if (pisoId) queryOptions.where = { piso_id: pisoId };
 
     return await Mesa.findAll(queryOptions);
 }
@@ -34,47 +47,41 @@ async function actualizarMesa(id, datos) {
 async function actualizarEstadosReservas() {
     const ahora = new Date();
     
+    const [confTolerancia, confLlegada] = await Promise.all([
+        Configuracion.findOne({ where: { clave: 'minutos_tolerancia' } }),
+        Configuracion.findOne({ where: { clave: 'ventana_llegada' } })
+    ]);
 
-    const limiteVencimiento = new Date(ahora.getTime() - 30 * 60 * 1000); 
+    const toleranciaMins = confTolerancia ? confTolerancia.valor : 20;
+    const anticipacionMins = confLlegada ? confLlegada.valor : 30;
 
-    const ventanaInicio = limiteVencimiento; 
-    const ventanaFin = new Date(ahora.getTime() + 60 * 60 * 1000); 
+    const limiteExpiracion = new Date(ahora.getTime() - (toleranciaMins * 60 * 1000));
 
     const reservasVencidas = await Reserva.findAll({
         where: {
-            hora: { [Op.lt]: limiteVencimiento } 
-        },
-        include: [{ 
-            model: Mesa, 
-            where: { estado: 3 } 
-        }]
+            estado: 'PENDIENTE',
+            hora: { [Op.lt]: limiteExpiracion }
+        }
     });
 
     if (reservasVencidas.length > 0) {
-        const idsLiberar = reservasVencidas.map(r => r.mesa_id);
-        await Mesa.update(
-            { estado: 0 }, 
-            { where: { id: { [Op.in]: idsLiberar } } }
-        );
-        console.log(`🧹 Liberadas ${idsLiberar.length} mesas por inasistencia.`);
+        const idsMesas = reservasVencidas.map(r => r.mesa_id);
+        await Reserva.update({ estado: 'EXPIRADA' }, { where: { id: { [Op.in]: reservasVencidas.map(r => r.id) } } });
+        await Mesa.update({ estado: 0 }, { where: { id: { [Op.in]: idsMesas }, estado: 3 } });
     }
 
-    const reservasActivas = await Reserva.findAll({
+    const limiteFuturo = new Date(ahora.getTime() + (anticipacionMins * 60 * 1000));
+
+    const reservasProximas = await Reserva.findAll({
         where: {
-            hora: { [Op.between]: [ventanaInicio, ventanaFin] }
-        },
-        include: [{ 
-            model: Mesa, 
-            where: { estado: 0 }
-        }]
+            estado: 'PENDIENTE',
+            hora: { [Op.between]: [limiteExpiracion, limiteFuturo] }
+        }
     });
 
-    if (reservasActivas.length > 0) {
-        const idsReservar = reservasActivas.map(r => r.mesa_id);
-        await Mesa.update(
-            { estado: 3 }, 
-            { where: { id: { [Op.in]: idsReservar } } }
-        );
+    if (reservasProximas.length > 0) {
+        const idsMesasReservar = reservasProximas.map(r => r.mesa_id);
+        await Mesa.update({ estado: 3 }, { where: { id: { [Op.in]: idsMesasReservar }, estado: 0 } });
     }
 }
 

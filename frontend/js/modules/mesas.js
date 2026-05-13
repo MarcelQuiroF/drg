@@ -1,5 +1,5 @@
 import { authFetch } from '../api.js';
-import { activarMenu } from '../utils.js'; 
+import { activarMenu, cargarHTML, iniciarAutoRefresco } from '../utils.js';
 import { cargarProductosPage } from './productos.js'; 
 
 const mapEstadoBackendAFrontend = (estado) => {
@@ -21,6 +21,29 @@ const obtenerEstadoTexto = (estadoFront) => ({
     3: 'Reservado'
 }[estadoFront] || 'Desconocido');
 
+
+
+export const cargarMesasPage = () => {
+    cargarHTML("../html/mesas.html", () => {
+        initMesas();
+        
+        // Iniciamos el refresco global para mesas cada 15 o 20 segundos
+        // Solo refrescamos las mesas, no los pisos, para no molestar al usuario
+        iniciarAutoRefresco(actualizarSoloMesasSilencioso, 15);
+    });
+};
+
+// --- FUNCIÓN DE REFRESCO SILENCIOSO ---
+const actualizarSoloMesasSilencioso = async () => {
+    const select = document.querySelector('.dropDownPiso');
+    if (!select) return;
+
+    const pisoId = select.value;
+    if (pisoId) {
+        // Solo llamamos a cargarMesas, que refresca el contenedor y los contadores
+        await cargarMesas(pisoId);
+    }
+};
 
 
 export const initMesas = () => {
@@ -87,11 +110,14 @@ const actualizarContadoresMesas = (mesas) => {
         return acc; 
     }, {1:0, 2:0, 3:0});
 
+    const etiquetas = ["RESERVADAS", "EN USO", "DISPONIBLE"];
     const contenedores = document.querySelectorAll('.cabezeraCuerpo .informacion .contenedorMesa p');
+    
     if(contenedores.length >= 3){
-        contenedores[0].textContent = conteos[3]; 
-        contenedores[1].textContent = conteos[2]; 
-        contenedores[2].textContent = conteos[1]; 
+        // Mapeamos los índices: 0 -> Reservadas (3), 1 -> En Uso (2), 2 -> Disponible (1)
+        contenedores[0].textContent = `RESERVADAS: ${conteos[3]}`; 
+        contenedores[1].textContent = `EN USO: ${conteos[2]}`; 
+        contenedores[2].textContent = `DISPONIBLES: ${conteos[1]}`; 
     }
 };
 
@@ -113,31 +139,45 @@ const renderizarMesas = (mesas) => {
         
         mesaDiv.className = `mesa-card estado-${estadoVisual}`;
         mesaDiv.id = `mesa-${mesa.id}`;
-        
-        const capacidad = mesa.numero; 
 
+        // --- LÓGICA DEL RELOJ DE RESERVAS ---
+        const reservasFuturas = mesa.Reservas || [];
+        let relojHTML = '';
+
+        if (reservasFuturas.length > 0) {
+            const listaHoras = reservasFuturas.map(res => {
+                const d = new Date(res.hora);
+                return `• ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+            }).join('\n');
+
+            relojHTML = `
+                <div class="mesa-reloj-container" data-tooltip="Próximas Reservas:\n${listaHoras}">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+            `;
+        }
+
+        // Inyectamos el nuevo formato: Nº de mesa y rango de capacidad
         mesaDiv.innerHTML = `
-            <div class="mesa-header">${obtenerEstadoTexto(estadoVisual)}</div>
+            <div class="mesa-header">
+                <span>${obtenerEstadoTexto(estadoVisual)}</span>
+                ${relojHTML}
+            </div>
             <div class="mesa-cuerpo">
                 <img src="${obtenerImagenPorEstado(estadoVisual)}" alt="Mesa ${mesa.id}" class="mesa-icono">
             </div>
             <div class="mesa-footer">
-                <p class="mesa-nombre">${mesa.nombre}</p>
+                <p class="mesa-nombre">Nº${mesa.numero} - ${mesa.nombre}</p>
                 <div class="mesa-capacidad">
                     <img src="../assets/íconos/iconoUsuario.png" alt="Capacidad" class="icono-persona">
-                    <span class="capacidad-texto"> Nº: ${capacidad}</span>
+                    <span class="capacidad-texto">${mesa.cantidadMinima}-${mesa.cantidadMaxima}</span>
                 </div>
             </div>
         `;
 
-
         mesaDiv.addEventListener('click', () => {
              sessionStorage.setItem("mesaSeleccionada", mesa.id); 
-             
-
              activarMenu('menu-productos');
-             
-
              cargarProductosPage(mesa.id);
         });
 

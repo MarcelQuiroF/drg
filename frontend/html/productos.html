@@ -50,24 +50,41 @@
 
             <div class="contenedor-control">
 
-                
+                <div class="notepad-bar-container">
+                    <button id="btn-notepad" class="btn-estilo-bar">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                </div>
 
+                <div id="notepad-modal" class="notepad-hidden">
+                    <div class="notepad-content">
+                        <div class="notepad-header">
+                            <h3>Notas de la mesa</h3>
+                            <span id="close-notepad" class="close-btn">&times;</span>
+                        </div>
+                        
+                        <textarea id="notepad-textarea" placeholder="Escribe..."></textarea>
+                    </div>
+                </div>
 
 
 
                 <div class="agregar-descuento" style="cursor: pointer;"> <span>Agregar Descuento</span>
-                <i class="fa-solid fa-circle-plus"></i>
-            </div>
-            <div class="contenedor-informacion">
-                <div class="informacion-total">
-                    <span>Total:</span>
-                    <span id="total-mesa">$0.00</span>
+                    <i class="fa-solid fa-circle-plus"></i>
                 </div>
-                <div class="botones">
-                    <button class="imprimir">Imprimir</button>
-                    <button class="cobrar">Cobrar</button>
+
+                <div class="contenedor-informacion">
+                    <div class="informacion-total">
+                        <span>Total:</span>
+                        <span id="total-mesa">$0.00</span>
+                    </div>
+                    
+                    <div class="botones">
+                        <button class="imprimir">Imprimir</button>
+                        <button class="cobrar">Cobrar</button>
+
+                    </div>
                 </div>
-            </div>
             </div>
         </div>
 
@@ -105,3 +122,125 @@
         </div>
     </div>
 </template>
+
+<div id="modal-overlay" class="modal-overlay-hidden"></div>
+
+<div id="comment-modal" class="custom-modal-hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Agregar Nota al Producto</h3>
+            <span id="close-comment-modal" class="close-btn">&times;</span>
+        </div>
+        <div class="modal-body">
+            <textarea id="comment-textarea" placeholder="Ej: Sin cebolla, término medio..."></textarea>
+        </div>
+        <div class="modal-footer">
+            <button id="btn-cancel-comment" class="btn-secondary">Cancelar</button>
+            <button id="btn-save-comment" class="btn-primary">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<div id="delete-modal" class="custom-modal-hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3></h3>
+            <span id="close-delete-modal" class="close-btn">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p id="delete-modal-message">¿Estás seguro de que deseas eliminar este producto de la orden?</p>
+        </div>
+        <div class="modal-footer">
+            <button id="btn-cancel-delete" class="btn-secondary">Cancelar</button>
+            <button id="btn-confirm-delete" class="btn-danger">Eliminar</button>
+        </div>
+    </div>
+</div>
+
+<div id="discount-modal" class="custom-modal-hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Aplicar Descuento</h3>
+            <span id="close-discount-modal" class="close-btn">&times;</span>
+        </div>
+        <div class="modal-body">
+
+            <p id="discount-error-msg" class="error-text-hidden"></p>
+
+            <div class="modal-form-group">
+                <label>Tipo de Descuento:</label>
+                <select id="discount-type-select">
+                    <option value="P">Porcentaje (%)</option>
+                    <option value="M">Monto Fijo (Bs)</option>
+                </select>
+            </div>
+            <div class="modal-form-group">
+                <label id="label-discount-value">Valor del Descuento:</label>
+                <input type="number" id="discount-amount-input" placeholder="0.00" step="0.01">
+            </div>
+            <div class="modal-form-group">
+                <label>Motivo (Obligatorio):</label>
+                <input type="text" id="discount-reason-input" placeholder="Descuento especial">
+            </div>
+
+            
+        </div>
+        <div class="modal-footer">
+            <button id="btn-cancel-discount" class="btn-secondary">Cancelar</button>
+            <button id="btn-apply-discount" class="btn-primary">Aplicar</button>
+        </div>
+    </div>
+</div>
+
+<div id="notification-modal" class="custom-modal-hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="notification-title">Notificación</h3>
+            <span id="close-notification-modal" class="close-btn">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p id="notification-message" style="text-align: center; padding: 15px 0;"></p>
+        </div>
+        <div class="modal-footer">
+            <button id="btn-close-notification" class="btn-primary">Aceptar</button>
+        </div>
+    </div>
+</div>
+
+<div id="payment-modal" class="custom-modal-hidden">
+    <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-header">
+            <h3>Finalizar Cobro</h3>
+            <span id="close-payment-modal" class="close-btn">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <span style="font-size: 0.9em; color: var(--color-text-secondary);">Total a cobrar:</span>
+                <h2 id="payment-total-display" style="margin: 5px 0; color: #333;">Bs 0.00</h2>
+            </div>
+
+            <div id="payment-error-msg" class="error-text-hidden"></div>
+
+            <div class="modal-form-group">
+                <label><i class="fa-solid fa-qrcode"></i> Pago QR (Bs)</label>
+                <input type="number" id="input-pago-qr" placeholder="0.00" step="0.01" min="0">
+            </div>
+
+            <div class="modal-form-group">
+                <label><i class="fa-solid fa-money-bill-1-wave"></i> Pago Efectivo (Bs)</label>
+                <input type="number" id="input-pago-efectivo" placeholder="0.00" step="0.01" min="0">
+            </div>
+
+            <div id="payment-info-box" style="margin-top: 15px; padding: 10px; border-radius: 8px; background: #f9f9f9; border: 1px solid #eee;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.95em;">
+                    <span>Sobrante / Vuelto:</span>
+                    <strong id="payment-change-display">Bs 0.00</strong>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer" style="margin-top: 20px;">
+            <button id="btn-cancel-payment" class="btn-secondary">Cancelar</button>
+            <button id="btn-confirm-payment" class="btn-primary" style="background-color: #2e7d32;">Confirmar Pago</button>
+        </div>
+    </div>
+</div>

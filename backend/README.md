@@ -1,8 +1,8 @@
-//activado: producto, juego
+Tu .env deberia tener:
 
-//aumentar enviado a contenedor producto
-//aumentar finalizado a orden
-//eliminar casilla de mesa
+DATABASE_URL=
+DATABASE_URL2=
 
-//cambiar nombre de atraso a asistencia
-//aumentar aprobado a asistencia
+JWT_SECRET=
+JWT_EXPIRATION=8h
+PORT=3000

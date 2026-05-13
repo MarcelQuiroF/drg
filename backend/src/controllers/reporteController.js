@@ -3,10 +3,8 @@ const httpCodes = require('../utils/httpCodes');
 
 async function cierreDia(req, res, next) {
     try {
-        // GET /api/v1/reportes/cierre-dia?fecha=2023-11-29
         const { fecha } = req.query;
 
-        // Solo Admin y Cajeros deberían ver esto
         if (req.empleado.rol !== 'ADMIN' && req.empleado.rol !== 'CAJERO') {
             return res.status(httpCodes.FORBIDDEN.code).json({ message: "No autorizado para ver reportes financieros." });
         }

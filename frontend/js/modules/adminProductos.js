@@ -1,377 +1,393 @@
 import { authFetch } from '../api.js';
-import { cargarHTML } from '../utils.js';
 
-let allProducts = []; // Almacenará productos y juegos
-let currentCategoryFilter = 'all';
-let currentStatusFilter = 'all';
-let searchTerm = '';
+let allInventory = [];
+let allCategories = [];      // Lista global de categorías desde la DB
+let selectedCategories = []; // Categorías elegidas en el modal actual
+let currentCategory = 'all';
+let currentStatus = 'all';
+let searchStr = '';
+let EDIT_ID = null;
+let ITEM_PARA_TOGGLE = null;
 
 export const initAdminProductos = async () => {
-    // 1. Cargar Datos
-    await loadAllInventory();
-
-    // 2. Eventos de Filtros (Categoría)
-    const catFilters = document.querySelectorAll('.js-cats .filter-opt');
-    catFilters.forEach(btn => {
-        btn.addEventListener('click', () => {
-            catFilters.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentCategoryFilter = btn.dataset.filter;
-            renderInventory();
-        });
-    });
-
-    // 3. Eventos de Filtros (Estado)
-    const statFilters = document.querySelectorAll('.js-stats .filter-opt');
-    statFilters.forEach(btn => {
-        btn.addEventListener('click', () => {
-            statFilters.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentStatusFilter = btn.dataset.status;
-            renderInventory();
-        });
-    });
-
-    // 4. Buscador
-    const searchInput = document.getElementById('admin-search-input');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            searchTerm = e.target.value.toLowerCase();
-            renderInventory();
-        });
-    }
-
-    // 5. Botón Nuevo
-    document.getElementById('btn-nuevo-producto')?.addEventListener('click', () => {
-        cargarFormularioProducto(null);
-    });
-
-    
+    await loadCategories(); 
+    await loadInventory();
+    setupEventListeners();
 };
 
-const loadAllInventory = async () => {
-    try {
-        const [resProds, resJuegos] = await Promise.all([
-            authFetch('/productos'),
-            authFetch('/juegos')
-        ]);
+const setupEventListeners = () => {
+    // Filtros de categoría
+    document.querySelectorAll('.js-cats .filter-opt').forEach(opt => {
+        opt.onclick = () => {
+            document.querySelectorAll('.js-cats .filter-opt').forEach(o => o.classList.remove('active'));
+            opt.classList.add('active');
+            currentCategory = opt.dataset.filter;
+            renderInventory();
+        };
+    });
 
+    // Filtros de estado
+    document.querySelectorAll('.js-stats .filter-opt').forEach(opt => {
+        opt.onclick = () => {
+            document.querySelectorAll('.js-stats .filter-opt').forEach(o => o.classList.remove('active'));
+            opt.classList.add('active');
+            currentStatus = opt.dataset.status;
+            renderInventory();
+        };
+    });
+
+    // Buscador principal
+    const searchInput = document.getElementById('admin-search-input');
+    if (searchInput) {
+        searchInput.oninput = (e) => {
+            searchStr = e.target.value.toLowerCase();
+            renderInventory();
+        };
+    }
+
+    // Modal Events
+    const btnNuevo = document.getElementById('btn-nuevo-producto');
+    if (btnNuevo) btnNuevo.onclick = () => openModal();
+
+    document.getElementById('close-modal')?.addEventListener('click', closeAllModals);
+    document.getElementById('close-status-modal')?.addEventListener('click', closeAllModals);
+    document.getElementById('btn-cancelar')?.addEventListener('click', closeAllModals);
+    document.getElementById('modal-overlay')?.addEventListener('click', closeAllModals);
+    document.getElementById('btn-guardar')?.addEventListener('click', handleSave);
+    document.getElementById('btn-status-confirm')?.addEventListener('click', handleConfirmToggle);
+
+    // Cambio de Zona/Tipo
+    const selectZona = document.getElementById('prod-zona');
+    if (selectZona) {
+        selectZona.onchange = (e) => {
+            const gameFields = document.getElementById('game-only-fields');
+            if (gameFields) {
+                gameFields.style.display = e.target.value === 'JUEGO' ? 'flex' : 'none';
+            }
+        };
+    }
+
+    // Buscador de Categorías dentro del Modal
+    const categorySearchInput = document.getElementById('category-search-input');
+    if (categorySearchInput) {
+        categorySearchInput.oninput = (e) => {
+            const term = e.target.value.toLowerCase();
+            renderCategoryResults(term);
+        };
+    }
+
+    // Cerrar resultados si se hace click fuera
+    document.addEventListener('click', (e) => {
+        const results = document.getElementById('category-results');
+        if (results && !e.target.closest('.category-search-container')) {
+            results.classList.add('hidden');
+        }
+    });
+
+    // Image Preview y Carga de Archivo
+    const fileInput = document.getElementById('file-input');
+    const btnUpload = document.getElementById('btn-upload-img');
+    if (btnUpload && fileInput) {
+        btnUpload.onclick = () => fileInput.click();
+        fileInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const preview = document.getElementById('preview-img');
+                    if (preview) preview.src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+    }
+};
+
+const loadInventory = async () => {
+    try {
+        const [resP, resJ] = await Promise.all([authFetch('/productos'), authFetch('/juegos')]);
         let combined = [];
 
-        if (resProds.ok) {
-            const prods = await resProds.json();
-            // Normalizar datos para que tengan estructura común
-            combined = combined.concat(prods.map(p => ({
-                ...p,
-                type: 'producto',
-                category: p.zona === 'Cocina' ? 'comida' : 'bebida' // Mapeo simple basado en tu lógica anterior
-            })));
+        if (resP.ok) {
+            const data = await resP.json();
+            combined = combined.concat(data.map(p => ({ ...p, type: 'producto', category: p.zona })));
+        }
+        if (resJ.ok) {
+            const data = await resJ.json();
+            combined = combined.concat(data.map(j => ({ ...j, type: 'juego', category: 'JUEGO' })));
         }
 
-        if (resJuegos.ok) {
-            const juegos = await resJuegos.json();
-            combined = combined.concat(juegos.map(j => ({
-                ...j,
-                type: 'juego',
-                category: 'juego'
-            })));
-        }
-
-        allProducts = combined;
+        allInventory = combined;
         renderInventory();
+    } catch (e) { console.error(e); }
+};
 
-    } catch (error) {
-        console.error("Error cargando inventario:", error);
-    }
+const loadCategories = async () => {
+    try {
+        const res = await authFetch('/categorias');
+        if (res.ok) allCategories = await res.json();
+    } catch (e) { console.error(e); }
 };
 
 const renderInventory = () => {
     const container = document.getElementById('admin-products-container');
     const template = document.getElementById('template-admin-card');
     if (!container || !template) return;
-
+    
     container.innerHTML = '';
 
-    // 1. CONFIGURACIÓN DE IMÁGENES POR DEFECTO
-    const IMAGENES_DEFECTO = {
-        comida: '../assets/productos/default-burger.png',
-        bebida: '../assets/productos/default-drink.png',
-        juego: '../assets/productos/default-game.png'
-    };
-    
-    // Ruta base si en la BD solo guardaste el nombre del archivo (ej: "pizza.png")
-    const RUTA_BASE_PRODUCTOS = '../assets/productos/';
-
-    // --- FILTRADO ---
-    const filtered = allProducts.filter(item => {
-        const catMatch = currentCategoryFilter === 'all' || item.category === currentCategoryFilter;
-        
-        let statusMatch = true;
-        if (currentStatusFilter === 'active') statusMatch = item.activado;
-        if (currentStatusFilter === 'inactive') statusMatch = !item.activado;
-
-        const nameMatch = item.nombre.toLowerCase().includes(searchTerm);
-
-        return catMatch && statusMatch && nameMatch;
+    const filtered = allInventory.filter(item => {
+        const matchCat = currentCategory === 'all' || item.category === currentCategory;
+        const matchStatus = currentStatus === 'all' || (currentStatus === 'active' ? item.activado : !item.activado);
+        const matchSearch = item.nombre.toLowerCase().includes(searchStr);
+        return matchCat && matchStatus && matchSearch;
     });
-
-    if (filtered.length === 0) {
-        container.innerHTML = '<p style="color: #666; grid-column: 1/-1; text-align: center;">No se encontraron productos.</p>';
-        return;
-    }
 
     filtered.forEach(item => {
         const clon = template.content.cloneNode(true);
         const card = clon.querySelector('.contenedor-producto');
-
-        // Estado Visual (Borde y Opacidad)
-        if (item.activado) {
-            card.classList.add('activo');
-            card.classList.remove('inactivo');
-        } else {
-            card.classList.add('inactivo');
-            card.classList.remove('activo');
-        }
-        const btnEdit = clon.querySelector('.btn-edit-float');
-        if(btnEdit) {
-        btnEdit.style.display = 'block'; // Hacerlo visible
-        btnEdit.addEventListener('click', (e) => {
-            e.stopPropagation();
-            cargarFormularioProducto(item.id);
-        });
-        }
-
-        // Datos de Texto
-        clon.querySelector('.prod-name').textContent = item.nombre;
-        clon.querySelector('.prod-cat').textContent = item.category; // 'comida', 'bebida', 'juego'
-        clon.querySelector('.val-price').textContent = `Bs. ${item.precio}`;
-
-        // --- LÓGICA DE IMAGEN ---
         const img = clon.querySelector('.prod-img');
         
-        // Determinamos qué imagen mostrar
-        if (item.imagen && item.imagen.trim() !== "") {
-            // Si la ruta ya es absoluta o relativa manual, la usamos tal cual
-            if (item.imagen.startsWith('http') || item.imagen.startsWith('.') || item.imagen.startsWith('/')) {
-                img.src = item.imagen;
-            } else {
-                // Si es solo el nombre, le pegamos la ruta base
-                img.src = `${RUTA_BASE_PRODUCTOS}${item.imagen}`;
-            }
-        } else {
-            // Si no tiene imagen, usamos el defecto según su categoría
-            img.src = IMAGENES_DEFECTO[item.category] || IMAGENES_DEFECTO.comida;
-        }
+        card.classList.add(item.activado ? 'activo' : 'inactivo');
+        clon.querySelector('.prod-name').textContent = item.nombre;
+        clon.querySelector('.val-price').textContent = `Bs ${item.precio}`;
+        
+        const categoriaVisual = item.type === 'juego' ? 'Juego de Mesa' : item.zona;
+        clon.querySelector('.prod-cat').textContent = categoriaVisual;
+        
+        const imgDefault = {
+            'COCINA': '../assets/productos/default-burger.png',
+            'CAFETERIA': '../assets/productos/default-drink.png',
+            'JUEGO': '../assets/productos/default-game.png'
+        }[item.category] || '../assets/productos/default-burger.png';
 
-        // Manejo de error de carga (si la imagen del producto no existe, pone el default)
-        img.onerror = () => { 
-            img.src = IMAGENES_DEFECTO[item.category] || IMAGENES_DEFECTO.comida; 
+        img.src = item.imagen || imgDefault;
+        img.onerror = () => { img.src = imgDefault; };
+
+        clon.querySelector('.btn-toggle-status').onclick = (e) => {
+            e.stopPropagation();
+            toggleStatus(item);
         };
 
-        // --- BOTÓN ACTIVAR/DESACTIVAR ---
-        const btnToggle = clon.querySelector('.btn-toggle-status');
-        
-        if (item.activado) {
-            // Si está activo, mostramos opción de desactivar
-            btnToggle.style.display = 'block';
-            btnToggle.textContent = 'Desactivar';
-            btnToggle.style.backgroundColor = '#333';
-            btnToggle.style.color = '#fff';
-        } else {
-            // Si está inactivo, mostramos activar
-            btnToggle.style.display = 'block';
-            btnToggle.textContent = 'Activar';
-            // Usa el estilo por defecto del CSS (gris claro)
-            btnToggle.style.backgroundColor = ''; 
-            btnToggle.style.color = '';
-        }
-
-        btnToggle.addEventListener('click', (e) => {
-            e.stopPropagation(); 
-            toggleProductStatus(item);
-        });
+        clon.querySelector('.btn-edit-float').onclick = (e) => {
+            e.stopPropagation();
+            openModal(item);
+        };
 
         container.appendChild(clon);
     });
 };
 
-const toggleProductStatus = async (item) => {
-    const newStatus = !item.activado;
-    const action = newStatus ? 'activar' : 'desactivar';
+/* --- LÓGICA DE CATEGORÍAS (TAGS) --- */
 
-    if(!confirm(`¿Deseas ${action} el producto "${item.nombre}"?`)) return;
-
-    try {
-        let endpoint = item.type === 'producto' 
-            ? `/productos/${item.id}` 
-            : `/juegos/${item.id}`;
-        
-        // Asumiendo que tu backend acepta PUT para actualizar 'activado'
-        // Si no, necesitamos crear un endpoint específico o usar el update general
-        const res = await authFetch(endpoint, {
-            method: 'PUT',
-            body: JSON.stringify({ activado: newStatus })
-        });
-
-        if (res.ok) {
-            // Actualizar localmente para no recargar todo
-            item.activado = newStatus;
-            renderInventory();
-        } else {
-            alert("Error al actualizar estado.");
-        }
-    } catch (error) {
-        console.error(error);
-    }
-};
-
-// Variable para saber si editamos o creamos
-let PRODUCTO_EDIT_ID = null;
-
-// Función para abrir el formulario
-export const cargarFormularioProducto = (idProducto = null) => {
-    PRODUCTO_EDIT_ID = idProducto;
-    cargarHTML('../html/admin-producto-form.html', initFormulario);
-};
-
-const initFormulario = async () => {
-    // 1. Cargar Categorías en el Select
-    await cargarCategoriasSelect();
-
-    // 2. Si es edición, cargar datos del producto
-    if (PRODUCTO_EDIT_ID) {
-        document.getElementById('form-title').textContent = "Editar Producto";
-        await cargarDatosProducto(PRODUCTO_EDIT_ID);
+const renderCategoryResults = (term) => {
+    const resultsDiv = document.getElementById('category-results');
+    if (!resultsDiv) return;
+    if (!term) {
+        resultsDiv.classList.add('hidden');
+        return;
     }
 
-    // 3. Eventos de botones
-    document.getElementById('btn-cancelar-producto')?.addEventListener('click', () => {
-        // CORRECCIÓN: Eliminamos la línea 'require' que causaba el error.
-        // Simplemente hacemos clic en el enlace del menú para volver a la lista.
-        const btnMenuProductos = document.getElementById('menu-admin-productos');
-        if (btnMenuProductos) {
-            btnMenuProductos.click();
-        } else {
-            console.error("No se encontró el botón del menú para volver.");
-        }
-    });
+    const filtered = allCategories.filter(c => 
+        c.nombre.toLowerCase().includes(term) && 
+        !selectedCategories.find(sel => sel.id === c.id)
+    );
 
-    document.getElementById('btn-guardar-producto')?.addEventListener('click', guardarProducto);
-
-    // 4. Lógica de Imagen (Previsualización local)
-    const fileInput = document.getElementById('file-input');
-    const btnUpload = document.getElementById('btn-upload-img');
-    const imgPreview = document.getElementById('preview-img');
-
-    if (btnUpload && fileInput) {
-        btnUpload.addEventListener('click', () => fileInput.click());
-
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => imgPreview.src = e.target.result;
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-};
-
-const cargarCategoriasSelect = async () => {
-    const select = document.getElementById('categoria');
-    try {
-        const res = await authFetch('/categorias');
-        if (res.ok) {
-            const categorias = await res.json();
-            select.innerHTML = '<option value="" disabled selected>Seleccionar...</option>';
-            categorias.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c.id; // Asumiendo que la relación usa ID
-                opt.text = c.nombre;
-                select.add(opt);
-            });
-        }
-    } catch (e) { console.error(e); }
-};
-
-const cargarDatosProducto = async (id) => {
-    try {
-        // Intentar buscar en productos (si falla, buscar en juegos)
-        // O mejor, el botón de editar debería decirnos qué tipo es.
-        // Por simplicidad, buscamos en productos primero.
-        let res = await authFetch(`/productos/${id}`); // Necesitas endpoint GET /:id
-        if (!res.ok) res = await authFetch(`/juegos/${id}`); // Fallback
-
-        if (res.ok) {
-            const data = await res.json();
-            document.getElementById('nombre').value = data.nombre;
-            document.getElementById('precio').value = data.precio;
-            document.getElementById('estado').value = data.activado.toString();
-            
-            // Zona y Categoría
-            if (data.zona) document.getElementById('zona').value = data.zona;
-            // Para categoría, si es N:M, es complejo mostrarlo en un select simple.
-            // Asumiremos que seleccionamos la primera categoría.
-            if (data.Categorias && data.Categorias.length > 0) {
-                document.getElementById('categoria').value = data.Categorias[0].id;
-            }
-
-            // Imagen
-            if (data.imagen) document.getElementById('preview-img').src = data.imagen;
-        }
-    } catch (e) { console.error(e); }
-};
-
-const guardarProducto = async () => {
-    const nombre = document.getElementById('nombre').value;
-    const precio = document.getElementById('precio').value;
-    const zona = document.getElementById('zona').value; // 'COCINA', 'BARRA', 'JUEGO'
-    const estado = document.getElementById('estado').value === 'true';
-    const categoriaId = document.getElementById('categoria').value;
-
-    // Validaciones básicas
-    if (!nombre || !precio || !categoriaId) return alert("Faltan datos obligatorios.");
-
-    // 1. Determinar si es Producto o Juego según la Zona
-    const esJuego = (zona === 'JUEGO' || zona === 'juego');
+    resultsDiv.innerHTML = filtered.length === 0 
+        ? '<div class="category-option">No hay resultados</div>'
+        : filtered.map(c => `<div class="category-option" data-id="${c.id}" data-nombre="${c.nombre}">${c.nombre}</div>`).join('');
     
-    // 2. Preparar el Payload (Datos)
-    const payload = {
-        nombre,
-        precio: parseFloat(precio),
-        activado: estado,
-        categorias: categoriaId ? [categoriaId] : []
+    resultsDiv.querySelectorAll('.category-option').forEach(opt => {
+        opt.onclick = () => addCategoryTag(opt.dataset.id, opt.dataset.nombre);
+    });
+    resultsDiv.classList.remove('hidden');
+};
+
+const addCategoryTag = (id, nombre) => {
+    selectedCategories.push({ id: parseInt(id), nombre });
+    const input = document.getElementById('category-search-input');
+    if (input) input.value = '';
+    document.getElementById('category-results')?.classList.add('hidden');
+    renderTags();
+};
+
+window.removeCategoryTag = (id) => {
+    selectedCategories = selectedCategories.filter(c => c.id !== id);
+    renderTags();
+};
+
+const renderTags = () => {
+    const container = document.getElementById('category-tags');
+    if (container) {
+        container.innerHTML = selectedCategories.map(c => `
+            <span class="tag">${c.nombre}<i class='bx bx-x' onclick="removeCategoryTag(${c.id})"></i></span>
+        `).join('');
+    }
+};
+
+/* --- MODALES Y GUARDADO --- */
+
+const openModal = (item = null) => {
+    EDIT_ID = item ? item.id : null;
+    selectedCategories = item ? (item.Categorias || []) : [];
+    
+    const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
     };
 
-    // Solo los productos tienen zona, los juegos tienen jugadores
-    if (esJuego) {
-        // Valores por defecto para juegos si no los pedimos en el formulario simplificado
-        payload.jugadores_min = 2; 
-        payload.jugadores_max = 4;
-        payload.tiempo_partida = 30;
-    } else {
-        payload.zona = zona;
+    const errorEl = document.getElementById('form-error-msg');
+    if (errorEl) {
+        errorEl.textContent = '';
+        errorEl.className = 'error-text-hidden';
     }
 
-    // 3. Determinar URL y Método
-    const method = PRODUCTO_EDIT_ID ? 'PUT' : 'POST';
+    const formTitle = document.getElementById('form-title');
+    if (formTitle) formTitle.textContent = item ? "Editar Producto" : "Nuevo Producto";
+
+    setVal('prod-nombre', item ? item.nombre : "");
+    setVal('prod-precio', item ? item.precio : "");
+    setVal('prod-activado', item ? item.activado.toString() : "true");
     
-    let urlBase = esJuego ? '/juegos' : '/productos';
-    let url = PRODUCTO_EDIT_ID ? `${urlBase}/${PRODUCTO_EDIT_ID}` : urlBase;
+    const previewImg = document.getElementById('preview-img');
+    if (previewImg) {
+        previewImg.src = item?.imagen || "../assets/productos/default-burger.png";
+    }
+
+    // Lógica de Zona y Bloqueo
+    const selectZona = document.getElementById('prod-zona');
+    if (selectZona) {
+        const options = selectZona.options;
+        for (let opt of options) opt.disabled = false;
+        selectZona.disabled = false;
+
+        if (item) {
+            if (item.type === 'juego') {
+                selectZona.value = 'JUEGO';
+                selectZona.disabled = true; 
+            } else {
+                for (let opt of options) if (opt.value === 'JUEGO') opt.disabled = true;
+                selectZona.value = item.zona;
+            }
+        } else {
+            selectZona.value = 'COCINA';
+        }
+        selectZona.dispatchEvent(new Event('change'));
+    }
+
+    setVal('prod-jug-min', item?.jugadores_min || 1);
+    setVal('prod-jug-max', item?.jugadores_max || 4);
+
+    renderTags();
+
+    const overlay = document.getElementById('modal-overlay');
+    const modal = document.getElementById('product-modal');
+    if (overlay) overlay.className = 'modal-overlay-visible';
+    if (modal) modal.className = 'custom-modal-visible';
+};
+
+const handleSave = async () => {
+    const errorEl = document.getElementById('form-error-msg');
+    const previewImg = document.getElementById('preview-img');
+    const zona = document.getElementById('prod-zona')?.value;
+    const nombre = document.getElementById('prod-nombre')?.value;
+    const precio = parseFloat(document.getElementById('prod-precio')?.value);
+
+    // Validaciones básicas
+    if (!nombre || isNaN(precio)) {
+        if (errorEl) {
+            errorEl.textContent = "⚠️ Nombre y precio son obligatorios.";
+            errorEl.className = 'error-text-visible';
+        }
+        return;
+    }
+
+    // Construcción del objeto de datos
+    const data = {
+        nombre,
+        precio,
+        activado: document.getElementById('prod-activado')?.value === 'true',
+        categorias: selectedCategories.map(c => c.id),
+        // Si el src de la imagen es Base64 (nueva carga), lo enviamos, si no, null
+        imagen: previewImg.src.includes('data:image') ? previewImg.src : null 
+    };
+
+    if (zona === 'JUEGO') {
+        data.jugadores_min = parseInt(document.getElementById('prod-jug-min')?.value);
+        data.jugadores_max = parseInt(document.getElementById('prod-jug-max')?.value);
+    } else {
+        data.zona = zona;
+    }
+
+    const endpoint = zona === 'JUEGO' ? '/juegos' : '/productos';
+    const url = EDIT_ID ? `${endpoint}/${EDIT_ID}` : endpoint;
 
     try {
-        const res = await authFetch(url, {
-            method,
-            body: JSON.stringify(payload)
+        const res = await authFetch(url, { 
+            method: EDIT_ID ? 'PUT' : 'POST', 
+            body: JSON.stringify(data) 
         });
 
         if (res.ok) {
-            alert(PRODUCTO_EDIT_ID ? "Actualizado correctamente." : "Creado correctamente.");
-            // Volver a la lista simulando click en el menú
-            document.getElementById('menu-admin-productos').click(); 
+            closeAllModals();
+            await loadInventory();
         } else {
             const err = await res.json();
-            alert("Error: " + err.message);
+            if (errorEl) {
+                errorEl.textContent = `Error: ${err.message || 'No se pudo guardar'}`;
+                errorEl.className = 'error-text-visible';
+            }
+        }
+    } catch (e) {
+        if (errorEl) {
+            errorEl.textContent = "Error de conexión con el servidor.";
+            errorEl.className = 'error-text-visible';
+        }
+    }
+};
+
+const closeAllModals = () => {
+    document.getElementById('modal-overlay').className = 'modal-overlay-hidden';
+    document.getElementById('product-modal').className = 'custom-modal-hidden';
+    document.getElementById('status-modal').className = 'custom-modal-hidden';
+    EDIT_ID = null;
+    ITEM_PARA_TOGGLE = null;
+    selectedCategories = [];
+    
+    // Reset del input de archivo
+    const fileInput = document.getElementById('file-input');
+    if (fileInput) fileInput.value = '';
+};
+
+const toggleStatus = (item) => {
+    ITEM_PARA_TOGGLE = item;
+    const nextStatus = !item.activado;
+    const msg = document.getElementById('status-modal-message');
+    const btnConfirm = document.getElementById('btn-status-confirm');
+
+    if (msg) msg.innerHTML = `¿Deseas ${nextStatus ? '<strong>activar</strong>' : '<strong>desactivar</strong>'} <br> "<strong>${item.nombre}</strong>"?`;
+
+    if (btnConfirm) {
+        btnConfirm.className = 'btn-primary ' + (nextStatus ? 'confirm-activar' : 'confirm-desactivar');
+        btnConfirm.textContent = nextStatus ? 'Activar Producto' : 'Desactivar Producto';
+    }
+
+    document.getElementById('status-modal').className = 'custom-modal-visible';
+    document.getElementById('modal-overlay').className = 'modal-overlay-visible';
+};
+
+const handleConfirmToggle = async () => {
+    if (!ITEM_PARA_TOGGLE) return;
+    const endpoint = ITEM_PARA_TOGGLE.type === 'producto' ? `/productos/${ITEM_PARA_TOGGLE.id}` : `/juegos/${ITEM_PARA_TOGGLE.id}`;
+
+    try {
+        const res = await authFetch(endpoint, {
+            method: 'PUT',
+            body: JSON.stringify({ activado: !ITEM_PARA_TOGGLE.activado })
+        });
+        if (res.ok) {
+            closeAllModals();
+            await loadInventory();
         }
     } catch (e) { console.error(e); }
 };
