@@ -49,7 +49,7 @@ module.exports = {
         ci: '1234567LP', 
         telefono: '77712345', 
         contrasenia: '$2b$10$5/wnhUJUAGPKPNLfdlvR3eDwXq/0fgNhwnTpHSdj.5lGWy43YQgwq', 
-        rol: 'ADMIN', 
+        rol: 'CAJERO', 
         activo: true, 
         correo: 'admin@mesadragon.com', 
         createdAt: now, 
