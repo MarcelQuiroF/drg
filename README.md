@@ -37,3 +37,30 @@ DATABASE_URL2=postgres://usuario:contraseña@localhost:5432/mesa_dragon_db
 # Seguridad
 JWT_SECRET=tu_clave_secreta_super_segura
 JWT_EXPIRATION=8h
+```
+
+## Instalación y Despliegue
+
+### 1. Clonar el repositorio
+```bash
+git clone [https://github.com/MarcelQuiroF/drg.git](https://github.com/MarcelQuiroF/drg.git)
+cd drg
+```
+
+### 2. Configurar el Backend
+```bash
+cd backend
+npm install
+```
+
+### 3. Ejecutar Migraciones y Seeds
+```bash
+npx sequelize-cli db:migrate
+npx sequelize-cli db:seed:all
+```
+
+### 4. Iniciar el Servidor
+```bash
+npm start
+```
+
