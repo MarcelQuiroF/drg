@@ -1,0 +1,91 @@
+.dashboard-wrapper {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.dashboard-header {
+    background: var(--color-surface);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.dashboard-header h2 { margin: 0 0 15px 0; color: var(--color-text-primary); }
+
+.dashboard-filters {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.radio-filters {
+    display: flex;
+    gap: 15px;
+    color: var(--color-text-primary);
+    align-items: center;
+}
+
+.date-filters {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* KPI Cards */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.kpi-card {
+    background: var(--color-surface);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border-top: 4px solid #ff5a5e;
+}
+
+.kpi-card h3 { font-size: 0.9em; color: var(--color-text-secondary); margin: 0 0 10px 0; }
+.kpi-card h1 { font-size: 2em; color: var(--color-text-primary); margin: 0; }
+
+.kpi-split { display: flex; gap: 10px; margin-top: 10px; font-size: 0.85em; }
+.qr-tag { color: #0284c7; background: #e0f2fe; padding: 2px 6px; border-radius: 4px; }
+.cash-tag { color: #16a34a; background: #dcfce7; padding: 2px 6px; border-radius: 4px; }
+
+/* Charts & Rankings */
+.charts-grid, .rankings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+@media (min-width: 1024px) {
+    .charts-grid { grid-template-columns: 2fr 1fr; }
+    .span-2 { grid-column: span 1; } /* En pantallas muy grandes podrías ajustar el span */
+}
+
+.chart-card, .ranking-card {
+    background: var(--color-surface);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.chart-card h3, .ranking-card h3 { margin: 0 0 15px 0; color: var(--color-text-primary); font-size: 1.1em;}
+
+.ranking-list { list-style: none; padding: 0; margin: 0; }
+.ranking-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+}
+.ranking-list li:last-child { border-bottom: none; }
+.ranking-qty { font-weight: bold; color: #ff5a5e; }

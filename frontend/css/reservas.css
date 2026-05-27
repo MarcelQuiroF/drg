@@ -1,0 +1,136 @@
+/* reservas.css */
+.reservas-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+}
+
+.reservas-main-title {
+    font-size: 1.8rem;
+    color: var(--color-text-primary);
+    font-weight: 700;
+}
+
+.reservas-subtitle {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+}
+
+.btn-config-icon {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    transition: all 0.3s ease;
+}
+
+.btn-config-icon:hover {
+    background: var(--color-bg);
+    color: var(--color-text-primary);
+    transform: rotate(45deg);
+}
+
+/* Tabla Estilo Dragón */
+.dragon-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+}
+
+.dragon-table th {
+    padding: 15px;
+    text-align: left;
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.dragon-table tr {
+    transition: transform 0.2s ease;
+}
+
+.dragon-table tbody tr:hover {
+    transform: scale(1.01);
+}
+
+.dragon-table td {
+    padding: 15px;
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.dragon-table td:first-child {
+    border-left: 1px solid var(--color-border);
+    border-radius: 12px 0 0 12px;
+}
+
+.dragon-table td:last-child {
+    border-right: 1px solid var(--color-border);
+    border-radius: 0 12px 12px 0;
+}
+
+/* Celda de Cliente */
+.client-info-cell {
+    display: flex;
+    flex-direction: column;
+}
+
+.client-name {
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.client-phone {
+    font-size: 0.8rem;
+    color: #2e7d32; /* Verde suave */
+    font-family: 'Courier New', Courier, monospace;
+}
+
+/* Estados de Horario */
+.hour-tag {
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: var(--color-bg);
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+/* Estado: Retrasado (Dentro de la tolerancia) */
+.hour-tag.time-tolerance {
+    color: #ffffff !important;
+    background-color: #ff5a5e !important; /* Rojo sólido */
+    box-shadow: 0 0 10px rgba(255, 90, 94, 0.4);
+}
+
+/* Estado: Llegada Próxima (Temprana) */
+.hour-tag.time-early {
+    color: #ffffff !important;
+    background-color: #38b6ff !important; /* Azul sólido */
+    box-shadow: 0 0 10px rgba(56, 182, 255, 0.4);
+}
+
+/* Botón Registro */
+.btn-nueva-reserva-dragon {
+    background-color: #a33333;
+    color: white;
+    border: none;
+    padding: 15px 35px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(163, 51, 51, 0.3);
+}
+
+.btn-nueva-reserva-dragon:hover {
+    background-color: #8a2a2a;
+    transform: translateY(-2px);
+}

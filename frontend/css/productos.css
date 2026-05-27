@@ -1,0 +1,236 @@
+
+.notepad-bar-container {
+    margin-bottom: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-estilo-bar {
+
+    
+    width: 10%;
+    height: 45px;
+    background-color: #FFFFFF; 
+    border: 2px solid gray;
+    border-radius: 7px;
+    margin-left: auto;
+    display: block;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-estilo-bar:hover {
+    background-color: #e0e0e0;
+}
+
+.btn-estilo-bar i {
+    font-size: 1.2rem;
+    color: #000;
+}
+
+#notepad-modal {
+    position: fixed;
+    top: 5%;
+    right: 2.5%;
+    width: 300px;
+
+    background: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    border-radius: 10px;
+    z-index: 2000;
+    display: none;
+    border: 1px solid #ccc;
+}
+
+#notepad-modal.notepad-visible { display: block; }
+
+.notepad-content { 
+    padding: 15px;
+}
+
+.close-btn {
+    font-size: 24px;
+    font-weight: bold;
+    color: #999;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+    display: inline-block; 
+}
+
+.notepad-header, .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.notepad-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+
+.close-btn:hover {
+    color: #d9534f;
+}
+
+
+#notepad-textarea {
+    width: 100%;
+    height: 150px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+    resize: none;
+}
+
+
+/* The Dimmed Background */
+.modal-overlay-hidden { display: none; }
+.modal-overlay-visible {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Dimming effect */
+    z-index: 2500;
+}
+
+/* The Centered Modal */
+.custom-modal-hidden { display: none; }
+.custom-modal-visible {
+    display: block;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Perfect centering */
+    width: 400px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    z-index: 9999;
+}
+
+.modal-content { padding: 20px; }
+
+#comment-textarea {
+    width: 100%;
+    height: 100px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    resize: none;
+    margin-bottom: 15px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-primary { background: #333; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+.btn-secondary { background: #eee; color: #333; border: 1px solid #ccc; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+
+.btn-danger {
+    background: #ff5a5e;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.btn-danger:hover {
+    background: #e0484d;
+}
+
+#delete-modal-message {
+    margin-bottom: 20px;
+    color: #555;
+    line-height: 1.4;
+}
+
+#delete-modal-message b, #delete-modal-message strong {
+    color: #333;
+}
+
+.fa-triangle-exclamation {
+    margin-right: 5px;
+}
+
+
+
+.modal-form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+.modal-form-group label {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.modal-form-group select, 
+.modal-form-group input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
+}
+
+.modal-form-group select:focus, 
+.modal-form-group input:focus {
+    border-color: #333;
+    outline: none;
+}
+
+.error-text-hidden {
+    display: none;
+}
+
+.error-text-visible {
+    display: block;
+    color: #ff5a5e;
+    background-color: #fff1f1;
+    border: 1px solid #ff5a5e;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* productos.css */
+
+#btn-confirm-payment:disabled {
+    background-color: #ccc !important;
+    color: #666 !important;
+    transform: none !important;
+    box-shadow: none !important;
+    cursor: not-allowed;
+}
+
+/* Efecto opcional para cuando el pago está COMPLETO */
+.payment-complete-animation {
+    animation: pulse-green 1.5s infinite;
+}
+
+@keyframes pulse-green {
+    0% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(46, 125, 50, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0); }
+}
