@@ -64,3 +64,9 @@ npx sequelize-cli db:seed:all
 npm start
 ```
 
+
+## 👥 Estructura de Roles
+
+* **`ADMIN`:** Acceso exclusivo a la interfaz de administración (`indexAdmin.html`), reportes gráficos financieros, edición de menús, configuraciones de tolerancia de tiempo e inactivación/activación de personal y áreas del salón.
+* **`CAJERO` / `MESERO`:** Acceso a la interfaz operativa (`index.html`) para control de comandas, asignación de clientes a mesas, gestión de reservas del día y toma de asistencias.
+
