@@ -1515,5 +1515,3 @@ Registro de movimientos financieros, ingresos por cobro de órdenes y flujos de 
     "message": "Transacción anulada correctamente."
   }
 
-```
-
