@@ -1,4 +1,4 @@
-const { Empleado } = require('../models');
+const { Empleado, Horario } = require('../models');
 const httpCodes = require('../utils/httpCodes');
 
 
@@ -55,6 +55,7 @@ async function listar(req, res, next) {
     try {
         const empleados = await Empleado.findAll({
             attributes: { exclude: ['contrasenia'] },
+            include: [{ model: Horario }], // <--- AGREGA ESTO para que viajen sus horarios asignados
             order: [['nombre', 'ASC']]
         });
 
@@ -64,8 +65,63 @@ async function listar(req, res, next) {
     }
 }
 
+async function actualizarEmpleado(req, res, next) {
+    try {
+        const { id } = req.params;
+        const { nombre, ci, telefono, correo, contrasenia, rol, activo, horarios } = req.body;
+
+        // 1. Buscar si el empleado existe
+        const empleado = await Empleado.findByPk(id);
+        if (!empleado) {
+            return res.status(httpCodes.NOT_FOUND.code).json({
+                message: "Empleado no encontrado."
+            });
+        }
+
+        // 2. Actualizar los datos básicos del empleado
+        empleado.nombre = nombre;
+        empleado.ci = ci;
+        empleado.telefono = telefono;
+        empleado.correo = correo || null;
+        empleado.rol = rol;
+        empleado.activo = activo;
+
+        // Si se envió una nueva contraseña, la asignamos (el hook del modelo se encargará de encriptarla)
+        if (contrasenia && contrasenia.trim() !== "") {
+            empleado.contrasenia = contrasenia;
+        }
+
+        await empleado.save();
+
+        // 3. Actualizar la agenda de horarios (Si se enviaron en la petición)
+        if (horarios && Array.isArray(horarios)) {
+            // Eliminamos la planificación de días anterior para evitar duplicados
+            await Horario.destroy({ where: { empleado_id: id } });
+
+            // Insertamos las nuevas asignaciones
+            if (horarios.length > 0) {
+                const nuevosHorarios = horarios.map(h => ({
+                    dia: h.dia,
+                    hora_entrada: h.hora_entrada,
+                    empleado_id: id
+                }));
+                await Horario.bulkCreate(nuevosHorarios);
+            }
+        }
+
+        res.status(httpCodes.OK.code).json({
+            message: "Empleado actualizado exitosamente."
+        });
+
+    } catch (error) {
+        console.error("ERROR DETALLADO EN ACTUALIZAR EMPLEADO:", error); // <-- AGREGA ESTA LÍNEA
+        next(error);
+    }
+}
+
 module.exports = {
     crearEmpleado,
     obtenerPerfil,
-    listar
+    listar,
+    actualizarEmpleado
 };

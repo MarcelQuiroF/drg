@@ -10,11 +10,12 @@ async function crearMesa(datos) {
 }
 
 
-async function listarMesas(pisoId = null) {
+async function listarMesas(pisoId = null, soloActivos = false) {
     await actualizarEstadosReservas();
     const ahora = new Date();
 
     const queryOptions = {
+        where: {},
         include: [
             { model: Piso, attributes: ['nombre'] },
             { 
@@ -33,7 +34,8 @@ async function listarMesas(pisoId = null) {
         ]
     };
 
-    if (pisoId) queryOptions.where = { piso_id: pisoId };
+    if (pisoId) queryOptions.where.piso_id = pisoId;
+    if (soloActivos) queryOptions.where.activo = true;
 
     return await Mesa.findAll(queryOptions);
 }

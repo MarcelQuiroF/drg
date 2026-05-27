@@ -1,4 +1,4 @@
-const { Configuracion } = require('../models');
+const { Configuracion, DescuentoAtraso } = require('../models');
 const httpCodes = require('../utils/httpCodes');
 
 async function listar(req, res, next) {
@@ -27,4 +27,21 @@ async function actualizarMasivo(req, res, next) {
     } catch (error) { next(error); }
 }
 
-module.exports = { listar, actualizarMasivo };
+
+
+async function listarDescuentosAtraso(req, res, next) {
+    try {
+        const descuentos = await DescuentoAtraso.findAll({
+            order: [['cantidad_tiempo', 'ASC']]
+        });
+        res.status(httpCodes.OK.code).json(descuentos);
+    } catch (error) { 
+        next(error); 
+    }
+}
+
+module.exports = { 
+    listar, 
+    actualizarMasivo,
+    listarDescuentosAtraso
+};

@@ -1,8 +1,19 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define('Asistencia', {
-    fecha: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+    fecha_hora_llegada: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+    
     aprobado: { type: DataTypes.BOOLEAN, defaultValue: false },
+    
+    estado: { 
+      type: DataTypes.STRING, 
+      allowNull: false,
+      defaultValue: 'PRESENTE',
+      validate: {
+        isIn: [['PRESENTE', 'FALTA', 'PERMISO']]
+      }
+    },
+    
     empleado_id: DataTypes.INTEGER,
     horario_id: DataTypes.INTEGER,
     
@@ -10,7 +21,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: true
     }
-    
   }, {
     tableName: 'asistencia',
     paranoid: true

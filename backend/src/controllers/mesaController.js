@@ -16,8 +16,10 @@ async function crear(req, res, next) {
 
 async function listar(req, res, next) {
     try {
-        const { piso_id } = req.query;
-        const mesas = await mesaService.listarMesas(piso_id);
+        const { piso_id, activo } = req.query;
+        const soloActivos = activo === 'true'; 
+        
+        const mesas = await mesaService.listarMesas(piso_id, soloActivos);
         res.status(httpCodes.OK.code).json(mesas);
     } catch (error) {
         next(error);

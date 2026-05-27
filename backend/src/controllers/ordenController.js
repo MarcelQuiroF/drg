@@ -111,6 +111,32 @@ async function quitarDescuento(req, res, next) {
     }
 }
 
+async function actualizarNotas(req, res, next) {
+    try {
+        const { id } = req.params;
+        const { notas } = req.body;
+
+        if (notas === undefined) {
+            return res.status(httpCodes.BAD_REQUEST.code).json({ 
+                message: "Se requiere el campo 'notas'." 
+            });
+        }
+
+        const ordenActualizada = await ordenService.actualizarNotasDeOrden(id, notas);
+
+        if (!ordenActualizada) {
+            return res.status(httpCodes.NOT_FOUND.code).json({ message: "Orden no encontrada." });
+        }
+
+        res.status(httpCodes.OK.code).json({
+            message: "Notas actualizadas exitosamente.",
+            orden: ordenActualizada
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     crear,
     quitarDescuento,
@@ -119,5 +145,6 @@ module.exports = {
     eliminar,
     obtenerPorId,
     listarDescuentos,
-    aplicarDescuento
+    aplicarDescuento,
+    actualizarNotas
 };

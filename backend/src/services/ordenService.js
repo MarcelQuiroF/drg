@@ -264,6 +264,18 @@ async function registrarLlegadaAutomatica(mesaId, transaction) {
     }
 }
 
+async function actualizarNotasDeOrden(ordenId, nuevasNotas) {
+    const { Orden } = require('../models'); 
+
+    const orden = await Orden.findByPk(ordenId);
+    if (!orden) return null;
+
+    orden.notas = nuevasNotas;
+    await orden.save();
+    
+    return orden;
+}
+
 
 
 module.exports = {
@@ -275,5 +287,6 @@ module.exports = {
     aplicarDescuento,
     obtenerDescuentosPorOrden,
     removerDescuento,
-    registrarLlegadaAutomatica
+    registrarLlegadaAutomatica,
+    actualizarNotasDeOrden
 };

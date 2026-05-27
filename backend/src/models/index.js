@@ -106,6 +106,9 @@ db.Descuento.belongsToMany(db.Orden, {
   otherKey: 'orden_id'
 });
 
+db.Empleado.hasMany(db.Horario, { foreignKey: 'empleado_id' });
+db.Horario.belongsTo(db.Empleado, { foreignKey: 'empleado_id' });
+
 db.Empleado.hasMany(db.Asistencia, { foreignKey: 'empleado_id' });
 db.Asistencia.belongsTo(db.Empleado, { foreignKey: 'empleado_id' });
 

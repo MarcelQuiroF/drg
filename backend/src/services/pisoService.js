@@ -4,8 +4,15 @@ async function crearPiso(datos) {
     return await Piso.create(datos);
 }
 
-async function listarPisos() {
+
+async function listarPisos(soloActivos = false) {
+    const where = {};
+    if (soloActivos) {
+        where.activo = true; 
+    }
+
     return await Piso.findAll({
+        where,
         order: [['numero', 'ASC']]
     });
 }

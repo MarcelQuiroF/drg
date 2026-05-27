@@ -22,4 +22,9 @@ router.post('/:id/descuento', authorize(['ADMIN', 'CAJERO', 'MESERO']), ordenCon
 router.get('/:id/descuentos', authorize(['ADMIN', 'CAJERO', 'MESERO']), ordenController.listarDescuentos);
 router.delete('/:ordenId/descuento/:descuentoId', authorize(['ADMIN', 'CAJERO', 'MESERO']), ordenController.quitarDescuento);
 
+
+
+router.put('/:id', authorize(['ADMIN', 'CAJERO', 'MESERO']), ordenController.actualizarNotas);
+
+
 module.exports = router;

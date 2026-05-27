@@ -22,7 +22,8 @@ module.exports = (sequelize, DataTypes) => {
           }
         }
       }
-    }
+    },
+    activo: { type: DataTypes.BOOLEAN, defaultValue: true }
   }, {
     tableName: 'mesa',
     paranoid: true

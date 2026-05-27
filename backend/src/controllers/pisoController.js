@@ -4,8 +4,8 @@ const httpCodes = require('../utils/httpCodes');
 async function crear(req, res, next) {
     try {
         const { nombre, numero } = req.body;
-        if (!nombre || numero === undefined) {
-            return res.status(httpCodes.BAD_REQUEST.code).json({ message: "Nombre y número son obligatorios." });
+        if (!nombre || numero === undefined || numero === null || isNaN(numero)) {
+            return res.status(httpCodes.BAD_REQUEST.code).json({ message: "Nombre y número válido son obligatorios." });
         }
         const nuevo = await pisoService.crearPiso(req.body);
         res.status(httpCodes.CREATED.code).json(nuevo);
@@ -16,7 +16,8 @@ async function crear(req, res, next) {
 
 async function listar(req, res, next) {
     try {
-        const pisos = await pisoService.listarPisos();
+        const soloActivos = req.query.activo === 'true';
+        const pisos = await pisoService.listarPisos(soloActivos);
         res.status(httpCodes.OK.code).json(pisos);
     } catch (error) {
         next(error);

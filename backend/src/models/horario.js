@@ -4,7 +4,11 @@ module.exports = (sequelize, DataTypes) => {
     dia: DataTypes.STRING,
     hora_entrada: DataTypes.TIME,
     hora_salida: DataTypes.TIME,
-    registro: DataTypes.DATE
+    
+    empleado_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    }
   }, {
     tableName: 'horario',
     paranoid: true

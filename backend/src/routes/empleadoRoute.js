@@ -8,8 +8,9 @@ router.use(authenticate);
 
 
 router.get('/perfil', empleadoController.obtenerPerfil); 
-router.get('/', authenticate, authorize(['ADMIN']), empleadoController.listar);
+router.get('/', authorize(['ADMIN', 'CAJERO']), empleadoController.listar);
 
 router.post('/', authorize(['ADMIN']), empleadoController.crearEmpleado);
+router.put('/:id', authorize(['ADMIN']), empleadoController.actualizarEmpleado);
 
 module.exports = router;
