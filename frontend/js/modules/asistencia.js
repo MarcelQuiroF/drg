@@ -79,7 +79,6 @@ const renderizarTablas = () => {
     const ahora = new Date();
     let contadorTurnos = 0;
 
-    // Renderizar los Empleados (Turnos Pendientes)
     empleadosHoy.forEach(emp => {
         const yaRegistro = asistenciasHoy.find(a => a.empleado_id === emp.id);
         if (yaRegistro) return;
@@ -113,7 +112,6 @@ const renderizarTablas = () => {
         tbodyTurnos.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px; color: #888;">No hay turnos pendientes.</td></tr>';
     }
 
-    // Renderizar Asistencias ya procesadas
     if (asistenciasHoy.length === 0) {
         tbodyRegistros.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: #888;">Aún no hay asistencias registradas hoy.</td></tr>';
     } else {

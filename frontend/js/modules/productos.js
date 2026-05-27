@@ -521,7 +521,6 @@ const abrirModalPago = () => {
         }
     };
 
-    // CORRECCIÓN: Eventos oninput en lugar de addEventListener
     inputQR.oninput = calcularSaldos;
     inputEfe.oninput = calcularSaldos;
 
@@ -535,7 +534,6 @@ const cerrarModalPago = () => {
 };
 
 const inicializarEventosProductos = () => {
-    // CORRECCIÓN: Cambiado de addEventListener a onclick para evitar fugas de memoria
     const btnCatComida = document.getElementById('btn-cat-comida');
     if(btnCatComida) btnCatComida.onclick = () => cargarProductos('comida');
     

@@ -1,6 +1,4 @@
-/* PERDON P */
 
-/* Grid para acomodar las tarjetas */
 .ordenes-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -9,7 +7,6 @@
     align-content: start;
 }
 
-/* Diseño de la Tarjeta */
 .orden-card {
     background: white;
     border-radius: 15px;
@@ -24,7 +21,7 @@
 }
 
 .orden-card:hover {
-    transform: translateY(-5px); /* Efecto de levantar */
+    transform: translateY(-5px);
 }
 
 /* Textos y Colores */

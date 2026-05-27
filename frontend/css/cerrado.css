@@ -1,11 +1,9 @@
-/* Importar fuente Roboto */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
 
-/* --- Estilos Generales --- */
 body {
     margin: 0;
     padding: 0;
-    background-color: #000; /* Fondo negro de la página */
+    background-color: #000;
     font-family: 'Roboto', sans-serif;
     display: flex;
     justify-content: center;
@@ -13,67 +11,53 @@ body {
     min-height: 100vh;
 }
 
-/* --- Contenedor Principal (La Tarjeta) --- */
 .card {
     display: flex;
-    flex-direction: row; /* Imagen izquierda, texto derecha */
+    flex-direction: row;
     width: 80vw;
     height: 90vh;
     max-width: 90%;
     background-color: #000;
-    border: 3px solid #fff; /* Borde blanco fino */
+    border: 3px solid #fff;
     border-radius: 15px;
     padding: 20px;
     box-sizing: border-box;
     align-items: center;
-    /* PERMITE QUE LOS ELEMENTOS INTERNOS SE SALGAN SIN SER RECORTADOS */
     overflow: visible; 
 }
 
-/* --- Sección Izquierda: Imagen --- */
 .card-image {
-    /* Mantenemos flex para la posición, pero añadimos posición relativa */
     flex: 1; 
     padding-right: 10px;
     display: flex;
     align-items: center;
-    /* CLAVE 1: Establecer la posición relativa para que la imagen absoluta se posicione respecto a este contenedor */
     position: relative; 
-    /* CLAVE 2: Establecemos un tamaño base. Aquí, 50% de la altura de la tarjeta. */
     height: 100%; 
-    min-width: 35%; /* Aseguramos que tome suficiente espacio para el texto */
-    /* CLAVE 3: Permitimos que la imagen se salga de esta sección */
+    min-width: 35%;
     overflow: visible;
 }
 
 .card-image img {
-    /* CLAVE 4: Posicionamiento Absoluto para mover la imagen fuera del flujo */
     position: absolute;
-    /* Ajustes para hacer que la imagen se salga por la izquierda y el centro vertical */
     top: 50%;
     left: 0;
-    transform: translate(-15%, -50%); /* Mueve el 10% hacia la izquierda y lo centra verticalmente */
+    transform: translate(-15%, -50%);
     
-    /* Cambia el ancho de la imagen a tu gusto, por ejemplo, 120% para que sea grande */
     width: 130%; 
-    max-width: none; /* Aseguramos que no se limite por el max-width */
+    max-width: none;
     height: auto;
     display: block;
-    /* Opcional: Filtro para oscurecer la imagen y darle el aspecto de la captura */
     filter: brightness(0.8) contrast(1.1); 
 }
 
-/* --- Sección Derecha: Contenido (sin cambios mayores) --- */
 .card-content {
     flex: 1.5; 
     text-align: center;
     color: #fff;
     padding: 20px;
-    /* Ajuste para que el contenido de texto no se vea afectado por la imagen absoluta */
     z-index: 10; 
 }
 
-/* Títulos */
 .title-container {
     margin-bottom: 20px;
 }
@@ -95,7 +79,6 @@ body {
     text-transform: uppercase;
 }
 
-/* Párrafo de texto */
 .card-text {
     font-size: 0.95rem;
     color: #b0b0b0;
@@ -103,7 +86,6 @@ body {
     margin-bottom: 30px;
 }
 
-/* --- Botones --- */
 .buttons-container {
     display: flex;
     justify-content: center;
@@ -124,7 +106,6 @@ body {
     transform: scale(1.05);
 }
 
-/* Botón SALIR (Estilo gradiente plateado) */
 .btn-salir {
     background: linear-gradient(to bottom, #e0e0e0, #888888);
     border: none;
@@ -132,32 +113,28 @@ body {
     box-shadow: 0 2px 5px rgba(255,255,255,0.2);
 }
 
-/* Botón EDITAR (Estilo borde blanco) */
-/* Botón EDITAR (Estilo borde blanco) */
 .btn-editar {
     background: transparent;
     border: 2px solid #fff;
     color: #fff;
-    /* PROPIEDADES AÑADIDAS/AJUSTADAS PARA LA ETIQUETA <a>: */
-    text-decoration: none; /* Elimina el subrayado de los enlaces */
-    display: flex; /* Asegura que el enlace se comporte como el botón */
-    justify-content: center; /* Centra el texto */
-    align-items: center; /* Centra el texto verticalmente */
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-/* --- Responsividad (Móvil) --- */
 @media (max-width: 768px) {
     .card {
         flex-direction: column;
         text-align: center;
-        height: auto; /* Dejar que la altura se ajuste en móvil */
+        height: auto;
     }
     .card-image {
         padding-right: 0;
         padding-bottom: 20px;
         max-width: 100%;
         height: auto;
-        position: static; /* Volver a estático para que se ajuste al flujo normal en móvil */
+        position: static;
     }
     .card-image img {
         position: static;

@@ -67,8 +67,6 @@ export const activarMenu = (id) => {
 
 
 
-// utils.js
-
 export const mostrarNotificacion = (titulo, mensaje, esError = true) => {
     const modal = document.getElementById('notification-modal');
     const overlay = document.getElementById('modal-overlay');
@@ -81,7 +79,6 @@ export const mostrarNotificacion = (titulo, mensaje, esError = true) => {
     }
     if (msgEl) msgEl.textContent = mensaje;
 
-    // MODIFICADO: Usamos una lógica de clases consistente
     if (modal && overlay) {
         modal.classList.remove('custom-modal-hidden');
         modal.classList.add('custom-modal-visible');
@@ -94,13 +91,11 @@ export const cerrarNotificacion = () => {
     const modal = document.getElementById('notification-modal');
     const overlay = document.getElementById('modal-overlay');
     
-    // MODIFICADO: Solo quita el de notificación, no asumas que controla todo el overlay
     if (modal) {
         modal.classList.remove('custom-modal-visible');
         modal.classList.add('custom-modal-hidden');
     }
     
-    // El overlay solo se apaga si no hay ningún otro modal visible en la pantalla
     const algunModalAbierto = document.querySelector('.custom-modal-visible');
     if (!algunModalAbierto && overlay) {
         overlay.classList.remove('modal-overlay-visible');

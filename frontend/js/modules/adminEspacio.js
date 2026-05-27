@@ -264,7 +264,6 @@ const handleSaveMesa = async () => {
     }
 };
 
-/* --- ESTADO (TOGGLE) COMÚN --- */
 const openStatusModal = (item, type) => {
     ITEM_PARA_TOGGLE = { id: item.id, type, activo: item.activo !== false };
     const nextStatus = !ITEM_PARA_TOGGLE.activo;

@@ -1,4 +1,4 @@
-/* --- CONTENEDOR PRINCIPAL --- */
+
 .main-container {
     border: 2px solid #fff;
     border-radius: 15px;
@@ -14,7 +14,7 @@
     gap: 40px;
 }
 
-/* --- SECCIÓN IMAGEN (Izquierda) --- */
+
 .img-box {
     width: 250px;
     display: flex;
@@ -60,7 +60,6 @@
     color: #000;
 }
 
-/* --- SECCIÓN CAMPOS (Derecha) --- */
 .fields {
     flex-grow: 1;
     display: flex;
@@ -77,7 +76,7 @@
 }
 
 .field label {
-    width: 110px; /* Ancho fijo para alineación */
+    width: 110px;
     color: #fff;
 }
 
@@ -100,7 +99,6 @@ select option {
     color: #fff;
 }
 
-/* --- LISTA DE ATRASOS --- */
 .atrasos-box {
     margin-top: 10px;
     border: 1px solid #fff;
@@ -124,11 +122,9 @@ select option {
     border-bottom: none;
 }
 
-/* Scrollbar para atrasos */
 .atrasos-box::-webkit-scrollbar { width: 6px; }
 .atrasos-box::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
 
-/* --- SUELDO --- */
 .salary-display {
     display: flex;
     flex-direction: column;
@@ -146,7 +142,6 @@ select option {
     justify-content: space-between;
 }
 
-/* --- BOTONES INFERIORES --- */
 .back-container {
     display: flex;
     justify-content: center;
@@ -171,7 +166,6 @@ select option {
     opacity: 0.9;
 }
 
-/* RESPONSIVE */
 @media(max-width: 768px) {
     .content {
         flex-direction: column;

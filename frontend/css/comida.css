@@ -1,27 +1,21 @@
-/*
- * --------------------------------
- * 1. VARIABLES Y ESTILOS GLOBALES
- * --------------------------------
- */
-
 :root {
-    --color-primary: #d11d22; /* Rojo Dragón */
+    --color-primary: #d11d22;
     --color-text-dark: #333;
     --color-text-light: #fff;
-    --color-bg-light: #fff; /* Blanco */
-    --color-bg-app: #e8e8e8; /* Gris claro de fondo derecho */
+    --color-bg-light: #fff;
+    --color-bg-app: #e8e8e8;
     
     --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 * {
     box-sizing: border-box;
-    padding: 0; /*Sangría*/
+    padding: 0;
     font-family: var(--font-family);
 }
 
 body {
-    background-color: rgb(21, 21, 21); /* Fondo exterior oscuro */
+    background-color: rgb(21, 21, 21);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -29,11 +23,8 @@ body {
     overflow: hidden;
 }
 
-/* ---------------------------------- */
-/* --- 2. CONTENEDOR PRINCIPAL (.contenedorPrincipal) --- */
-/* ---------------------------------- */
 .contenedorPrincipal {
-    display: flex; /* Divide en Barra Lateral y Contenedor Derecho */
+    display: flex;
     width: 90%;
     max-width: 1200px;
     height: 90%;
@@ -44,21 +35,17 @@ body {
     overflow: hidden;
 }
 
-/* ---------------------------------- */
-/* --- 3. BARRA LATERAL (.barraLateral) --- */
-/* ---------------------------------- */
 .barraLateral {
     width: 200px;
     min-width: 200px;
     background-color: var(--color-bg-light); 
     border-right: 1px solid #ccc;
-    padding: 10px 0; /*Espacio del encabezado hacia ariba*/
+    padding: 10px 0;
     display: flex;
-    flex-direction: column; /* Apila Logo, Nav y Botón de Cierre */
+    flex-direction: column;
     flex-shrink: 0;
 }
 
-/* Estilos internos: Logo */
 .logo {
     display: flex;
     align-items: center;
@@ -76,7 +63,6 @@ body {
     height: 30px;
 }
 
-/* Estilos internos: Navegación (.barraNavegable) */
 .seccionBarra {
     font-size: 0.8em;
     font-weight: 700;
@@ -86,10 +72,9 @@ body {
     margin-top: 20px;
 }
 .barraNavegable ul {
-    list-style: none; /* ELIMINA LOS PUNTOS DE LA LISTA xd*/
+    list-style: none;
 }
 
-/* Ítems de Navegación */
 .itemBarra, .itemBarraActivo {
     display: flex;
     align-items: center;
@@ -108,11 +93,6 @@ body {
     background-color: #f0f0f0;
 }
 
-
-
-
-
-/* Ítem Activo */
 .itemBarraActivo {
     background-color: #f7f7f7; 
     position: relative;
@@ -132,17 +112,11 @@ body {
     border-radius: 0 2px 2px 0;
 }
 
-
-
-
-
-/* Espacio para Íconos */
 .iconoContenedor {
     margin-right: 10px;
     width: 20px; 
     text-align: center;
     height: 20px; 
-    
 }
 .iconoContenedor img {
     width: 100%;
@@ -150,13 +124,12 @@ body {
     object-fit: contain;
 }
 
-/* Botón Cerrar Día */
 .cerrarDiaBoton {
     display: flex;
     align-items: center;
     padding: 10px 40px;
     border-top: 0px solid #eee;
-    margin-top: auto; /* Empuja el elemento al final de la barra */
+    margin-top: auto;
     cursor: pointer;
     font-size: 0.9em;
     color: var(--color-text-dark);
@@ -167,19 +140,13 @@ body {
   background-color: #f0f0f0;
 }
 
-/* ---------------------------------- */
-/* --- 4. CONTENEDOR DERECHO (.contenedorDerecho) --- */
-/* ---------------------------------- */
 .contenedorDerecho {
-    flex-grow: 1; /* Ocupa el espacio horizontal restante */
+    flex-grow: 1;
     display: flex;
-    flex-direction: column; /* Apila Cabecera y Cuerpo */
+    flex-direction: column;
     background-color: var(white);
 }
 
-/* ---------------------------------- */
-/* --- 5. CABECERA (.cabezera) --- */
-/* ---------------------------------- */
 .controlesUsuario {
   display: flex;  
   align-items: center;
@@ -196,41 +163,26 @@ body {
 }
 
 .profile-image {
-    width: 35px;        /* 1. Define el ancho (ej: 35 píxeles) */
-    height: 35px;       /* 2. Define la altura (debe ser igual al ancho para ser un círculo) */
-    border-radius: 50%; /* 3. Convierte el cuadrado en un CÍRCULO */
-    overflow: hidden;   /* 4. Esconde cualquier parte de la imagen que se salga de este círculo */
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    overflow: hidden;
 }
 
 .profile-image img {
-    width: 100%;        /* 5. Fuerza a la imagen a ocupar el 100% del ancho del contenedor (35px) */
-    height: 100%;       /* 6. Fuerza a la imagen a ocupar el 100% de la altura del contenedor (35px) */
+    width: 100%;
+    height: 100%;
     object-fit: contain;  
 }
 
-
-
-
-
-/* ---------------------------------- */
-/* --- 6. CUERPO (.cuerpo) --- */
-/* ---------------------------------- */
 .cuerpo {
     flex-grow: 1;
     display: flex;
     flex-direction: column; 
     padding: 20px 40px;
-    /* Por ahora, dejamos overflow-y: hidden, para que el scroll lo maneje .contenido */
     overflow-y: hidden;
 }
 
-
-
-
-
-/* ---------------------------------- */
-/* --- 7. ENCABEZADO DEL CUERPO (.cabezeraCuerpo) --- */
-/* ---------------------------------- */
 .cabezeraCuerpo {
     flex-shrink: 0; 
     padding-bottom: 30px;
@@ -239,20 +191,9 @@ body {
     align-items: center;
 }
 
-
-
-
-
-/* ---------------------------------- */
-/* --- 8. RECUADRO DE CONTENIDO (.contenido) --- */
-/* ---------------------------------- */
 .contenido {
     flex-grow: 1; 
     background-color: #f1f1f1; 
     padding: 20px;
-    overflow-y: auto; /* ¡CLAVE PARA EL SCROLL INTERNO! */
+    overflow-y: auto;
 }
-
-
-
-

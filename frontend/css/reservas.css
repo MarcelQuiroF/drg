@@ -34,7 +34,6 @@
     transform: rotate(45deg);
 }
 
-/* Tabla Estilo Dragón */
 .dragon-table {
     width: 100%;
     border-collapse: separate;
@@ -75,7 +74,6 @@
     border-radius: 0 12px 12px 0;
 }
 
-/* Celda de Cliente */
 .client-info-cell {
     display: flex;
     flex-direction: column;
@@ -88,11 +86,10 @@
 
 .client-phone {
     font-size: 0.8rem;
-    color: #2e7d32; /* Verde suave */
+    color: #2e7d32; 
     font-family: 'Courier New', Courier, monospace;
 }
 
-/* Estados de Horario */
 .hour-tag {
     font-weight: 700;
     padding: 6px 12px;
@@ -102,21 +99,18 @@
     transition: all 0.3s ease;
 }
 
-/* Estado: Retrasado (Dentro de la tolerancia) */
 .hour-tag.time-tolerance {
     color: #ffffff !important;
-    background-color: #ff5a5e !important; /* Rojo sólido */
+    background-color: #ff5a5e !important;
     box-shadow: 0 0 10px rgba(255, 90, 94, 0.4);
 }
 
-/* Estado: Llegada Próxima (Temprana) */
 .hour-tag.time-early {
     color: #ffffff !important;
-    background-color: #38b6ff !important; /* Azul sólido */
+    background-color: #38b6ff !important; 
     box-shadow: 0 0 10px rgba(56, 182, 255, 0.4);
 }
 
-/* Botón Registro */
 .btn-nueva-reserva-dragon {
     background-color: #a33333;
     color: white;

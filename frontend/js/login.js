@@ -30,18 +30,14 @@ if(loginForm){
 
             if (response.ok) {
                 localStorage.setItem('token_drg', data.token);
-                // Asegúrate de que el backend devuelve 'rol' dentro de 'empleado'
                 const rolUsuario = data.empleado.rol; 
                 localStorage.setItem('usuario_rol', rolUsuario);
                 
-                // --- LÓGICA DE REDIRECCIÓN ---
                 if (rolUsuario === 'ADMIN') {
                     window.location.href = '/html/indexAdmin.html';
                 } else {
-                    // Cajeros, Meseros, etc.
                     window.location.href = '/html/index.html';
                 }
-                // -----------------------------
             } else {
                 alert(data.message || 'Error al iniciar sesión');
             }

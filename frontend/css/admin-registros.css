@@ -36,7 +36,6 @@
     align-items: center;
 }
 
-/* KPI Cards */
 .kpi-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -58,7 +57,6 @@
 .qr-tag { color: #0284c7; background: #e0f2fe; padding: 2px 6px; border-radius: 4px; }
 .cash-tag { color: #16a34a; background: #dcfce7; padding: 2px 6px; border-radius: 4px; }
 
-/* Charts & Rankings */
 .charts-grid, .rankings-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -67,7 +65,7 @@
 
 @media (min-width: 1024px) {
     .charts-grid { grid-template-columns: 2fr 1fr; }
-    .span-2 { grid-column: span 1; } /* En pantallas muy grandes podrías ajustar el span */
+    .span-2 { grid-column: span 1; }
 }
 
 .chart-card, .ranking-card {

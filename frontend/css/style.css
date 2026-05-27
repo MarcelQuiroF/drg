@@ -87,13 +87,12 @@ body {
 }
 
 .sidebar.minimize .menu-btn i {
-    display: inline-block; /* importante para que transform funcione */
+    display: inline-block; 
     transform: rotate(180deg);
-    transition: transform 0.3s ease; /* opcional, para animación suave */
+    transition: transform 0.3s ease; 
 }
 
 
-/*Brand*/
 .brand {
     width: 100%;
     display: flex;
@@ -115,12 +114,10 @@ body {
     white-space: nowrap;
 }
 
-/* Header */
 .header {
     width: 100%;
 }
 
-/*Menu container*/
 .menu-container{
     display: flex;
     width: 100%;
@@ -208,7 +205,6 @@ body.dark-mode .menu-link i {
     transition: all 0.3s ease;
 }
 
-/*Sub menu*/
 .sub-menu {
     height: 0;
     transition: all 0.3s ease;
@@ -252,7 +248,6 @@ body.dark-mode .menu-link i {
     background-color: var(--color-border);
 }
 
-/* Footer */
 
 .footer{
     width: 100%;
@@ -311,7 +306,6 @@ body.dark-mode .menu-link i {
     color: var(--color-text-secondary);
 }
 
-/* Modo oscuro*/
 .dark-mode-btn{
     position: absolute;
     width: 2.4rem;
@@ -360,18 +354,11 @@ body.dark-mode .dark-mode-btn i:first-child{
 
 
 
-
-
-
-/* ---------------------------------- */
-/* --- 6. CUERPO (.cuerpo) --- */
-/* ---------------------------------- */
 .cuerpo {
     flex-grow: 1;
     display: flex;
     flex-direction: column; 
     padding: 0px 40px;
-    /* Por ahora, dejamos overflow-y: hidden, para que el scroll lo maneje .contenido */
     overflow-y: hidden;
     margin-left: 13.7rem;
     min-height: 100vh;
@@ -379,14 +366,11 @@ body.dark-mode .dark-mode-btn i:first-child{
 }
 
 .sidebar.minimize ~ .cuerpo {
-    margin-left: 4.94rem; /* mismo ancho de .sidebar.minimize */
+    margin-left: 4.94rem; 
 }
 
 
 
-/* ---------------------------------- */
-/* --- 7. ENCABEZADO DEL CUERPO (.cabezeraCuerpo) --- */
-/* ---------------------------------- */
 .cabezeraCuerpo {
     flex-shrink: 0; 
     display: flex;
@@ -417,8 +401,8 @@ body.dark-mode .dark-mode-btn i:first-child{
 
 
 .contenedorMesa img {
-    width: 70px;        /* 1. Define el ancho */
-    height: 50px;       /* 2. Define la altura (debe ser igual al ancho para ser un círculo) */
+    width: 70px;     
+    height: 50px;       
     overflow: hidden;  
 }
 
@@ -431,7 +415,6 @@ body.dark-mode .dark-mode-btn i:first-child{
 }
 
 .dropDownPiso {
-  /* --- 1. Propiedades Clave para Personalización --- */
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -439,7 +422,6 @@ body.dark-mode .dark-mode-btn i:first-child{
   border: none;
   border-radius: 8px;
 
-  /* --- 2. Colores y Tipografía --- */
   
   background-color: #ff5a5e;
   color: white;
@@ -447,7 +429,6 @@ body.dark-mode .dark-mode-btn i:first-child{
   font-size: 16px;
   font-weight: bold;
   
-  /* --- 3. Espaciado y Posicionamiento --- */
   padding: 10px 50px 10px 15px;   
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FFFFFF' width='24px' height='24px'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -455,16 +436,14 @@ body.dark-mode .dark-mode-btn i:first-child{
   background-size: 35px 35px; 
 }
 
-/* --- 4. Estado de Foco (Recomendado) --- */
 .dropDownPiso:focus {
   outline: none;
 }
 
-/* Opcional: Estilo al pasar el ratón */
 .dropDownPiso:hover {
   filter: brightness(1.1);
   cursor: pointer;
-  background-color: #d11d22; /*  CAMBIAR  */
+  background-color: #d11d22; 
 }
 
 
@@ -473,36 +452,26 @@ body.dark-mode .dark-mode-btn i:first-child{
 
 
 
-
-
-/* ---------------------------------- */
-/* --- 8. RECUADRO DE CONTENIDO (.contenido) --- */
-/* ---------------------------------- */
 .contenido {
     flex-grow: 1; 
     background-color: var(--color-surface); 
     padding: 20px;
     display: flex;
     flex-direction: column;
-    overflow-y: auto; /* ¡CLAVE PARA EL SCROLL INTERNO! */
+    overflow-y: auto; 
 }
 
-/* ------------------------------------------------ */
-/* --- 9. ESTILOS DE LAS TARJETAS DE MESA (DINÁMICO) --- */
-/* ------------------------------------------------ */
 
-/* --- Estilos del Contenedor Principal (Grid para las columnas) --- */
+
 #mesas-container {
-    /* Usamos Grid para que las tarjetas se ajusten automáticamente en varias columnas */
     display: grid;
-    /* Define columnas con un ancho mínimo de 280px */
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
     gap: 20px;
     padding: 0;
-    margin-top: 0px; /* Separación del encabezado */
+    margin-top: 0px;
 }
 
-/* --- Estilos Base para la Tarjeta (Div .mesa-card) --- */
+
 .mesa-card {
     padding: 15px;
     border: 1px solid #ddd;
@@ -510,7 +479,6 @@ body.dark-mode .dark-mode-btn i:first-child{
     box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
     background-color: #fff;
     
-    /* Usamos Flexbox verticalmente para estructurar header, cuerpo y footer */
     display: flex;
     flex-direction: column;
     min-height: 200px; 
@@ -518,38 +486,32 @@ body.dark-mode .dark-mode-btn i:first-child{
     cursor: pointer;
 }
 .mesa-card:hover {
-    /* Efecto al pasar el ratón */
-    transform: translateY(-3px); /* Pequeño movimiento hacia arriba */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
 }
 
-/* --- Estilos de Estado (Color de Fondo y Texto) --- */
-
-/* ESTADO 1: Disponible (Fondo Blanco/Gris Claro, Texto Oscuro) */
 .estado-1 {
     background-color: var(--color-bg); 
     border-color: #ddd;
-    color: var(--color-text-primary); /* Texto oscuro */
+    color: var(--color-text-primary); 
 }
 .estado-1 .mesa-header {
-    color: var(--color-text-primary); /* Texto del estado ligeramente gris */
+    color: var(--color-text-primary);
 }
 
-/* Encabezado: "Disponible" a la izquierda, Reloj a la derecha */
 .mesa-header {
     font-weight: bold;
     font-size: 1em;
     padding-bottom: 10px;
     display: flex;
-    justify-content: space-between; /* Empuja los elementos a los extremos */
+    justify-content: space-between; 
     align-items: center;
 }
 
-/* ESTADO 2: En Uso (Fondo Marrón/Café, Texto Blanco) */
 .estado-2 {
-    background-color: #b29374; /* Marrón/café */
+    background-color: #b29374; 
     border-color: #b29374;
-    color: var(--color-text-light); /* Texto blanco */
+    color: var(--color-text-light); 
 }
 .estado-2 .mesa-header, 
 .estado-2 .mesa-nombre, 
@@ -557,11 +519,10 @@ body.dark-mode .dark-mode-btn i:first-child{
     color: var(--color-text-light);
 }
 
-/* ESTADO 3: Reservado (Fondo Azul/Celeste, Texto Blanco) */
 .estado-3 {
-    background-color: #38b6ff; /* Azul vivo */
+    background-color: #38b6ff;
     border-color: #38b6ff;
-    color: var(--color-text-light); /* Texto blanco */
+    color: var(--color-text-light);
 }
 .estado-3 .mesa-header, 
 .estado-3 .mesa-nombre, 
@@ -569,54 +530,46 @@ body.dark-mode .dark-mode-btn i:first-child{
     color: var(--color-text-light);
 }
 
-/* --- Elementos de la Tarjeta --- */
-
-/* Encabezado: "Disponible", "Reservado", etc. */
 .mesa-header {
     font-weight: bold;
     font-size: 1em;
     padding-bottom: 10px;
 }
 
-/* Cuerpo: Imagen de la Mesa */
 .mesa-cuerpo {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-grow: 1; /* Ocupa el espacio central restante */
+    flex-grow: 1; 
 }
 
 .mesa-icono {
     width: 150px; 
     height: 120px;
-    object-fit: contain; /* Asegura que la imagen no se distorsione */
+    object-fit: contain; 
 }
 
-/* Footer: Nombre y Capacidad Máxima */
 .mesa-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding-top: 10px;
     margin-top: 5px;
-    /* Línea divisoria sutil (por defecto oscura) */
     border-top: 1px solid var(--color-text-secondary); 
 }
 
-/* Footer de Estados Oscuros (Asegura la visibilidad de la línea en blanco) */
+
 .estado-2 .mesa-footer,
 .estado-3 .mesa-footer {
     border-top: 1px solid var(--color-tooltip-bg);
 }
 
-/* Nombre de la Mesa ("Mesa 1") */
 .mesa-nombre {
     font-weight: 600;
     font-size: 1.1em;
     margin: 0;
 }
 
-/* Contenedor de Capacidad ("máx: 8") */
 .mesa-capacidad {
     display: flex;
     align-items: center;
@@ -632,10 +585,6 @@ body.dark-mode .dark-mode-btn i:first-child{
     justify-content: center;
 }
 
-
-
-/* --- Estilos del Reloj y Ventana Emergente (Tooltip) DEBAJO --- */
-
 .mesa-reloj-container {
     position: relative;
     cursor: help;
@@ -647,11 +596,10 @@ body.dark-mode .dark-mode-btn i:first-child{
     transform: scale(1.2);
 }
 
-/* El "Globo" del mensaje (Ahora posicionado abajo) */
 .mesa-reloj-container::after {
     content: attr(data-tooltip);
     position: absolute;
-    top: 130%; /* Cambiado de bottom a top */
+    top: 130%; 
     right: 0;
     background-color: #333;
     color: #fff;
@@ -664,26 +612,24 @@ body.dark-mode .dark-mode-btn i:first-child{
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s, transform 0.3s;
-    transform: translateY(-10px); /* Cambiado para que suba al aparecer */
+    transform: translateY(-10px);
     z-index: 100;
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 }
 
-/* La flechita del globo (Apuntando hacia arriba) */
 .mesa-reloj-container::before {
     content: '';
     position: absolute;
-    top: 115%; /* Cambiado de bottom a top */
+    top: 115%;
     right: 8px;
     border: 6px solid transparent;
-    border-bottom-color: #333; /* Flecha invertida: ahora el color está abajo */
+    border-bottom-color: #333; 
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s;
     z-index: 100;
 }
 
-/* Mostrar al pasar el mouse */
 .mesa-reloj-container:hover::after,
 .mesa-reloj-container:hover::before {
     opacity: 1;
@@ -698,14 +644,13 @@ body.dark-mode .dark-mode-btn i:first-child{
     right: 0;
     background-color: #333;
     color: #fff;
-    padding: 8px 12px; /* Un poco más de padding para varias líneas */
+    padding: 8px 12px; 
     border-radius: 6px;
     font-size: 0.8rem;
     
-    /* ESTA LÍNEA ES LA CLAVE */
     white-space: pre; 
     
-    line-height: 1.4; /* Mejora la lectura entre horas */
+    line-height: 1.4; 
     text-align: left;
     opacity: 0;
     visibility: hidden;
@@ -734,9 +679,7 @@ body.dark-mode .dark-mode-btn i:first-child{
 
 
 
-/* ===================== PRODUCTOS ===================== */
 
-/* Mantener los div fijos con borde */
 .barra-principal {
     width: 30%;
     display: flex;
@@ -754,7 +697,6 @@ body.dark-mode .dark-mode-btn i:first-child{
     margin-bottom: 10px;
 }
 
-/* Fija también el otro lado */
 .cuerpo-productos {
     width: 70%;
     border-left: 2px solid #ccc;
@@ -764,7 +706,6 @@ body.dark-mode .dark-mode-btn i:first-child{
     box-sizing: border-box;
 }
 
-/* Lista de productos scrolleable */
 .lista-productos {
     padding: 10px;
     flex-grow: 1;
@@ -772,7 +713,6 @@ body.dark-mode .dark-mode-btn i:first-child{
     margin-top: 10px;
 }
 
-/* Producto individual */
 .producto-card {
     display: flex;
     gap: 10px;
@@ -788,18 +728,16 @@ body.dark-mode .dark-mode-btn i:first-child{
 .producto-card:hover {
     background-color: #999;
     transition: 0.3s;
-    transform: translateY(-3px); /* Pequeño movimiento hacia arriba */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+    transform: translateY(-3px); 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
 }
 
-/* Imagen */
 .producto-img {
     width: 60px;
     height: 60px;
     object-fit: cover;
 }
 
-/* BOTONES de categoría cuadrados */
 .botones-categoria {
     display: flex;
     flex-direction: row;
@@ -822,11 +760,10 @@ body.dark-mode .dark-mode-btn i:first-child{
 .btn-categoria:hover {
     background-color: #999;
     transition: 0.3s;
-    transform: translateY(-3px); /* Pequeño movimiento hacia arriba */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+    transform: translateY(-3px); 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
 }
 
-/* Búsqueda */
 .barra-busqueda {
     display: flex;
     align-items: center;
@@ -847,7 +784,6 @@ body.dark-mode .dark-mode-btn i:first-child{
     width: 100%;
 }
 
-/* Cuerpo de productos */
 .cuerpo-productos {
     flex-grow: 1;
     display: flex;
@@ -882,8 +818,8 @@ body.dark-mode .dark-mode-btn i:first-child{
 .agregar-descuento:hover {
     background-color: #999;
     transition: 0.3s;
-    transform: translateY(-3px); /* Pequeño movimiento hacia arriba */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
 }
 
 .agregar-descuento i {
@@ -922,8 +858,8 @@ body.dark-mode .dark-mode-btn i:first-child{
 .botones button:hover {
     background-color: var(--color-text-secondary);
     transition: 0.3s;
-    transform: translateY(-3px); /* Pequeño movimiento hacia arriba */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+    transform: translateY(-3px); 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
 }
 
 
@@ -971,16 +907,12 @@ body.dark-mode .dark-mode-btn i:first-child{
 
 
 
-/*-------------------------------*/
-/* --      ASISTENCIA          --*/
-/*-------------------------------*/
-/* Global */
+
 .contenedor-global-asistencia {
     display: flex;
     flex-direction: column;
 }
 
-/* Cabecera */
 .cabecera-informacion-horario {
     color: var(--color-text-primary);
     display: flex;
@@ -994,7 +926,6 @@ body.dark-mode .dark-mode-btn i:first-child{
     color: blue;
 }
 
-/* Cuerpo */
 .cuerpo-asistencia {
     color: var(--color-text-primary);
     display: flex;
@@ -1022,7 +953,6 @@ body.dark-mode .dark-mode-btn i:first-child{
     margin-left: auto;
 }
 
-/* Contenedor empleado */
 .contenedor-empleado {
     display: flex;
     flex-direction: column;
@@ -1033,7 +963,6 @@ body.dark-mode .dark-mode-btn i:first-child{
     height: 300px;
 }
 
-/* Tarjeta empleado */
 .tarjeta-empleado {
     display: flex;
     flex-direction: row;
@@ -1059,7 +988,6 @@ body.dark-mode .dark-mode-btn i:first-child{
     transform: scale(1.5);
 }
 
-/* footer botones */
 .botones-asistencia {
     display: flex;
     justify-content: center;
@@ -1076,28 +1004,24 @@ body.dark-mode .dark-mode-btn i:first-child{
 .botones-asistencia button:hover {
     background-color: #999;
     transition: 0.3s;
-    transform: translateY(-3px); /* Pequeño movimiento hacia arriba */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 
-/* Contenedor del formulario (el que contiene todo lo añadido) */
 .formulario-login {
-    width: 350px; /* Ancho para que se vea compacto */
+    width: 350px; 
     padding: 20px;
-    background-color: transparent; /* El formulario en sí no tiene fondo, solo los campos */
-    /* Opcional: Centrarlo visualmente */
+    background-color: transparent; 
     margin: 0 auto;
     color: var(--color-text-primary);
 }
 
-/* Estilo para cada par de label/input (Nombre/Contraseña) */
 .campo {
    margin-bottom: 20px;
 }
 
 
-/* Estilo para las etiquetas (Nombre: y Contraseña:) */
 .campo label {
     display: block;
     font-size: 16px;
@@ -1105,50 +1029,44 @@ body.dark-mode .dark-mode-btn i:first-child{
     color: var(--color-text-primary)
 }
 
-/* Estilo para los campos de texto (input) */
 .campo input {
     width: 100%;
-    padding: 8px 0; /* Padding vertical para el alto del campo */
-    border: none; /* Sin borde aparente */
-    border-bottom: 2px solid #555; /* Borde inferior para simular la línea divisoria */
-     background-color: transparent; /* Fondo transparente */
-     color: #ffffff; /* Texto de entrada blanco */
+    padding: 8px 0;
+    border: none; 
+    border-bottom: 2px solid #555; 
+     background-color: transparent; 
+     color: #ffffff; 
     box-sizing: border-box;
     color: var(--color-text-primary)
-    /* La línea oscura sobre la etiqueta la simulamos con el borde inferior del campo */
 }
 
-/* Contenedor de los botones */
 .botones {
  display: flex;
- justify-content: space-between; /* Para separar los botones */
+ justify-content: space-between;
 margin-top: 30px;
 }
 
-/* Estilo base para los botones */
 .botones button {
- width: 48%; /* Para que ambos ocupen casi todo el ancho con una pequeña separación */
+ width: 48%; 
  padding: 10px 15px;
  border: none;
  font-weight: bold;
  cursor: pointer;
  transition: background-color 0.3s;
 color: white;
-border-radius: 0; /* Sin bordes redondeados */
+border-radius: 0; 
 }
 
-/* Estilo para el botón 'Confirmar' (Rojo oscuro) */
 .botones .confirmar {
- background-color: #a33333; /* Rojo similar al de la imagen */
+ background-color: #a33333; 
 }
 
 .botones .confirmar:hover {
  background-color: #8a2a2a;
 }
 
-/* Estilo para el botón 'Atras' (Rojo oscuro, mismo estilo visual) */
 .botones .atras {
- background-color: #a33333; /* Mismo color para 'Atras' */
+ background-color: #a33333; 
 }
 
 .botones .atras:hover {
@@ -1180,43 +1098,35 @@ border-radius: 0; /* Sin bordes redondeados */
 
 
 
-/* Estilos generales para simular el fondo oscuro (si no se aplicó antes) */
-/* Contenedor principal para centrar la tabla y el botón */
-
 .reserva-container {
-    width: 600px; /* Ajusta el ancho según sea necesario para la tabla */
+    width: 600px; 
     background-color: transparent;
     margin: 0 auto;
 }
 
-/* Estilo de la tabla */
 .tabla-reserva {
     width: 100%;
-    border-collapse: collapse; /* Elimina el espacio entre bordes de celdas */
+    border-collapse: collapse; 
     margin-bottom: 20px;
-    background-color: #2e2e2e; /* Fondo de la tabla un poco más claro que el body */
+    background-color: #2e2e2e; 
     color: #ffffff;
 }
 
-/* Estilo para el encabezado (thead) */
 .tabla-reserva thead th {
-    background-color: #a33333; /* Rojo oscuro para el encabezado */
+    background-color: #a33333;
     color: white;
     padding: 10px;
     text-align: left;
-    border: 1px solid #a33333; /* Borde del mismo color */
+    border: 1px solid #a33333; 
 }
 
-/* Estilo para las celdas del cuerpo (tbody) */
 .tabla-reserva tbody td {
     padding: 10px;
     text-align: left;
-    border: 1px solid #444444; /* Borde gris oscuro para las divisiones */
-    /* Para la celda vacía grande */
-    height: 150px; /* Altura para simular el espacio en blanco inferior */
+    border: 1px solid #444444; 
+    height: 150px; 
 }
 
-/* Estilo para la primera columna con el icono de lápiz */
 .tabla-reserva tbody tr:first-child td:first-child {
     display: flex;
     justify-content: space-between;
@@ -1229,15 +1139,14 @@ border-radius: 0; /* Sin bordes redondeados */
     cursor: pointer;
 }
 
-/* Estilo para el botón de registro */
 .boton-registro {
     display: flex;
-    justify-content: center; /* Centra el botón horizontalmente */
+    justify-content: center; 
     margin-top: 30px;
 }
 
 .registrar-reserva {
-    background-color: #a33333; /* Rojo oscuro similar al encabezado */
+    background-color: #a33333;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -1245,7 +1154,7 @@ border-radius: 0; /* Sin bordes redondeados */
     cursor: pointer;
     transition: background-color 0.3s;
     border-radius: 0;
-    width: 250px; /* Ancho para que se vea como en la imagen */
+    width: 250px; 
 }
 
 .registrar-reserva:hover {
@@ -1253,10 +1162,6 @@ border-radius: 0; /* Sin bordes redondeados */
 }
 
 
-
-/* --- GLOBAL MODAL STYLES --- */
-
-/* The Dark Background Overlay */
 #modal-overlay {
     position: fixed;
     top: 0;
@@ -1264,11 +1169,10 @@ border-radius: 0; /* Sin bordes redondeados */
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.6);
-    z-index: 9998; /* Just below the modal */
+    z-index: 9998; 
     transition: all 0.3s ease;
 }
 
-/* Modal Box Container */
 #notification-modal, #delete-modal, #reserva-modal, #cliente-modal, #settings-reserva-modal {
     position: fixed;
     top: 50%;
@@ -1277,16 +1181,14 @@ border-radius: 0; /* Sin bordes redondeados */
     background-color: var(--color-surface);
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    z-index: 9999; /* Top level */
-    width: 95%; /* Un poco más ancho para el formulario si quieres */
-    max-width: 500px; /* El formulario de reserva es más grande que una notificación */
+    z-index: 9999; 
+    width: 95%; 
+    max-width: 500px; 
     padding: 20px;
     transition: all 0.3s ease;
 }
 
 
-
-/* --- THE TOGGLE CLASSES (The magic part) --- */
 
 .modal-overlay-hidden {
     opacity: 0;
@@ -1303,7 +1205,7 @@ border-radius: 0; /* Sin bordes redondeados */
 .custom-modal-hidden {
     opacity: 0;
     visibility: hidden;
-    transform: translate(-50%, -45%) scale(0.95); /* Slight "pop out" effect */
+    transform: translate(-50%, -45%) scale(0.95);
     pointer-events: none;
 }
 
@@ -1315,7 +1217,6 @@ border-radius: 0; /* Sin bordes redondeados */
     
 }
 
-/* Styles for the inner content */
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -1329,7 +1230,7 @@ border-radius: 0; /* Sin bordes redondeados */
 }
 
 .btn-primary {
-    background-color: #ff5a5e; /* Your Dragon Red */
+    background-color: #ff5a5e;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -1438,7 +1339,6 @@ border-radius: 0; /* Sin bordes redondeados */
     cursor: pointer;
 }
 
-/* Estilos para el error dentro del modal de reserva */
 .error-text-hidden {
     display: none;
 }
@@ -1455,7 +1355,6 @@ border-radius: 0; /* Sin bordes redondeados */
     border-radius: 4px;
 }
 
-/* Contenedor del buscador */
 .searchable-select-container {
     position: relative;
     flex: 1;
@@ -1466,7 +1365,6 @@ border-radius: 0; /* Sin bordes redondeados */
     box-sizing: border-box;
 }
 
-/* Lista de resultados */
 .search-results-hidden {
     display: none;
 }
@@ -1477,7 +1375,7 @@ border-radius: 0; /* Sin bordes redondeados */
     top: 100%;
     left: 0;
     right: 0;
-    background-color: var(--color-surface); /* O el color de tu fondo */
+    background-color: var(--color-surface); 
     border: 1px solid var(--color-border);
     border-radius: 0 0 8px 8px;
     max-height: 200px;
@@ -1486,7 +1384,6 @@ border-radius: 0; /* Sin bordes redondeados */
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
-/* Cada opción individual */
 .search-option-item {
     padding: 10px 15px;
     cursor: pointer;
@@ -1506,7 +1403,7 @@ border-radius: 0; /* Sin bordes redondeados */
 .search-option-item span {
     display: block;
     font-size: 0.8em;
-    color: #2e7d32; /* El verde que usamos para el teléfono */
+    color: #2e7d32; 
 }
 
 @keyframes shake {
@@ -1515,16 +1412,15 @@ border-radius: 0; /* Sin bordes redondeados */
     75% { transform: translateX(5px); }
 }
 
-/* Specific styling for the Cliente Modal */
 #cliente-modal {
-    border: 2px solid #2e7d32; /* Green border to distinguish it from the Red reservation one */
-    z-index: 10001; /* Higher than reserva-modal (9999) */
+    border: 2px solid #2e7d32; 
+    z-index: 10001; 
 }
 
 #cliente-modal .modal-header {
     background-color: #2e7d32;
     color: white;
-    margin: -20px -20px 20px -20px; /* Offset the parent padding */
+    margin: -20px -20px 20px -20px;
     padding: 15px 20px;
     border-radius: 10px 10px 0 0;
 }
@@ -1538,16 +1434,14 @@ border-radius: 0; /* Sin bordes redondeados */
     color: white;
 }
 
-/* The "Focus" Logic: This class will be applied to the background modal */
 .modal-backdrop-blur {
     filter:  brightness(50%);
-    pointer-events: none; /* This is the magic: prevents clicking anything inside */
+    pointer-events: none; 
     user-select: none;
-    transform: translate(-50%, -50%) scale(0.95) !important; /* Makes it look smaller/further away */
+    transform: translate(-50%, -50%) scale(0.95) !important; 
     transition: all 0.3s ease;
 }
 
-/* Improved inputs for the client modal */
 #cliente-modal input {
     border: 1px solid #ccc;
     transition: border-color 0.3s;

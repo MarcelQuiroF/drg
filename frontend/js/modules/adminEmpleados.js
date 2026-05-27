@@ -142,7 +142,6 @@ const openEmployeeModal = (emp = null) => {
     setVal('emp-rol', emp ? emp.rol : "MESERO");
     setVal('emp-activo', emp ? emp.activo.toString() : "true");
 
-    // Mostrar advertencia sobre contraseña si es edición
     document.getElementById('pass-help-text').style.display = emp ? 'block' : 'none';
     document.getElementById('form-error-msg').className = 'error-text-hidden';
 

@@ -1,4 +1,4 @@
-/* ESTILOS DE PANTALLA */
+
 .contenido-impresion {
     display: flex;
     justify-content: center;
@@ -16,12 +16,12 @@
 
 .ticket-papel {
     background: white;
-    width: 300px; /* Ancho estándar de ticket */
+    width: 300px; 
     min-height: 400px;
     padding: 20px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     border: 1px solid #ddd;
-    font-family: 'Courier New', Courier, monospace; /* Fuente tipo ticket */
+    font-family: 'Courier New', Courier, monospace; 
 }
 
 .ticket-header { text-align: center; margin-bottom: 10px; }
@@ -38,7 +38,6 @@
 }
 .ticket-cant { font-weight: bold; margin-right: 10px; }
 
-/* Botones */
 .btn-imprimir, .btn-imprimir-todo, .btn-atras-impresion {
     padding: 10px 20px;
     border: none;
@@ -55,40 +54,34 @@
 
 .footer-impresion { width: 100%; }
 
-/* --- TRUCO DE IMPRESIÓN --- */
 @media print {
-    /* 1. Ocultar todo lo que no sea ticket */
     body * {
         visibility: hidden;
     }
     
-    /* 2. Ocultar elementos con clase no-print (botones, sidebar, headers) */
     .no-print, .sidebar, .dark-mode-btn, .cabezeraCuerpo {
         display: none !important;
     }
 
-    /* 3. Hacer visibles solo los tickets */
     .contenido-impresion, .contenido-impresion * {
         visibility: visible;
     }
 
-    /* 4. Posicionar los tickets para el papel */
     .contenido-impresion {
         position: absolute;
         left: 0;
         top: 0;
         width: 100%;
-        display: block; /* Quitar flex para imprimir uno tras otro */
+        display: block; 
     }
 
     .ticket-papel {
         box-shadow: none;
         border: none;
-        width: 100%; /* Ocupar ancho de papel */
-        page-break-after: always; /* Cortar hoja después de cada ticket */
+        width: 100%; 
+        page-break-after: always; 
     }
 
-    /* LÓGICA PARA IMPRIMIR SOLO UNO */
     body.print-cocina #zona-cafeteria { display: none; }
     body.print-cafeteria #zona-cocina { display: none; }
 }

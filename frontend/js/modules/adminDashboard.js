@@ -7,7 +7,7 @@ let chartOrdenesInst = null;
 
 export const initAdminDashboard = () => {
     configurarFiltros();
-    cargarDatosDashboard(); // Carga inicial
+    cargarDatosDashboard(); 
 };
 
 const configurarFiltros = () => {
@@ -16,14 +16,13 @@ const configurarFiltros = () => {
     const inputInicio = document.getElementById('fecha-inicio');
     const inputFin = document.getElementById('fecha-fin');
 
-    // Deshabilitar fechas si no es "personalizado"
     const toggleDates = (modo) => {
         const isCustom = modo === 'custom';
         inputInicio.disabled = !isCustom;
         inputFin.disabled = !isCustom;
     };
     
-    toggleDates('semana'); // Inicial
+    toggleDates('semana'); 
 
     radios.forEach(r => {
         r.addEventListener('change', (e) => {
@@ -129,12 +128,10 @@ const dibujarGraficas = (data) => {
 
     Chart.defaults.color = textColor;
 
-    // Destruir gráficas viejas si existen
     if(chartIngresosInst) chartIngresosInst.destroy();
     if(chartDistribucionInst) chartDistribucionInst.destroy();
     if(chartOrdenesInst) chartOrdenesInst.destroy();
 
-    // 1. Gráfica Lineal Ingresos
     const ctxIngresos = document.getElementById('chart-ingresos').getContext('2d');
     chartIngresosInst = new Chart(ctxIngresos, {
         type: 'line',
@@ -147,13 +144,12 @@ const dibujarGraficas = (data) => {
                 backgroundColor: 'rgba(255, 90, 94, 0.2)',
                 borderWidth: 2,
                 fill: true,
-                tension: 0.3 // Curvas suaves
+                tension: 0.3 
             }]
         },
         options: { responsive: true, scales: { x: { grid: { color: gridColor } }, y: { grid: { color: gridColor }, beginAtZero: true } } }
     });
 
-    // 2. Gráfica Pastel (Comida vs Juegos)
     const ctxDist = document.getElementById('chart-distribucion').getContext('2d');
     chartDistribucionInst = new Chart(ctxDist, {
         type: 'doughnut',
@@ -168,10 +164,9 @@ const dibujarGraficas = (data) => {
         options: { responsive: true, maintainAspectRatio: false }
     });
 
-    // 3. Gráfica Lineal Órdenes
     const ctxOrdenes = document.getElementById('chart-ordenes').getContext('2d');
     chartOrdenesInst = new Chart(ctxOrdenes, {
-        type: 'bar', // Barra queda muy bien para volumen de ordenes
+        type: 'bar', 
         data: {
             labels: data.graficas.etiquetas,
             datasets: [{

@@ -3,7 +3,7 @@
     --bg-card: #1e1e1e;
     --text-main: #ffffff;
     --text-sec: #aaaaaa;
-    --accent: #d11d22; /* Rojo DRG */
+    --accent: #d11d22;
     --accent-glow: rgba(209, 29, 34, 0.3);
 }
 
@@ -15,7 +15,6 @@ body {
     padding-bottom: 20px;
 }
 
-/* HEADER */
 .app-header {
     display: flex;
     justify-content: space-between;
@@ -47,13 +46,12 @@ body {
     cursor: pointer;
 }
 
-/* FILTROS SCROLLABLES */
 .category-scroll {
     display: flex;
     gap: 10px;
     padding: 15px 20px;
-    overflow-x: auto; /* Scroll horizontal */
-    scrollbar-width: none; /* Ocultar barra scroll */
+    overflow-x: auto;
+    scrollbar-width: none;
 }
 .category-scroll::-webkit-scrollbar { display: none; }
 
@@ -76,11 +74,10 @@ body {
     box-shadow: 0 4px 10px var(--accent-glow);
 }
 
-/* GRID DE JUEGOS */
 .games-container {
     padding: 10px 20px;
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 columnas en celular */
+    grid-template-columns: repeat(2, 1fr);
     gap: 15px;
 }
 
@@ -91,32 +88,29 @@ body {
     margin-top: 50px;
 }
 
-/* TARJETA DE JUEGO */
 .game-card {
     background-color: var(--bg-card);
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    
-    /* ESTO ES IMPORTANTE PARA LA ANIMACIÓN */
     transition: transform 0.3s ease, box-shadow 0.3s ease; 
-    cursor: pointer; /* Fuerza la manito siempre */
+    cursor: pointer;
     position: relative;
 }
 .game-card:hover {
-    transform: translateY(-8px) scale(1.02); /* Se eleva y crece un poquito */
-    box-shadow: 0 12px 20px rgba(209, 29, 34, 0.2); /* Sombra más fuerte (con un toque rojo) */
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 20px rgba(209, 29, 34, 0.2);
 }
 
 .game-card:active {
-    transform: scale(0.95); /* Efecto de presionar */
+    transform: scale(0.95);
     transition: transform 0.1s;
 }
 
 .game-img-box {
     position: relative;
     width: 100%;
-    aspect-ratio: 1 / 1; /* Cuadrado perfecto */
+    aspect-ratio: 1 / 1;
 }
 
 .game-img {
@@ -148,7 +142,7 @@ body {
     margin-bottom: 6px;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* "Monopoly..." */
+    text-overflow: ellipsis;
 }
 
 .game-specs {
@@ -164,7 +158,6 @@ body {
     gap: 4px;
 }
 
-/* Media Query para pantallas grandes (PC) */
 @media (min-width: 768px) {
     .games-container {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
