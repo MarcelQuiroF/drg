@@ -1,0 +1,761 @@
+./Asistencia.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  return sequelize.define('Asistencia', {
+    fecha_hora_llegada: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
+    
+    aprobado: { type: DataTypes.BOOLEAN, defaultValue: false },
+    
+    estado: { 
+      type: DataTypes.STRING, 
+      allowNull: false,
+      defaultValue: 'PRESENTE',
+      validate: {
+        isIn: [['PRESENTE', 'FALTA', 'PERMISO']]
+      }
+    },
+    
+    empleado_id: DataTypes.INTEGER,
+    horario_id: DataTypes.INTEGER,
+    
+    descuento_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    }
+  }, {
+    tableName: 'asistencia',
+    paranoid: true
+  });
+};
+--- END OF FILE ---
+
+./categoria.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  return sequelize.define('Categoria', {
+    nombre: { type: DataTypes.STRING, allowNull: false }
+  }, {
+    tableName: 'categoria',
+    paranoid: true
+  });
+};
+--- END OF FILE ---
+
+./cliente.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  const Cliente = sequelize.define('Cliente', {
+    nombre: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: { notEmpty: true }
+    },
+    ci: { 
+      type: DataTypes.STRING,
+      allowNull: true,
+      validate: { 
+        customLen(value) {
+          if (value && value.trim().length > 0) {
+            if (value.length < 5 || value.length > 20) {
+              throw new Error("El CI debe tener entre 5 y 20 caracteres");
+            }
+          }
+        }
+      }
+    },
+    telefono: DataTypes.STRING
+  }, {
+    tableName: 'cliente',
+    paranoid: true
+  });
+  return Cliente;
+};  
+--- END OF FILE ---
+
+./configuracion.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  const Configuracion = sequelize.define('Configuracion', {
+    clave: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      comment: 'Ej: ventana_llegada, minutos_tolerancia, ventana_bloqueo'
+    },
+    valor: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      comment: 'Valor en minutos u otras unidades enteras'
+    },
+    descripcion: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      comment: 'Explicación de para qué sirve este ajuste'
+    }
+  }, {
+    tableName: 'configuracion',
+    timestamps: true,
+    paranoid: false
+  });
+
+  return Configuracion;
+};
+--- END OF FILE ---
+
+./ContenedorJuego.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  return sequelize.define('ContenedorJuego', {
+    hora_inicio: DataTypes.TIME,
+    hora_fin: DataTypes.TIME,
+    cantidad: { type: DataTypes.INTEGER, validate: { min: 1 } },
+    comentario: DataTypes.STRING,
+    orden_id: { type: DataTypes.INTEGER, allowNull: false },
+    juego_id: { type: DataTypes.INTEGER, allowNull: false }
+  }, {
+    tableName: 'contenedor_juego',
+    paranoid: true
+  });
+};
+--- END OF FILE ---
+
+./ContenedorProducto.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  const ContenedorProducto = sequelize.define('ContenedorProducto', {
+    cantidad: { type: DataTypes.INTEGER, validate: { min: 1 } },
+    
+    cantidad_recibido: { type: DataTypes.INTEGER, defaultValue: 0, validate: { min: 0 } },
+    cantidad_preparando: { type: DataTypes.INTEGER, defaultValue: 0, validate: { min: 0 } },
+    cantidad_terminado: { type: DataTypes.INTEGER, defaultValue: 0, validate: { min: 0 } },
+    cantidad_enviado: { type: DataTypes.INTEGER, defaultValue: 0, validate: { min: 0 } },
+    
+    comentario: DataTypes.STRING,
+    
+    orden_id: { type: DataTypes.INTEGER, allowNull: false },
+    producto_id: { type: DataTypes.INTEGER, allowNull: false }
+  }, {
+    tableName: 'contenedor_producto',
+    paranoid: true
+  });
+  return ContenedorProducto;
+};
+--- END OF FILE ---
+
+./ContenedorTransaccion.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  const ContenedorTransaccion = sequelize.define('ContenedorTransaccion', {
+    fecha: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    },
+    activo: { type: DataTypes.BOOLEAN, defaultValue: true },
+    cantidad: {
+      type: DataTypes.DECIMAL(10, 2), 
+      allowNull: false,
+      defaultValue: 0.00,
+      validate: {
+        min: { args: [0], msg: "La cantidad no puede ser negativa" }
+      }
+    },
+    tipo: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      validate: { notEmpty: true }
+    },
+    orden_id: { type: DataTypes.INTEGER, allowNull: true },
+    cliente_id: { type: DataTypes.INTEGER, allowNull: true }
+  }, {
+    tableName: 'contenedor_transaccion',
+    paranoid: true
+  });
+  return ContenedorTransaccion;
+};
+--- END OF FILE ---
+
+./descuento.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  return sequelize.define('Descuento', {
+    porcentaje: { type: DataTypes.INTEGER, validate: { min: 0, max: 100 } },
+    monto: { type: DataTypes.DECIMAL(10, 2), validate: { min: 0 } },
+    comentario: DataTypes.STRING
+  }, {
+    tableName: 'descuento',
+    paranoid: true
+  });
+};
+--- END OF FILE ---
+
+./DescuentoAtraso.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  return sequelize.define('DescuentoAtraso', {
+    cantidad_tiempo: DataTypes.TIME,
+    descuento: { type: DataTypes.INTEGER, validate: { min: 0 } },
+    descuento_porcentual: { type: DataTypes.INTEGER, validate: { min: 0, max: 100 } }
+  }, {
+    tableName: 'descuento_atraso',
+    paranoid: true
+  });
+};
+--- END OF FILE ---
+
+./empleado.js
+'use strict';
+const bcrypt = require('bcrypt');
+
+module.exports = (sequelize, DataTypes) => {
+  const Empleado = sequelize.define('Empleado', {
+    nombre: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: { notEmpty: { msg: "El nombre es obligatorio" } }
+    },
+    ci: DataTypes.STRING,
+    telefono: DataTypes.STRING,
+    correo: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      unique: { msg: "Este correo ya está registrado" },
+      validate: { isEmail: { msg: "Debe ser un correo válido" } }
+    },
+    contrasenia: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    rol: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    activo: { type: DataTypes.BOOLEAN, defaultValue: true }
+  }, {
+    tableName: 'empleado',
+    paranoid: true,
+    hooks: {
+      beforeCreate: async (empleado) => {
+        if (empleado.contrasenia) {
+          const salt = await bcrypt.genSalt(10);
+          empleado.contrasenia = await bcrypt.hash(empleado.contrasenia, salt);
+        }
+      },
+      beforeUpdate: async (empleado) => {
+        if (empleado.changed('contrasenia')) {
+          const salt = await bcrypt.genSalt(10);
+          empleado.contrasenia = await bcrypt.hash(empleado.contrasenia, salt);
+        }
+      }
+    }
+  });
+  return Empleado;
+};
+--- END OF FILE ---
+
+./horario.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  return sequelize.define('Horario', {
+    dia: DataTypes.STRING,
+    hora_entrada: DataTypes.TIME,
+    hora_salida: DataTypes.TIME,
+    
+    empleado_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    }
+  }, {
+    tableName: 'horario',
+    paranoid: true
+  });
+};
+--- END OF FILE ---
+
+./index.js
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+const Sequelize = require('sequelize');
+const process = require('process');
+
+const envPath = path.resolve(__dirname, '../../.env');
+require('dotenv').config({ path: envPath });
+
+const basename = path.basename(__filename);
+const env = process.env.NODE_ENV || 'development';
+
+const configPath = path.join(__dirname, '..', 'config', 'config.js');
+const config = require(configPath)[env];
+
+const db = {};
+let sequelize;
+
+if (process.env.DATABASE_URL2) {
+  sequelize = new Sequelize(process.env.DATABASE_URL2, config);
+} else {
+
+  sequelize = new Sequelize(config.url, config);
+}
+
+fs
+  .readdirSync(__dirname)
+  .filter(file => {
+    return (
+      file.indexOf('.') !== 0 &&
+      file !== basename &&
+      file.slice(-3) === '.js' &&
+      file.indexOf('.test.js') === -1
+    );
+  })
+  .forEach(file => {
+    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
+    db[model.name] = model;
+  });
+
+Object.keys(db).forEach(modelName => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
+});
+
+db.Categoria.belongsToMany(db.Juego, { 
+  through: db.JuegoCategoria, 
+  foreignKey: 'categoria_id',
+  otherKey: 'juego_id',
+  
+});
+
+db.Juego.belongsToMany(db.Categoria, { 
+  through: db.JuegoCategoria, 
+  foreignKey: 'juego_id',
+  otherKey: 'categoria_id'
+});
+
+db.Categoria.belongsToMany(db.Producto, { 
+  through: db.ProductoCategoria, 
+  foreignKey: 'categoria_id',
+  otherKey: 'producto_id'
+});
+
+db.Producto.belongsToMany(db.Categoria, { 
+  through: db.ProductoCategoria, 
+  foreignKey: 'producto_id',
+  otherKey: 'categoria_id'
+});
+
+db.Piso.hasMany(db.Mesa, { foreignKey: 'piso_id' });
+db.Mesa.belongsTo(db.Piso, { foreignKey: 'piso_id' });
+
+db.Mesa.hasMany(db.Orden, { foreignKey: 'mesa_id' });
+db.Orden.belongsTo(db.Mesa, { foreignKey: 'mesa_id' });
+
+db.Orden.hasMany(db.ContenedorProducto, { foreignKey: 'orden_id' });
+db.ContenedorProducto.belongsTo(db.Orden, { foreignKey: 'orden_id' });
+
+db.Orden.hasMany(db.ContenedorJuego, { foreignKey: 'orden_id' });
+db.ContenedorJuego.belongsTo(db.Orden, { foreignKey: 'orden_id' });
+
+db.Producto.hasMany(db.ContenedorProducto, { foreignKey: 'producto_id' });
+db.ContenedorProducto.belongsTo(db.Producto, { foreignKey: 'producto_id' });
+
+db.Juego.hasMany(db.ContenedorJuego, { foreignKey: 'juego_id' });
+db.ContenedorJuego.belongsTo(db.Juego, { foreignKey: 'juego_id' });
+
+db.Cliente.hasMany(db.Reserva, { foreignKey: 'cliente_id' });
+db.Reserva.belongsTo(db.Cliente, { foreignKey: 'cliente_id' });
+
+db.Mesa.hasMany(db.Reserva, { foreignKey: 'mesa_id' });
+db.Reserva.belongsTo(db.Mesa, { foreignKey: 'mesa_id' });
+
+db.Orden.belongsToMany(db.Descuento, { 
+  through: db.OrdenDescuento,
+  foreignKey: 'orden_id',
+  otherKey: 'descuento_id'
+});
+
+db.Descuento.belongsToMany(db.Orden, { 
+  through: db.OrdenDescuento,
+  foreignKey: 'descuento_id',
+  otherKey: 'orden_id'
+});
+
+db.Empleado.hasMany(db.Horario, { foreignKey: 'empleado_id' });
+db.Horario.belongsTo(db.Empleado, { foreignKey: 'empleado_id' });
+
+db.Empleado.hasMany(db.Asistencia, { foreignKey: 'empleado_id' });
+db.Asistencia.belongsTo(db.Empleado, { foreignKey: 'empleado_id' });
+
+db.Horario.hasMany(db.Asistencia, { foreignKey: 'horario_id' });
+db.Asistencia.belongsTo(db.Horario, { foreignKey: 'horario_id' });
+
+db.DescuentoAtraso.hasMany(db.Asistencia, { foreignKey: 'descuento_id' });
+db.Asistencia.belongsTo(db.DescuentoAtraso, { foreignKey: 'descuento_id' });
+
+db.Orden.hasMany(db.ContenedorTransaccion, { foreignKey: 'orden_id' });
+db.ContenedorTransaccion.belongsTo(db.Orden, { foreignKey: 'orden_id' });
+
+db.Cliente.hasMany(db.ContenedorTransaccion, { foreignKey: 'cliente_id' });
+db.ContenedorTransaccion.belongsTo(db.Cliente, { foreignKey: 'cliente_id' });
+
+db.Registro.belongsToMany(db.Orden, { 
+  through: db.RegistroOrden, 
+  foreignKey: 'registro_id',
+  otherKey: 'orden_id'
+});
+db.Orden.belongsToMany(db.Registro, { 
+  through: db.RegistroOrden, 
+  foreignKey: 'orden_id',
+  otherKey: 'registro_id'
+});
+
+db.Registro.belongsToMany(db.Reserva, { 
+  through: db.RegistroReserva, 
+  foreignKey: 'registro_id',
+  otherKey: 'reserva_id'
+});
+db.Reserva.belongsToMany(db.Registro, { 
+  through: db.RegistroReserva, 
+  foreignKey: 'reserva_id',
+  otherKey: 'registro_id'
+});
+
+db.Registro.belongsToMany(db.Asistencia, { 
+  through: db.RegistroAsistencia, 
+  foreignKey: 'registro_id',
+  otherKey: 'atraso_id' 
+});
+db.Asistencia.belongsToMany(db.Registro, { 
+  through: db.RegistroAsistencia, 
+  foreignKey: 'atraso_id',
+  otherKey: 'registro_id'
+});
+
+
+db.sequelize = sequelize;
+
+module.exports = db;
+--- END OF FILE ---
+
+./juego.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  const Juego = sequelize.define('Juego', {
+    nombre: { type: DataTypes.STRING, allowNull: false },
+    precio: {
+      type: DataTypes.DECIMAL(10, 2),
+      validate: { min: 0 }
+    },
+    jugadores_min: {
+      type: DataTypes.INTEGER,
+      validate: { min: 1 }
+    },
+    jugadores_max: {
+      type: DataTypes.INTEGER,
+      validate: { 
+        min: 1,
+        checkMax(value) {
+          if (value < this.jugadores_min) {
+            throw new Error('Jugadores max no puede ser menor que min');
+          }
+        }
+      }
+    },
+    imagen: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    tiempo_partida: DataTypes.INTEGER,
+    activado: { type: DataTypes.BOOLEAN, defaultValue: true },
+    enlace: {
+    type: DataTypes.STRING,
+    allowNull: true
+    }
+    
+  }, {
+    tableName: 'juego',
+    paranoid: true
+  });
+  return Juego;
+};
+--- END OF FILE ---
+
+./JuegoCategoria.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  const JuegoCategoria = sequelize.define('JuegoCategoria', {
+    juego_id: {
+      type: DataTypes.INTEGER,
+      references: { model: 'juego', key: 'id' }
+    },
+    categoria_id: {
+      type: DataTypes.INTEGER,
+      references: { model: 'categoria', key: 'id' }
+    }
+  }, {
+    tableName: 'juego_categoria',
+    paranoid: true,
+    timestamps: true
+  });
+  return JuegoCategoria;
+};
+--- END OF FILE ---
+
+./mesa.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  return sequelize.define('Mesa', {
+    nombre: DataTypes.STRING,
+    numero: DataTypes.INTEGER,
+    estado: { type: DataTypes.INTEGER, defaultValue: 0 },
+    piso_id: DataTypes.INTEGER,
+    cantidadMinima: {
+      type: DataTypes.INTEGER,
+      defaultValue: 1,
+      validate: { min: 1 }
+    },
+    cantidadMaxima: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 4,
+      validate: { 
+        min: 1,
+        isGreaterThanMin(value) {
+          if (value < this.cantidadMinima) {
+            throw new Error("La capacidad máxima no puede ser menor a la mínima.");
+          }
+        }
+      }
+    },
+    activo: { type: DataTypes.BOOLEAN, defaultValue: true }
+  }, {
+    tableName: 'mesa',
+    paranoid: true
+  });
+};
+--- END OF FILE ---
+
+./orden.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  const Orden = sequelize.define('Orden', {
+    total: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 0,
+      validate: { min: 0 }
+    },
+    finalizado: { type: DataTypes.BOOLEAN, defaultValue: false },
+    mesa_id: DataTypes.INTEGER,
+    notas: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    }
+  }, {
+    tableName: 'orden',
+    paranoid: true
+  });
+  return Orden;
+};
+--- END OF FILE ---
+
+./OrdenDescuento.js
+'use strict';
+
+module.exports = (sequelize, DataTypes) => {
+  const OrdenDescuento = sequelize.define('OrdenDescuento', {
+    orden_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+      references: { model: 'orden', key: 'id' }
+    },
+    descuento_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+      references: { model: 'descuento', key: 'id' }
+    }
+  }, {
+    tableName: 'orden_descuento',
+    paranoid: true,
+    deletedAt: 'deletedAt',
+    timestamps: true,
+    hooks: {
+      beforeCreate: (registro) => {
+        console.log(`Creando relación orden ${registro.orden_id} - descuento ${registro.descuento_id}`);
+      },
+      beforeDestroy: (registro) => {
+        console.log(`Soft delete relación orden ${registro.orden_id} - descuento ${registro.descuento_id}`);
+      }
+    }
+  });
+
+  return OrdenDescuento;
+};
+
+--- END OF FILE ---
+
+./piso.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  return sequelize.define('Piso', {
+    nombre: DataTypes.STRING,
+    numero: DataTypes.INTEGER,
+    activo: { type: DataTypes.BOOLEAN, defaultValue: true }
+  }, {
+    tableName: 'piso',
+    paranoid: true
+  });
+};
+--- END OF FILE ---
+
+./producto.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  const Producto = sequelize.define('Producto', {
+    nombre: { type: DataTypes.STRING, allowNull: false },
+    zona: DataTypes.STRING,
+    activado: { type: DataTypes.BOOLEAN, defaultValue: true },
+    precio: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      validate: {
+        min: { args: [0], msg: "El precio no puede ser negativo" }
+      }
+    },
+    estado: { type: DataTypes.BOOLEAN, defaultValue: true },
+    imagen: DataTypes.STRING
+  }, {
+    tableName: 'producto',
+    paranoid: true
+  });
+  return Producto;
+};
+--- END OF FILE ---
+
+./ProductoCategoria.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  const ProductoCategoria = sequelize.define('ProductoCategoria', {
+    producto_id: {
+      type: DataTypes.INTEGER,
+      references: { model: 'producto', key: 'id' }
+    },
+    categoria_id: {
+      type: DataTypes.INTEGER,
+      references: { model: 'categoria', key: 'id' }
+    }
+  }, {
+    tableName: 'producto_categoria',
+    paranoid: true,
+    timestamps: true
+  });
+  return ProductoCategoria;
+};
+--- END OF FILE ---
+
+./registro.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  const Registro = sequelize.define('Registro', {
+    fecha: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+      allowNull: false
+    }
+  }, {
+    tableName: 'registro',
+    paranoid: true
+  });
+  return Registro;
+};
+--- END OF FILE ---
+
+./RegistroAsistencia.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  const RegistroAsistencia = sequelize.define('RegistroAsistencia', {
+    registro_id: {
+      type: DataTypes.INTEGER,
+      references: { model: 'registro', key: 'id' }
+    },
+    atraso_id: { 
+      type: DataTypes.INTEGER,
+      references: { model: 'asistencia', key: 'id' }
+    }
+  }, {
+    tableName: 'registro_asistencia',
+    paranoid: true
+  });
+  return RegistroAsistencia;
+};
+--- END OF FILE ---
+
+./RegistroOrden.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  const RegistroOrden = sequelize.define('RegistroOrden', {
+    registro_id: {
+      type: DataTypes.INTEGER,
+      references: { model: 'registro', key: 'id' }
+    },
+    orden_id: {
+      type: DataTypes.INTEGER,
+      references: { model: 'orden', key: 'id' }
+    }
+  }, {
+    tableName: 'registro_orden',
+    paranoid: true
+  });
+  return RegistroOrden;
+};
+--- END OF FILE ---
+
+./RegistroReserva.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  const RegistroReserva = sequelize.define('RegistroReserva', {
+    registro_id: {
+      type: DataTypes.INTEGER,
+      references: { model: 'registro', key: 'id' }
+    },
+    reserva_id: {
+      type: DataTypes.INTEGER,
+      references: { model: 'reserva', key: 'id' }
+    }
+  }, {
+    tableName: 'registro_reserva',
+    paranoid: true
+  });
+  return RegistroReserva;
+};
+--- END OF FILE ---
+
+./reserva.js
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  return sequelize.define('Reserva', {
+    hora: { 
+      type: DataTypes.DATE, 
+      allowNull: false,
+      validate: {
+        isFuture(value) {
+          if (value <= new Date()) {
+            throw new Error("La reserva debe ser para una fecha y hora futura");
+          }
+        }
+      }
+    }, estado: {
+    type: DataTypes.ENUM('PENDIENTE', 'LLEGO', 'CANCELADA', 'EXPIRADA'),
+    defaultValue: 'PENDIENTE'
+    },
+    cliente_id: DataTypes.INTEGER,
+    mesa_id: DataTypes.INTEGER
+  }, {
+    tableName: 'reserva',
+    paranoid: true
+  });
+};
+--- END OF FILE ---
+
