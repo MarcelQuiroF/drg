@@ -29,39 +29,32 @@ if (path.includes('indexAdmin.html') && rol !== 'ADMIN') {
 document.addEventListener('click', (e) => {
     const overlay = document.getElementById('modal-overlay');
     
-    // 1. Clics específicos para el modal de notificaciones
     if (e.target.id === 'btn-close-notification' || e.target.id === 'close-notification-modal') {
         cerrarNotificacion();
         return;
     }
 
-    // 2. Clic en el fondo oscuro (Overlay)
     if (e.target.id === 'modal-overlay') {
-        // Notificación
         const notificationModal = document.getElementById('notification-modal');
         if (notificationModal && notificationModal.classList.contains('custom-modal-visible')) {
             cerrarNotificacion();
         }
 
-        // Delete Modal (Reservas o Asistencias)
         const deleteModal = document.getElementById('delete-modal');
         if (deleteModal && deleteModal.classList.contains('custom-modal-visible')) {
             document.getElementById('close-delete-modal')?.click();
         }
 
-        // Modal Asistencia (Módulo Asistencia)
         const modalAsistencia = document.getElementById('modal-asistencia');
         if (modalAsistencia && modalAsistencia.classList.contains('custom-modal-visible')) {
             document.getElementById('btn-cerrar-asistencia')?.click();
         }
 
-        // Modal Aprobar Asistencia (Módulo Asistencia)
         const modalAprobar = document.getElementById('modal-aprobar');
         if (modalAprobar && modalAprobar.classList.contains('custom-modal-visible')) {
             document.getElementById('btn-cerrar-aprobar')?.click();
         }
         
-        // Modal Reservas (Módulo Reservas - Si aplica)
         const reservaModal = document.getElementById('reserva-modal');
         if (reservaModal && reservaModal.classList.contains('custom-modal-visible')) {
             document.getElementById('close-reserva-modal')?.click();
@@ -144,7 +137,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     } catch (error) { console.error(error); }
 
-    // Botón Salir
     document.getElementById('logout-btn')?.addEventListener('click', () => {
         localStorage.removeItem('token_drg');
         localStorage.removeItem('usuario_rol');
