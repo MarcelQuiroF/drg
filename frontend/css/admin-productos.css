@@ -181,7 +181,7 @@
     justify-content: center;
 }
 
-.val-price { color: var(--text-main); font-weight: 700; margin-left: 5px; font-size: 16px; }
+.val-price { color: var(--text-main); font-weight: 700; margin-left: 5px; font-size: 16px; padding-right: 10px;}
 
 .btn-toggle-status {
     background-color: var(--btn-pill-bg);
@@ -193,7 +193,7 @@
     font-size: 14px;
     cursor: pointer;
     transition: 0.2s;
-    width: 100%;
+    width: 50%;
 }
 
 .btn-toggle-status:hover { background-color: #ddd; }

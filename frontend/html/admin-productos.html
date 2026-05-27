@@ -1,7 +1,5 @@
-<!-- Enlace al CSS unificado -->
 <link rel="stylesheet" href="../css/admin-productos.css">
 
-<!-- CABECERA PRINCIPAL -->
 <header class="main-header">
     <h1>Gestión de Productos</h1>
     <div class="header-right">
@@ -15,9 +13,7 @@
     </div>
 </header>
 
-<!-- CONTENIDO PRINCIPAL -->
 <div class="contenido" id="admin-content-wrapper">
-    <!-- SECCIÓN DE FILTROS -->
     <section class="filter-section">
         <div class="filter-group js-cats">
             <span class="filter-opt active" data-filter="all">Todos</span>
@@ -27,24 +23,20 @@
         </div>
 
         <div class="filter-group js-stats">
-            <span class="filter-opt active" data-status="all">Todos</span>
-            <span class="filter-opt" data-status="active">Activos</span>
+            <span class="filter-opt" data-status="all">Todos</span>
+            <span class="filter-opt active" data-status="active">Activos</span>
             <span class="filter-opt" data-status="inactive">Inactivos</span>
         </div>
     </section>
 
-    <!-- ÁREA DE GRILLA DE PRODUCTOS -->
     <div class="content-area">
         <div class="product-grid" id="admin-products-container">
-            <!-- Las tarjetas se cargan dinámicamente aquí -->
         </div>
     </div>
 </div>
 
-<!-- CAPA DE FONDO (OVERLAY) PARA MODALES -->
 <div id="modal-overlay" class="modal-overlay-hidden"></div>
 
-<!-- MODAL DE PRODUCTO (NUEVO/EDITAR) -->
 <div id="product-modal" class="custom-modal-hidden">
     <div class="modal-content">
         <div class="modal-header">
@@ -131,9 +123,8 @@
     </div>
 </div>
 
-<!-- MODAL DE CONFIRMACIÓN DE ESTADO (ACTIVAR/DESACTIVAR) -->
-<div id="status-modal" class="custom-modal-hidden">
-    <div class="modal-content" style="max-width: 400px; text-align: center;">
+<div id="status-modal" class="custom-modal-hidden" style="width: 400px; max-width: 90%;">
+    <div class="modal-content" style=" text-align: center;">
         <div class="modal-header" style="border-bottom: none;">
             <h2 id="status-modal-title"></h2> 
             <span id="close-status-modal" class="close-btn">&times;</span>
@@ -147,7 +138,7 @@
     </div>
 </div>
 
-<!-- TEMPLATE PARA TARJETAS DE PRODUCTO -->
+
 <template id="template-admin-card">
     <div class="contenedor-producto">
         <i class='bx bxs-pencil btn-edit-float'></i>

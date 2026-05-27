@@ -1,4 +1,76 @@
-<div class="cabezeraCuerpo">
-    <div class="tituloCabecera"><p>Dashboard Financiero</p></div>
+<div class="dashboard-wrapper">
+    <div class="dashboard-header">
+        <h2>Dashboard Principal</h2>
+        
+        <div class="dashboard-filters">
+            <div class="radio-filters">
+                <label><input type="radio" name="rangoTiempo" value="semana" checked> Esta Semana</label>
+                <label><input type="radio" name="rangoTiempo" value="mes"> Este Mes</label>
+                <label><input type="radio" name="rangoTiempo" value="todos"> Todo</label>
+                <label><input type="radio" name="rangoTiempo" value="custom"> Personalizado</label>
+            </div>
+            <div class="date-filters">
+                <input type="date" id="fecha-inicio" class="form-input">
+                <span style="color:var(--color-text-primary)">al</span>
+                <input type="date" id="fecha-fin" class="form-input">
+                <button id="btn-filtrar-dash" class="btn-primary" style="width: auto; padding: 8px 15px;">Filtrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <h3>Ingresos Totales</h3>
+            <h1 id="kpi-ingresos">Bs 0.00</h1>
+            <div class="kpi-split">
+                <span class="qr-tag">QR: <b id="kpi-qr">0%</b></span>
+                <span class="cash-tag">Efectivo: <b id="kpi-efectivo">0%</b></span>
+            </div>
+        </div>
+        <div class="kpi-card">
+            <h3>Ingreso Promedio Diario</h3>
+            <h1 id="kpi-promedio-ingreso">Bs 0.00</h1>
+        </div>
+        <div class="kpi-card">
+            <h3>Total Órdenes</h3>
+            <h1 id="kpi-ordenes">0</h1>
+            <p style="color: #666; font-size: 0.85em; margin-top:5px;">Promedio: <b id="kpi-promedio-ordenes">0</b> por día</p>
+        </div>
+        <div class="kpi-card">
+            <h3>Reservas Totales</h3>
+            <h1 id="kpi-reservas">0</h1>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3>Evolución de Ingresos</h3>
+            <div class="chart-container">
+                <canvas id="chart-ingresos"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <h3>Ingresos: Comida vs Juegos</h3>
+            <div class="chart-container">
+                <canvas id="chart-distribucion"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <h3>Volumen de Órdenes</h3>
+            <div class="chart-container">
+                <canvas id="chart-ordenes"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="rankings-grid">
+        <div class="ranking-card">
+            <h3>Top 5: Comidas más vendidas</h3>
+            <ul id="lista-top-comidas" class="ranking-list"></ul>
+        </div>
+        <div class="ranking-card">
+            <h3>Top 5: Juegos más populares</h3>
+            <ul id="lista-top-juegos" class="ranking-list"></ul>
+        </div>
+    </div>
 </div>
-<div class="contenido"><h1>Aquí irán los gráficos y reportes</h1></div>

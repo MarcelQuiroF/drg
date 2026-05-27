@@ -27,20 +27,16 @@ export const cargarMesasPage = () => {
     cargarHTML("../html/mesas.html", () => {
         initMesas();
         
-        // Iniciamos el refresco global para mesas cada 15 o 20 segundos
-        // Solo refrescamos las mesas, no los pisos, para no molestar al usuario
         iniciarAutoRefresco(actualizarSoloMesasSilencioso, 15);
     });
 };
 
-// --- FUNCIÓN DE REFRESCO SILENCIOSO ---
 const actualizarSoloMesasSilencioso = async () => {
     const select = document.querySelector('.dropDownPiso');
     if (!select) return;
 
     const pisoId = select.value;
     if (pisoId) {
-        // Solo llamamos a cargarMesas, que refresca el contenedor y los contadores
         await cargarMesas(pisoId);
     }
 };
@@ -54,7 +50,7 @@ export const initMesas = () => {
 
 const cargarPisos = async () => {
     try {
-        const response = await authFetch('/pisos');
+        const response = await authFetch('/pisos?activo=true');
         if(response && response.ok){
             const pisos = await response.json();
             const select = document.querySelector('.dropDownPiso');
@@ -93,7 +89,7 @@ const cargarPisos = async () => {
 
 const cargarMesas = async (pisoId) => {
     try {
-        const response = await authFetch(`/mesas?piso_id=${pisoId}`);
+        const response = await authFetch(`/mesas?piso_id=${pisoId}&activo=true`);
         if(response && response.ok){
             const mesas = await response.json();
             renderizarMesas(mesas);
@@ -114,7 +110,6 @@ const actualizarContadoresMesas = (mesas) => {
     const contenedores = document.querySelectorAll('.cabezeraCuerpo .informacion .contenedorMesa p');
     
     if(contenedores.length >= 3){
-        // Mapeamos los índices: 0 -> Reservadas (3), 1 -> En Uso (2), 2 -> Disponible (1)
         contenedores[0].textContent = `RESERVADAS: ${conteos[3]}`; 
         contenedores[1].textContent = `EN USO: ${conteos[2]}`; 
         contenedores[2].textContent = `DISPONIBLES: ${conteos[1]}`; 
@@ -140,7 +135,6 @@ const renderizarMesas = (mesas) => {
         mesaDiv.className = `mesa-card estado-${estadoVisual}`;
         mesaDiv.id = `mesa-${mesa.id}`;
 
-        // --- LÓGICA DEL RELOJ DE RESERVAS ---
         const reservasFuturas = mesa.Reservas || [];
         let relojHTML = '';
 
@@ -157,7 +151,6 @@ const renderizarMesas = (mesas) => {
             `;
         }
 
-        // Inyectamos el nuevo formato: Nº de mesa y rango de capacidad
         mesaDiv.innerHTML = `
             <div class="mesa-header">
                 <span>${obtenerEstadoTexto(estadoVisual)}</span>

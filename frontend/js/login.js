@@ -36,10 +36,10 @@ if(loginForm){
                 
                 // --- LÓGICA DE REDIRECCIÓN ---
                 if (rolUsuario === 'ADMIN') {
-                    window.location.href = 'indexAdmin.html';
+                    window.location.href = '/html/indexAdmin.html';
                 } else {
                     // Cajeros, Meseros, etc.
-                    window.location.href = 'index.html';
+                    window.location.href = '/html/index.html';
                 }
                 // -----------------------------
             } else {

@@ -1,4 +1,4 @@
-export const API_URL = 'http://localhost:3000/api/v1';
+export const API_URL = '/api/v1';
 
 export function getToken() {
     return localStorage.getItem('token_drg');
@@ -8,7 +8,7 @@ export async function authFetch(endpoint, options = {}) {
     const token = getToken();
     
     if (!token) {
-        window.location.href = 'login.html';
+        window.location.href = '/html/login.html';
         return;
     }
 

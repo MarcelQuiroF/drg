@@ -1,219 +1,345 @@
-import { authFetch, API_URL } from '../api.js'; 
-import { cargarHTML } from '../utils.js';
+import { authFetch } from '../api.js';
+import { mostrarNotificacion } from '../utils.js';
 
+let relojInterval = null;
+let empleadosHoy = [];
+let asistenciasHoy = [];
+let descuentosDB = [];
+let empleadoSeleccionado = null;
+let horarioSeleccionado = null;
+let asistenciaAAprobarId = null;
+let ASISTENCIA_ID_ELIMINAR = null; 
 
-let listaIdsPorAprobar = [];
+const DIAS_SEMANA = ['DOMINGO', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
 
-export const cargarAsistenciaPage = () => {
-    cargarHTML("../html/asistencia.html", initAsistencia);
+export const cargarAsistenciaPage = async () => {
+    iniciarReloj();
+    await cargarDescuentos();
+    await recargarDatos();
+    configurarEventosModales();
+    configurarBotonEliminarGlobal(); 
 };
 
+const recargarDatos = async () => {
+    await Promise.all([cargarTurnosHoy(), cargarAsistenciasHoy()]);
+    renderizarTablas();
+};
 
-const initAsistencia = async () => {
-    const contenedor = document.getElementById('lista-asistencias');
-    const template = document.getElementById('template-asistencia-card');
-    const btnConfirmarLote = document.getElementById('btn-confirmar-lote');
-    
-    const txtHorario = document.getElementById('txt-horario-hoy');
-    if (txtHorario) {
-        try {
-            const resHorario = await authFetch('/asistencias/horario-hoy');
-            if (resHorario.ok) {
-                const data = await resHorario.json();
-                if (data.hora_entrada) {
-
-                    const entrada = data.hora_entrada.slice(0, 5);
-                    const salida = data.hora_salida.slice(0, 5);
-                    txtHorario.textContent = `${entrada} - ${salida}`;
-                } else {
-                    txtHorario.textContent = "Día Libre";
-                }
-            }
-        } catch (e) {
-            console.error("Error cargando horario", e);
-            txtHorario.textContent = "--:--";
+const iniciarReloj = () => {
+    if (relojInterval) clearInterval(relojInterval);
+    const actualizarReloj = () => {
+        const ahora = new Date();
+        const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const fechaEl = document.getElementById('fecha-hoy-display');
+        if (fechaEl) {
+            let f = ahora.toLocaleDateString('es-ES', opcionesFecha);
+            fechaEl.textContent = f.charAt(0).toUpperCase() + f.slice(1);
         }
-    }
-    
-    if(!contenedor) return;
+        const relojEl = document.getElementById('reloj-vivo');
+        if (relojEl) relojEl.textContent = ahora.toLocaleTimeString('es-ES', { hour12: false });
+    };
+    actualizarReloj();
+    relojInterval = setInterval(actualizarReloj, 1000);
+};
 
-
-    listaIdsPorAprobar = [];
-    if(btnConfirmarLote) btnConfirmarLote.style.display = 'none';
-
-    contenedor.innerHTML = '<p style="padding:10px; color: white;">Cargando...</p>';
-
+const cargarDescuentos = async () => {
     try {
-        const response = await authFetch('/asistencias');
-        if (response.ok) {
-            const asistencias = await response.json();
-            renderizarAsistencias(contenedor, template, asistencias);
-        } else {
-            contenedor.innerHTML = '<p style="padding:10px; color: white;">Error cargando datos.</p>';
+        const res = await authFetch('/configuracion/descuentos-atraso');
+        if (res.ok) descuentosDB = await res.json();
+    } catch (e) { console.error("Error cargando descuentos:", e); }
+};
+
+const cargarTurnosHoy = async () => {
+    const diaActual = DIAS_SEMANA[new Date().getDay()];
+    try {
+        const res = await authFetch('/empleados');
+        if (res.ok) {
+            const todos = await res.json();
+            empleadosHoy = todos.filter(emp => emp.activo && emp.Horarios && emp.Horarios.some(h => h.dia === diaActual));
         }
-    } catch (error) {
-        console.error(error);
-        contenedor.innerHTML = '<p style="padding:10px; color: white;">Error de conexión.</p>';
+    } catch (error) { mostrarNotificacion("Error", "Error al cargar empleados.", true); }
+};
+
+const cargarAsistenciasHoy = async () => {
+    try {
+        const res = await authFetch('/asistencias/hoy');
+        if (res.ok) asistenciasHoy = await res.json();
+    } catch (error) { console.error("Error al cargar asistencias de hoy.", error); }
+};
+
+const renderizarTablas = () => {
+    const tbodyTurnos = document.getElementById('turnos-tbody');
+    const tbodyRegistros = document.getElementById('registros-tbody');
+    if (!tbodyTurnos || !tbodyRegistros) return;
+
+    tbodyTurnos.innerHTML = '';
+    tbodyRegistros.innerHTML = '';
+
+    const diaActual = DIAS_SEMANA[new Date().getDay()];
+    const ahora = new Date();
+    let contadorTurnos = 0;
+
+    // Renderizar los Empleados (Turnos Pendientes)
+    empleadosHoy.forEach(emp => {
+        const yaRegistro = asistenciasHoy.find(a => a.empleado_id === emp.id);
+        if (yaRegistro) return;
+
+        const horarioHoy = emp.Horarios.find(h => h.dia === diaActual);
+        if (!horarioHoy) return;
+
+        contadorTurnos++;
+        const tr = document.createElement('tr');
+        const [horaE, minE] = horarioHoy.hora_entrada.split(':').map(Number);
+        const fechaEsperada = new Date();
+        fechaEsperada.setHours(horaE, minE, 0, 0);
+
+        const diferenciaMinutos = Math.floor((ahora - fechaEsperada) / 60000);
+        let estadoHTML = diferenciaMinutos <= 0 
+            ? '<span class="status-badge status-ontime">A tiempo</span>' 
+            : `<span class="status-badge status-late">Atrasado (${diferenciaMinutos} min)</span>`;
+
+        tr.innerHTML = `
+            <td><strong>${emp.nombre}</strong></td>
+            <td>${emp.rol}</td>
+            <td>${horarioHoy.hora_entrada.substring(0, 5)}</td>
+            <td>${estadoHTML}</td>
+            <td><button class="btn-primary btn-registrar-llegada">Registrar</button></td>
+        `;
+        tr.querySelector('.btn-registrar-llegada').onclick = () => abrirModalAsistencia(emp, horarioHoy);
+        tbodyTurnos.appendChild(tr);
+    });
+
+    if (contadorTurnos === 0) {
+        tbodyTurnos.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px; color: #888;">No hay turnos pendientes.</td></tr>';
     }
 
+    // Renderizar Asistencias ya procesadas
+    if (asistenciasHoy.length === 0) {
+        tbodyRegistros.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: #888;">Aún no hay asistencias registradas hoy.</td></tr>';
+    } else {
+        asistenciasHoy.forEach(asist => {
+            const tr = document.createElement('tr');
+            
+            let colorEstado = '#3730a3'; 
+            if(asist.estado === 'FALTA') colorEstado = '#dc2626'; 
+            if(asist.estado === 'PERMISO') colorEstado = '#d97706'; 
 
-    document.getElementById('btn-ir-registro')?.addEventListener('click', cargarAsistenciaRegistroPage);
-    document.getElementById('btn-refrescar')?.addEventListener('click', initAsistencia);
+            const estadoSpan = `<span style="font-weight: bold; color: ${colorEstado}">${asist.estado}</span>`;
+            
+            const checkIcon = asist.aprobado 
+                ? '<i class="fa-solid fa-circle-check status-aprobado" title="Aprobado"></i>' 
+                : '<i class="fa-solid fa-clock status-pendiente" title="Pendiente de aprobación"></i>';
 
-    if(btnConfirmarLote){
-        btnConfirmarLote.addEventListener('click', () => {
-            if(listaIdsPorAprobar.length > 0){
-                cargarAdminReauthPage();
+            const btnAprobarHTML = asist.aprobado 
+                ? `<span style="color: #16a34a; font-size: 0.9em; margin-right: 5px;">Aprobado</span>` 
+                : `<button class="btn-aprobar" data-id="${asist.id}">Aprobar</button>`;
+
+            tr.innerHTML = `
+                <td><strong>${asist.Empleado?.nombre || 'Desconocido'}</strong></td>
+                <td>${asist.Empleado?.rol || '-'}</td>
+                <td>${asist.Horario ? asist.Horario.hora_entrada.substring(0, 5) : '-'}</td>
+                <td>${estadoSpan}</td>
+                <td style="text-align:center;">${checkIcon}</td>
+                <td>
+                    ${btnAprobarHTML}
+                    <button class="btn-eliminar" data-id="${asist.id}" title="Eliminar registro"><i class="fa-solid fa-xmark"></i></button>
+                </td>
+            `;
+
+            if (!asist.aprobado) {
+                tr.querySelector('.btn-aprobar').onclick = () => abrirModalAprobar(asist.id);
             }
+            
+            tr.querySelector('.btn-eliminar').onclick = () => 
+                prepararEliminacion(asist.id, asist.Empleado?.nombre || 'Desconocido');
+
+            tbodyRegistros.appendChild(tr);
         });
     }
 };
 
-const renderizarAsistencias = (contenedor, template, asistencias) => {
-    contenedor.innerHTML = '';
-    const btnConfirmarLote = document.getElementById('btn-confirmar-lote');
+const abrirModalAsistencia = (empleado, horario) => {
+    empleadoSeleccionado = empleado;
+    horarioSeleccionado = horario;
+    const ahora = new Date();
 
-    if (asistencias.length === 0) {
-        contenedor.innerHTML = '<p style="padding:20px; color: white;">No hay registros hoy.</p>';
-        return;
-    }
+    document.getElementById('modal-emp-nombre').textContent = empleado.nombre;
+    document.getElementById('modal-emp-esperada').textContent = horario.hora_entrada.substring(0, 5);
+    document.getElementById('modal-emp-llegada').textContent = ahora.toLocaleTimeString('es-ES', { hour12: false });
 
-    asistencias.forEach(asistencia => {
-        const clon = template.content.cloneNode(true);
-        
-        // Datos básicos
-        const nombre = asistencia.Empleado ? asistencia.Empleado.nombre : 'Desconocido';
-        clon.querySelector('.nombre-empleado').textContent = nombre;
+    const [horaE, minE] = horario.hora_entrada.split(':').map(Number);
+    const fechaEsperada = new Date();
+    fechaEsperada.setHours(horaE, minE, 0, 0);
+    const diferenciaMinutos = Math.floor((ahora - fechaEsperada) / 60000);
 
-        const fechaObj = new Date(asistencia.fecha);
-        const horaStr = fechaObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        
-        const spanHora = clon.querySelector('.hora-llegada');
-        spanHora.textContent = horaStr;
+    const alertaAtraso = document.getElementById('alerta-atraso');
+    const grupoDescuento = document.getElementById('grupo-descuento');
+    const selectDescuento = document.getElementById('asistencia-descuento');
 
+    if (selectDescuento) selectDescuento.innerHTML = '<option value="">Ninguno (Perdonar atraso)</option>';
 
-        if (asistencia.descuento_id) {
-            spanHora.style.color = '#ff5a5e';
-            spanHora.title = "Con atraso";
-        }
+    if (diferenciaMinutos > 0) {
+        document.getElementById('minutos-atraso').textContent = diferenciaMinutos;
+        if (alertaAtraso) alertaAtraso.style.display = 'block';
+        if (grupoDescuento) grupoDescuento.style.display = 'block';
 
-
-        const checkbox = clon.querySelector('.check-aprobar'); 
-        
-        if (asistencia.aprobado) {
-            checkbox.checked = true;
-            checkbox.disabled = true; 
-        } else {
-
-            checkbox.addEventListener('change', (e) => {
-                if (e.target.checked) {
-                    listaIdsPorAprobar.push(asistencia.id);
-                } else {
-                    listaIdsPorAprobar = listaIdsPorAprobar.filter(id => id !== asistencia.id);
-                }
-
-                if(btnConfirmarLote){
-                    if (listaIdsPorAprobar.length > 0) {
-                        btnConfirmarLote.style.display = 'inline-block';
-                        btnConfirmarLote.textContent = `Confirmar (${listaIdsPorAprobar.length})`;
-                    } else {
-                        btnConfirmarLote.style.display = 'none';
-                    }
-                }
+        if (selectDescuento) {
+            descuentosDB.forEach(desc => {
+                const opt = document.createElement('option');
+                opt.value = desc.id;
+                opt.textContent = `Descuento: ${desc.descuento_porcentual ? desc.descuento_porcentual + '%' : desc.descuento + ' Bs'}`;
+                selectDescuento.appendChild(opt);
             });
         }
+    } else {
+        if (alertaAtraso) alertaAtraso.style.display = 'none';
+        if (grupoDescuento) grupoDescuento.style.display = 'none';
+    }
 
-        contenedor.appendChild(clon);
+    abrirCerrarModal('modal-asistencia', true);
+};
+
+const abrirModalAprobar = (id) => {
+    asistenciaAAprobarId = id;
+    document.getElementById('admin-ci').value = '';
+    document.getElementById('admin-password').value = '';
+    abrirCerrarModal('modal-aprobar', true);
+};
+
+const prepararEliminacion = (id, nombre) => {
+    ASISTENCIA_ID_ELIMINAR = id;
+    
+    const modal = document.getElementById('delete-modal');
+    const overlay = document.getElementById('modal-overlay');
+    
+    document.getElementById('delete-modal-message').innerHTML = 
+        `¿Eliminar el registro de asistencia de <strong>${nombre}</strong>?<br><small>El empleado regresará a la lista de turnos pendientes.</small>`;
+    
+    if (modal && overlay) {
+        overlay.classList.remove('modal-overlay-hidden');
+        overlay.classList.add('modal-overlay-visible');
+        modal.classList.remove('custom-modal-hidden');
+        modal.classList.add('custom-modal-visible');
+    }
+};
+
+const abrirCerrarModal = (modalId, abrir) => {
+    const modal = document.getElementById(modalId);
+    const overlay = document.getElementById('modal-overlay');
+    if (modal && overlay) {
+        if (abrir) {
+            overlay.classList.remove('modal-overlay-hidden');
+            overlay.classList.add('modal-overlay-visible');
+            modal.classList.remove('custom-modal-hidden');
+            modal.classList.add('custom-modal-visible');
+        } else {
+            modal.classList.remove('custom-modal-visible');
+            modal.classList.add('custom-modal-hidden');
+            
+            const algunModalAbierto = document.querySelector('.custom-modal-visible');
+            if (!algunModalAbierto) {
+                overlay.classList.remove('modal-overlay-visible');
+                overlay.classList.add('modal-overlay-hidden');
+            }
+        }
+    }
+};
+
+const cerrarModalEliminarGlobal = () => {
+    const modal = document.getElementById('delete-modal');
+    const overlay = document.getElementById('modal-overlay');
+    if (modal && overlay) {
+        modal.classList.remove('custom-modal-visible');
+        modal.classList.add('custom-modal-hidden');
+        
+        const algunModalAbierto = document.querySelector('.custom-modal-visible');
+        if (!algunModalAbierto) {
+            overlay.classList.remove('modal-overlay-visible');
+            overlay.classList.add('modal-overlay-hidden');
+        }
+    }
+    ASISTENCIA_ID_ELIMINAR = null;
+};
+
+const configurarEventosModales = () => {
+    document.getElementById('btn-cerrar-asistencia')?.addEventListener('click', () => abrirCerrarModal('modal-asistencia', false));
+    
+    document.getElementById('form-asistencia')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            empleado_id: empleadoSeleccionado.id,
+            horario_id: horarioSeleccionado ? horarioSeleccionado.id : null,
+            estado: document.getElementById('asistencia-estado').value,
+            descuento_id: document.getElementById('asistencia-descuento')?.value || null
+        };
+
+        try {
+            const res = await authFetch('/asistencias', { method: 'POST', body: JSON.stringify(payload) });
+            if (res.ok) {
+                mostrarNotificacion("Éxito", "Asistencia registrada correctamente.", false);
+                abrirCerrarModal('modal-asistencia', false);
+                await recargarDatos();
+            } else {
+                const err = await res.json();
+                mostrarNotificacion("Error", err.message || "Error al registrar.", true);
+            }
+        } catch (e) { mostrarNotificacion("Error", "Fallo de conexión.", true); }
+    });
+
+    document.getElementById('btn-cerrar-aprobar')?.addEventListener('click', () => abrirCerrarModal('modal-aprobar', false));
+
+    document.getElementById('form-aprobar')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+            ci: document.getElementById('admin-ci').value,
+            contrasenia: document.getElementById('admin-password').value
+        };
+
+        try {
+            const res = await authFetch(`/asistencias/${asistenciaAAprobarId}/aprobar`, {
+                method: 'PUT',
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                mostrarNotificacion("Aprobado", "La asistencia ha sido aprobada.", false);
+                abrirCerrarModal('modal-aprobar', false);
+                await recargarDatos();
+            } else {
+                const err = await res.json();
+                mostrarNotificacion("Error", err.message || "Credenciales incorrectas.", true);
+            }
+        } catch (e) { mostrarNotificacion("Error", "Fallo de conexión al aprobar.", true); }
     });
 };
 
-const cargarAsistenciaRegistroPage = () => {
-    cargarHTML("../html/asistencia-registro.html", initAsistenciaRegistro);
-};
-
-const initAsistenciaRegistro = () => {
-    const btnConfirmar = document.getElementById('btn-marcar-asistencia');
-    const btnAtras = document.getElementById('btn-volver-asistencia');
-
-    if(btnAtras) {
-        btnAtras.addEventListener('click', cargarAsistenciaPage);
+const configurarBotonEliminarGlobal = () => {
+    const closeDeleteBtn = document.getElementById('close-delete-modal');
+    if (closeDeleteBtn) {
+        const newCloseBtn = closeDeleteBtn.cloneNode(true);
+        closeDeleteBtn.parentNode.replaceChild(newCloseBtn, closeDeleteBtn);
+        newCloseBtn.addEventListener('click', cerrarModalEliminarGlobal);
     }
 
-    if(btnConfirmar) {
-        btnConfirmar.addEventListener('click', async () => {
-            const ci = document.getElementById('ci-input').value;
-            const pass = document.getElementById('contrasena-input').value;
-
-            if(!ci || !pass) return alert("Complete los campos");
-
+    const deleteConfirmBtn = document.getElementById('btn-confirm-delete');
+    if (deleteConfirmBtn) {
+        const newConfirmBtn = deleteConfirmBtn.cloneNode(true);
+        deleteConfirmBtn.parentNode.replaceChild(newConfirmBtn, deleteConfirmBtn);
+        
+        newConfirmBtn.addEventListener('click', async () => {
+            if (!ASISTENCIA_ID_ELIMINAR) return;
+            
             try {
-                const response = await fetch(`${API_URL}/asistencias/marcar`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ci: ci, contrasenia: pass })
-                });
-
-                const data = await response.json();
-
-                if(response.ok) {
-                    alert("" + data.message);
-                    cargarAsistenciaPage(); 
+                const res = await authFetch(`/asistencias/${ASISTENCIA_ID_ELIMINAR}`, { method: 'DELETE' });
+                if (res.ok) {
+                    mostrarNotificacion("Eliminado", "Registro eliminado correctamente.", false);
+                    cerrarModalEliminarGlobal();
+                    await recargarDatos();
                 } else {
-                    alert("Error: " + (data.message || "Credenciales incorrectas"));
+                    mostrarNotificacion("Error", "No se pudo eliminar el registro.", true);
                 }
-
-            } catch (error) {
-                console.error(error);
-                alert("Error de conexión con el servidor.");
-            }
-        });
-    }
-};
-
-const cargarAdminReauthPage = () => {
-    cargarHTML("../html/admin-reauth.html", initAdminReauth);
-};
-
-const initAdminReauth = () => {
-    const btnValidar = document.getElementById('btn-validar-admin');
-    const btnCancelar = document.getElementById('btn-cancelar-auth');
-
-    if(btnCancelar) {
-        btnCancelar.addEventListener('click', cargarAsistenciaPage);
-    }
-
-    if(btnValidar) {
-        btnValidar.addEventListener('click', async () => {
-            const ci = document.getElementById('admin-ci').value;
-            const pass = document.getElementById('admin-pass').value;
-
-            if(!ci || !pass) return alert("Ingrese sus credenciales de Admin");
-
-            try {
-                const resLogin = await fetch(`${API_URL}/auth/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ci: ci, contrasenia: pass })
-                });
-
-                const dataLogin = await resLogin.json();
-
-                if(!resLogin.ok || dataLogin.empleado.rol !== 'ADMIN') {
-                    return alert("Error: Credenciales inválidas o no es Administrador.");
-                }
-
-                const promesas = listaIdsPorAprobar.map(id => 
-                    authFetch(`/asistencias/${id}/aprobar`, { method: 'PATCH' })
-                );
-
-                await Promise.all(promesas);
-
-                alert("Aprobaciones registradas correctamente.");
-                cargarAsistenciaPage(); 
-
-            } catch (error) {
-                console.error(error);
-                alert("Error de conexión durante la autorización.");
+            } catch (e) { 
+                mostrarNotificacion("Error", "Fallo de conexión.", true); 
             }
         });
     }

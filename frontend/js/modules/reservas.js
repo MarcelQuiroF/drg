@@ -5,9 +5,8 @@ let RESERVA_ID_PARA_ELIMINAR = null;
 let ID_RESERVA_EDICION = null;
 let TODAS_LAS_MESAS = [];
 
-let TODOS_LOS_CLIENTES = []; // Guardamos los clientes aquí para buscar rápido
+let TODOS_LOS_CLIENTES = []; 
 
-// --- LÓGICA DEL BUSCADOR DE CLIENTES ---
 
 const filtrarClientes = (termino) => {
     const resultsContainer = document.getElementById('cliente-options-results');
@@ -38,7 +37,6 @@ const filtrarClientes = (termino) => {
 };
 
 const seleccionarCliente = (id, nombre, telf) => {
-    // Si no hay teléfono, solo mostramos el nombre
     const displayTelf = telf ? ` (${telf})` : "";
     document.getElementById('cliente-search').value = `${nombre}${displayTelf}`;
     document.getElementById('cliente-select-id').value = id;
@@ -47,7 +45,6 @@ const seleccionarCliente = (id, nombre, telf) => {
     resultsContainer.classList.replace('search-results-visible', 'search-results-hidden');
 };
 
-// --- 1. LÓGICA DE ERRORES DEL MODAL ---
 
 const mostrarErrorModal = (mensaje) => {
     const errorEl = document.getElementById('reserva-error-msg');
@@ -83,7 +80,6 @@ const limpiarErrorCliente = () => {
     }
 };
 
-// --- 2. MODAL DE RESERVA (CREAR/EDITAR) ---
 
 const abrirModalReserva = async (idReserva = null) => {
     const modal = document.getElementById('reserva-modal');
@@ -133,18 +129,15 @@ const cerrarModalReserva = () => {
     ID_RESERVA_EDICION = null;
 };
 
-// --- 3. MODAL DE CLIENTE RÁPIDO ---
 
 const abrirModalCliente = () => {
     const clienteModal = document.getElementById('cliente-modal');
     const reservaModal = document.getElementById('reserva-modal');
     
-    // Limpiamos campos
     document.getElementById('new-nombre').value = "";
     document.getElementById('new-ci').value = "";
     document.getElementById('new-telf').value = "";
     
-    // --- NUEVO: Limpiamos errores previos ---
     limpiarErrorCliente(); 
 
     reservaModal?.classList.add('modal-backdrop-blur');
@@ -158,12 +151,10 @@ const cerrarModalCliente = () => {
     clienteModal.classList.replace('custom-modal-visible', 'custom-modal-hidden');
 };
 
-// --- 4. ACCIONES DE GUARDADO ---
-
 async function manejarGuardarReserva() {
     limpiarErrorModal();
     const payload = {
-        cliente_id: document.getElementById('cliente-select-id').value, // <--- ID oculto
+        cliente_id: document.getElementById('cliente-select-id').value,
         mesa_id: document.getElementById('mesa-select-form').value,
         hora: `${document.getElementById('fecha-reserva').value}T${document.getElementById('hora-reserva').value}:00`
     };
@@ -192,7 +183,7 @@ async function manejarGuardarReserva() {
 }
 
 async function manejarGuardarClienteRapido() {
-    limpiarErrorCliente(); // Limpiamos errores antes de intentar guardar
+    limpiarErrorCliente(); 
 
     const payload = {
         nombre: document.getElementById('new-nombre').value.trim(),
@@ -200,7 +191,6 @@ async function manejarGuardarClienteRapido() {
         telefono: document.getElementById('new-telf').value.trim()
     };
 
-    // Validación básica en el frontend
     if (!payload.nombre) {
         return mostrarErrorCliente("El nombre completo es obligatorio.");
     }
@@ -211,10 +201,8 @@ async function manejarGuardarClienteRapido() {
         if (res.ok) {
             const nuevo = await res.json();
             cerrarModalCliente();
-            // Notificamos éxito y actualizamos el buscador
             await actualizarListaClientes(nuevo.id);
         } else {
-            // Si el servidor responde con error (ej: 400 Bad Request)
             const data = await res.json();
             mostrarErrorCliente(data.message || "Error al registrar el cliente.");
         }
@@ -225,17 +213,10 @@ async function manejarGuardarClienteRapido() {
 }
 
 
-
-// --- 5. INICIALIZACIÓN ---
 export const cargarReservasPage = () => {
-    // Usamos tu cargarHTML de siempre
     cargarHTML("../html/reservar.html", () => {
         initReservas();
         
-        // --- INTEGRACIÓN GLOBAL ---
-        // Iniciamos el refresco automático cada 30 segundos.
-        // Solo llamamos a la función que trae datos, NO a initReservas entera
-        // para evitar que los botones se "dupliquen" o parpadeen.
         iniciarAutoRefresco(actualizarSoloDatosReservas, 30);
     });
 };
@@ -246,7 +227,7 @@ const actualizarSoloDatosReservas = async () => {
         const response = await authFetch('/reservas');
         if (response.ok) {
             const datos = await response.json();
-            renderizarReservas(tbody, datos); // Reutilizamos tu función de dibujo
+            renderizarReservas(tbody, datos); 
         }
     } catch (e) { console.error("Error en auto-refresco:", e); }
 };
@@ -255,7 +236,6 @@ const initReservas = async () => {
 
     
 
-    // 1. Corregimos el selector del tbody (ahora usamos el ID que pusimos en el HTML)
     const tbody = document.getElementById('reserva-tbody');
     if (!tbody) {
         console.error("No se encontró el elemento #reserva-tbody");
@@ -265,10 +245,8 @@ const initReservas = async () => {
     const inputSearch = document.getElementById('cliente-search');
     const resultsContainer = document.getElementById('cliente-options-results');
 
-    // Evento al escribir
     inputSearch?.addEventListener('input', (e) => filtrarClientes(e.target.value));
 
-    // Evento al hacer clic en un resultado (usando delegación de eventos)
     resultsContainer?.addEventListener('click', (e) => {
         const item = e.target.closest('.search-option-item');
         if (item && item.dataset.id) {
@@ -282,10 +260,8 @@ const initReservas = async () => {
         }
     });
 
-    // 2. Limpieza y carga inicial
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">Cargando dragones...</td></tr>';
 
-    // 3. Cargar datos de la tabla
     try {
         const response = await authFetch('/reservas');
         if (response.ok) {
@@ -299,9 +275,6 @@ const initReservas = async () => {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Error de conexión.</td></tr>';
     }
 
-    // --- CONFIGURACIÓN DE EVENTOS ---
-
-    // Botón de Ajustes (Engranaje)
     document.getElementById('btn-abrir-settings')?.addEventListener('click', abrirModalSettings);
     document.getElementById('close-settings-modal')?.addEventListener('click', cerrarModalSettings);
     
@@ -311,12 +284,10 @@ const initReservas = async () => {
         btnSaveS.parentNode.replaceChild(nBtn, btnSaveS);
         nBtn.addEventListener('click', manejarGuardarSettings);
     }
-
-    // Botón Principal "Registrar Reserva"
+    
     document.getElementById('btn-nueva-reserva')?.addEventListener('click', () => abrirModalReserva());
     document.getElementById('close-reserva-modal')?.addEventListener('click', cerrarModalReserva);
     
-    // Botón Guardar del Modal de Reserva
     const btnG = document.getElementById('btn-guardar-reserva');
     if (btnG) {
         const nBtn = btnG.cloneNode(true);
@@ -324,10 +295,8 @@ const initReservas = async () => {
         nBtn.addEventListener('click', manejarGuardarReserva);
     }
 
-    // Selectores del Modal (Pisos y Mesas)
     document.getElementById('piso-select')?.addEventListener('change', (e) => actualizarMesasPorPiso(e.target.value));
 
-    // Cliente Rápido (+)
     document.getElementById('btn-crear-cliente-reserva')?.addEventListener('click', (e) => {
         e.preventDefault();
         abrirModalCliente();
@@ -341,10 +310,8 @@ const initReservas = async () => {
         nBtn.addEventListener('click', manejarGuardarClienteRapido);
     }
 
-    // Cerrar Modal de Eliminación
     document.getElementById('close-delete-modal')?.addEventListener('click', cerrarModalEliminar);
 
-    // Overlay Global (Cerrar todo)
     document.getElementById('modal-overlay')?.addEventListener('click', () => {
         const clienteModal = document.getElementById('cliente-modal');
         if (clienteModal && clienteModal.classList.contains('custom-modal-visible')) {
@@ -357,13 +324,11 @@ const initReservas = async () => {
     });
 };
 
-// --- 6. HELPERS ---
 
 async function prepararSelectoresForm() {
     const selectPiso = document.getElementById('piso-select');
     selectPiso.innerHTML = '<option value="">Todos</option>';
     
-    // Limpiamos el buscador
     document.getElementById('cliente-search').value = "";
     document.getElementById('cliente-select-id').value = "";
 
@@ -393,13 +358,11 @@ async function actualizarListaClientes(idParaSeleccionar = null) {
     try {
         const res = await authFetch('/clientes');
         if (res.ok) {
-            // Actualizamos la lista global para que el buscador encuentre al nuevo cliente
             TODOS_LOS_CLIENTES = await res.json(); 
             
             if (idParaSeleccionar) {
                 const nuevo = TODOS_LOS_CLIENTES.find(c => c.id == idParaSeleccionar);
                 if (nuevo) {
-                    // Seleccionamos automáticamente al cliente recién creado
                     seleccionarCliente(nuevo.id, nuevo.nombre, nuevo.telefono);
                 }
             }
@@ -412,7 +375,6 @@ async function actualizarListaClientes(idParaSeleccionar = null) {
 const renderizarReservas = async (tbody, reservas) => {
     tbody.innerHTML = '';
     
-    // Obtenemos los tiempos de configuración para comparar
     let tolerancia = 20;
     let anticipacion = 30;
 
@@ -440,9 +402,8 @@ const renderizarReservas = async (tbody, reservas) => {
 
         
         
-        // --- CÁLCULO DE ESTADOS DE TIEMPO ---
-        const diffMs = ahora - d; // Milisegundos de diferencia
-        const diffMins = diffMs / 60000; // Convertir a minutos
+        const diffMs = ahora - d;
+        const diffMins = diffMs / 60000;
         
         console.log(`Reserva: ${reserva.Cliente?.nombre} | Diff: ${diffMins.toFixed(2)} min | Estado: ${reserva.estado}`);
 
@@ -452,11 +413,9 @@ const renderizarReservas = async (tbody, reservas) => {
 
         if (estadoLimpio === 'PENDIENTE') {
             if (diffMins > 0 && diffMins <= tolerancia) {
-                // El cliente va tarde pero está en tolerancia (Rojo)
                 timeClass = "time-tolerance";
             } 
             else if (diffMins < 0 && Math.abs(diffMins) <= anticipacion) {
-                // El cliente está por llegar (Azul)
                 timeClass = "time-early";
             }
         }
@@ -493,7 +452,6 @@ const renderizarReservas = async (tbody, reservas) => {
     });
 };
 
-// --- SETTINGS LOGIC ---
 const abrirModalSettings = async () => {
     const modal = document.getElementById('settings-reserva-modal');
     const overlay = document.getElementById('modal-overlay');
@@ -537,7 +495,6 @@ async function manejarGuardarSettings() {
     } catch (e) { console.error(e); }
 }
 
-// --- ELIMINACION ---
 const prepararEliminacionReserva = (id, nombre) => {
     RESERVA_ID_PARA_ELIMINAR = id;
     const modal = document.getElementById('delete-modal');

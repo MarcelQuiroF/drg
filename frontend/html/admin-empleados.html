@@ -4,47 +4,224 @@
     <h1>Gestión de Empleados</h1>
     <div class="header-right">
         <div class="search-box">
-            <i class='bx bx-search'></i>
-            <input type="text" id="search-employee" placeholder="Buscar empleado...">
+            <i class='bx bx-search-alt-2'></i>
+            <input type="text" id="admin-search-input" placeholder="Buscar por nombre o CI...">
         </div>
-        <button class="btn-add" id="btn-nuevo-empleado"><i class='bx bx-plus'></i> Agregar Empleado</button>
+        <button class="btn-add" id="btn-nuevo-empleado">
+            <i class='bx bx-plus'></i> Agregar Empleado
+        </button>
     </div>
 </header>
 
-<section class="filter-section">
-    <div class="filter-group js-roles">
-        <span class="filter-opt active" data-role="all">Todos</span>
-        <span class="filter-opt" data-role="Cajero">Cajero</span>
-        <span class="filter-opt" data-role="Barista">Barista</span>
-        <span class="filter-opt" data-role="Cocina">Cocina</span>
-        <span class="filter-opt" data-role="Mesero">Mesero</span>
-        <span class="filter-opt" data-role="Admin">Admin</span>
-    </div>
+<div class="contenido" id="admin-content-wrapper">
+    <section class="filter-section">
+        <div class="filter-group js-stats">
+            <span class="filter-opt" data-status="all">Todos</span>
+            <span class="filter-opt active" data-status="active">Activos</span>
+            <span class="filter-opt" data-status="inactive">Inactivos</span>
+        </div>
 
-    <div class="filter-group js-status">
-        <span class="filter-opt active" data-status="all">Todos</span>
-        <span class="filter-opt" data-status="active">Activo</span>
-        <span class="filter-opt" data-status="inactive">Inactivo</span>
-    </div>
-</section>
+        <div class="filter-group">
+            <div class="select-wrapper-filter">
+                <select id="filter-dia-semana" class="dropdown-filter-btn">
+                    <option value="all">Filtrar por Día: Todos</option>
+                    <option value="LUNES">Lunes</option>
+                    <option value="MARTES">Martes</option>
+                    <option value="MIERCOLES">Miércoles</option>
+                    <option value="JUEVES">Jueves</option>
+                    <option value="VIERNES">Viernes</option>
+                    <option value="SABADO">Sábado</option>
+                    <option value="DOMINGO">Domingo</option>
+                    <option value="SIN_ASIGNAR">Sin asignar</option>
+                </select>
+            </div>
+        </div>
+    </section>
 
-<div class="content-area">
-    <div class="employee-grid" id="employee-grid">
-        <p style="color: #666; grid-column: 1/-1; text-align: center;">Cargando empleados...</p>
+    <div class="content-area">
+        <div class="employee-grid" id="admin-employees-container">
+            </div>
+    </div>
+</div>
+
+<div id="modal-overlay" class="modal-overlay-hidden"></div>
+
+<div id="employee-modal" class="custom-modal-hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="form-title">Nuevo Empleado</h2>
+            <span id="close-modal" class="close-btn">&times;</span>
+        </div>
+        
+        <div class="modal-body-scroll">
+            <div class="form-content-flex">
+                <div class="image-upload-section">
+                    <div class="avatar-placeholder">
+                        <i class='bx bxs-user-badge' style="font-size: 5rem; color: #aaa;"></i>
+                    </div>
+                    
+                    <button class="btn-upload" id="btn-abrir-horarios" style="margin-top: 15px;">
+                        <i class='bx bx-calendar-event'></i> Asignar Horario
+                    </button>
+                    
+                    <div class="schedule-summary-title">Horarios de Entrada:</div>
+                    <div id="employee-schedule-tags" class="tags-container">
+                        </div>
+                </div>
+
+                <div class="fields-section">
+                    <div class="admin-form-group">
+                        <label>Nombre Completo:</label>
+                        <input type="text" id="emp-nombre" placeholder="Ej: Juan Pérez">
+                    </div>
+
+                    <div class="admin-form-row">
+                        <div class="admin-form-group">
+                            <label>Cédula de Identidad (CI):</label>
+                            <input type="text" id="emp-ci" placeholder="Ej: 1234567">
+                        </div>
+                        <div class="admin-form-group">
+                            <label>Teléfono:</label>
+                            <input type="text" id="emp-telefono" placeholder="Ej: 71234567">
+                        </div>
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label>Correo Electrónico (Opcional):</label>
+                        <input type="email" id="emp-correo" placeholder="ejemplo@drg.com">
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label>Contraseña:</label>
+                        <input type="password" id="emp-contrasenia" placeholder="Ingresa una contraseña segura">
+                        <small id="pass-help-text" style="color: #888; font-size: 0.75rem; margin-top: 4px; display: none;">Dejar en blanco para no modificar.</small>
+                    </div>
+
+                    <div class="admin-form-row">
+                        <div class="admin-form-group">
+                            <label>Rol del Empleado:</label>
+                            <select id="emp-rol">
+                                <option value="MESERO">Mesero</option>
+                                <option value="CAJERO">Cajero</option>
+                                <option value="COCINERO">Cocinero</option>
+                            </select>
+                        </div>
+                        <div class="admin-form-group">
+                            <label>Estado Inicial:</label>
+                            <select id="emp-activo">
+                                <option value="true">Activo</option>
+                                <option value="false">Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <p id="form-error-msg" class="error-text-hidden" style="text-align: center; margin-top: 10px;"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-secondary" id="btn-cancelar">Cancelar</button>
+            <button class="btn-primary" id="btn-guardar">Guardar Empleado</button>
+        </div>
+    </div>
+</div>
+
+<div id="schedule-modal" class="custom-modal-hidden sub-modal" style="width: 450px">
+    <div class="modal-content" style="width: 450px;">
+        <div class="modal-header" style="border-bottom: 1px solid #eee; padding-bottom: 10px;">
+            <h2>Planificar Horarios</h2>
+            <span id="close-schedule-modal" class="close-btn">&times;</span>
+        </div>
+        
+        <div class="sub-modal-body-scroll">
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">
+                Selecciona los días laborables e ingresa su respectiva hora de entrada:
+            </p>
+            
+            <div class="schedule-builder-list">
+                <div class="schedule-row" data-day="LUNES">
+                    <label class="checkbox-container">
+                        <input type="checkbox" class="chk-day"> Lunes
+                    </label>
+                    <input type="time" class="time-input" disabled value="16:00">
+                </div>
+                <div class="schedule-row" data-day="MARTES">
+                    <label class="checkbox-container">
+                        <input type="checkbox" class="chk-day"> Martes
+                    </label>
+                    <input type="time" class="time-input" disabled value="16:00">
+                </div>
+                <div class="schedule-row" data-day="MIERCOLES">
+                    <label class="checkbox-container">
+                        <input type="checkbox" class="chk-day"> Miércoles
+                    </label>
+                    <input type="time" class="time-input" disabled value="16:00">
+                </div>
+                <div class="schedule-row" data-day="JUEVES">
+                    <label class="checkbox-container">
+                        <input type="checkbox" class="chk-day"> Jueves
+                    </label>
+                    <input type="time" class="time-input" disabled value="16:00">
+                </div>
+                <div class="schedule-row" data-day="VIERNES">
+                    <label class="checkbox-container">
+                        <input type="checkbox" class="chk-day"> Viernes
+                    </label>
+                    <input type="time" class="time-input" disabled value="16:00">
+                </div>
+                <div class="schedule-row" data-day="SABADO">
+                    <label class="checkbox-container">
+                        <input type="checkbox" class="chk-day"> Sábado
+                    </label>
+                    <input type="time" class="time-input" disabled value="16:00">
+                </div>
+                <div class="schedule-row" data-day="DOMINGO">
+                    <label class="checkbox-container">
+                        <input type="checkbox" class="chk-day"> Domingo
+                    </label>
+                    <input type="time" class="time-input" disabled value="16:00">
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-footer" style="border-top: 1px solid #eee; padding-top: 15px;">
+            <button class="btn-primary" id="btn-guardar-horarios" style="width: 100%; border-radius: 25px;">
+                Confirmar Agenda
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="status-modal" class="custom-modal-hidden" style="width: 400px; max-width: 90%;">
+    <div class="modal-content" style="text-align: center;">
+        <div class="modal-header" style="border-bottom: none;">
+            <h2 id="status-modal-title"></h2> 
+            <span id="close-status-modal" class="close-btn">&times;</span>
+        </div>
+        <div class="modal-body" style="padding: 10px 0 30px 0;">
+            <p id="status-modal-message" style="color: var(--text-grey); font-size: 1.1rem; line-height: 1.4;"></p>
+        </div>
+        <div class="modal-footer" style="justify-content: center; border-top: none;">
+            <button class="btn-primary" id="btn-status-confirm" style="padding: 12px 50px; width: 100%; border-radius: 25px;">Confirmar</button>
+        </div>
     </div>
 </div>
 
 <template id="template-employee-card">
-    <div class="contenedor-empleado">
-        <img src="" class="emp-img" alt="Foto">
-        <div class="status-bar"></div>
-        <div class="emp-info">
-            <div class="emp-name"></div>
-            <div class="emp-role"></div>
+    <div class="contenedor-producto">
+        <i class='bx bxs-pencil btn-edit-float'></i>
+        <div class="employee-avatar-card">
+            <i class='bx bxs-user-circle'></i>
         </div>
-        <div class="emp-footer">
-            <button class="btn-pago">Ver Pago</button> 
-            <button class="btn-activar">Activar</button>
+        <div class="status-bar"></div>
+        <div class="prod-info">
+            <div class="prod-name"></div>
+            <div class="prod-cat" style="font-weight: 700; color: var(--accent-cyan);"></div>
+            <div class="employee-ci-text" style="font-size: 0.85rem; color: var(--text-grey); margin-top: 4px;"></div>
+        </div>
+        <div class="prod-footer">
+            <button class="btn-toggle-status">Toggle</button>
         </div>
     </div>
 </template>

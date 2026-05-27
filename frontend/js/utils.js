@@ -1,12 +1,8 @@
 let intervaloGlobal = null;
 
-/**
- * Inicia un refresco automático para la página actual.
- * @param {Function} callback - La función que recarga los datos (ej: initReservas)
- * @param {Number} segundos - Cada cuánto tiempo (por defecto 30s)
- */
+
 export const iniciarAutoRefresco = (callback, segundos = 30) => {
-    detenerAutoRefresco(); // Limpiamos cualquier intervalo previo por seguridad
+    detenerAutoRefresco();
     
     console.log(`[Sistema] Auto-refresco activado cada ${segundos}s`);
     intervaloGlobal = setInterval(async () => {
@@ -15,10 +11,6 @@ export const iniciarAutoRefresco = (callback, segundos = 30) => {
     }, segundos * 1000);
 };
 
-/**
- * Detiene cualquier refresco activo. 
- * Úsalo al cambiar de sección para no gastar recursos.
- */
 export const detenerAutoRefresco = () => {
     if (intervaloGlobal) {
         clearInterval(intervaloGlobal);
@@ -37,27 +29,24 @@ export const cargarHTML = (rutaHTML, callback) => {
         .then(html => {
             cuerpo.innerHTML = html;
             
-            // --- CORRECCIÓN DE SEGURIDAD ---
             const contenido = cuerpo.querySelector('.contenido');
             
-            // Solo intentamos cambiar estilos si el elemento EXISTE
             if (contenido) {
                 if(getComputedStyle(contenido).display !== 'flex') {
                     contenido.style.display = 'flex';
                 }
                 
-                // Lógica de dirección
                 if(rutaHTML.includes("mesas")) {
                     contenido.style.flexDirection = "column";
                 } else if(rutaHTML.includes("admin-productos")) {
-                    // Admin productos necesita columna
+                   
                     contenido.style.flexDirection = "column"; 
                 } else if(rutaHTML.includes("productos")) {
-                    // Productos (Cajero) necesita fila
+                    
                     contenido.style.flexDirection = "row";
                 }
             }
-            // -------------------------------
+            
 
             if(typeof callback === 'function') callback();
         })
@@ -78,6 +67,8 @@ export const activarMenu = (id) => {
 
 
 
+// utils.js
+
 export const mostrarNotificacion = (titulo, mensaje, esError = true) => {
     const modal = document.getElementById('notification-modal');
     const overlay = document.getElementById('modal-overlay');
@@ -90,11 +81,29 @@ export const mostrarNotificacion = (titulo, mensaje, esError = true) => {
     }
     if (msgEl) msgEl.textContent = mensaje;
 
-    modal?.classList.add('custom-modal-visible');
-    overlay?.classList.add('modal-overlay-visible');
+    // MODIFICADO: Usamos una lógica de clases consistente
+    if (modal && overlay) {
+        modal.classList.remove('custom-modal-hidden');
+        modal.classList.add('custom-modal-visible');
+        overlay.classList.remove('modal-overlay-hidden');
+        overlay.classList.add('modal-overlay-visible');
+    }
 };
 
 export const cerrarNotificacion = () => {
-    document.getElementById('notification-modal')?.classList.remove('custom-modal-visible');
-    document.getElementById('modal-overlay')?.classList.remove('modal-overlay-visible');
+    const modal = document.getElementById('notification-modal');
+    const overlay = document.getElementById('modal-overlay');
+    
+    // MODIFICADO: Solo quita el de notificación, no asumas que controla todo el overlay
+    if (modal) {
+        modal.classList.remove('custom-modal-visible');
+        modal.classList.add('custom-modal-hidden');
+    }
+    
+    // El overlay solo se apaga si no hay ningún otro modal visible en la pantalla
+    const algunModalAbierto = document.querySelector('.custom-modal-visible');
+    if (!algunModalAbierto && overlay) {
+        overlay.classList.remove('modal-overlay-visible');
+        overlay.classList.add('modal-overlay-hidden');
+    }
 };

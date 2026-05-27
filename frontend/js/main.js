@@ -2,22 +2,17 @@ import { authFetch } from './api.js';
 import { cerrarNotificacion } from './utils.js';
 import { cargarHTML } from './utils.js';
 
-// --- MÓDULOS OPERATIVOS (CAJERO/MESERO) ---
 import { initMesas } from './modules/mesas.js';
 import { cargarProductosPage } from './modules/productos.js';
 import { cargarOrdenesPage } from './modules/ordenes.js';
 import { cargarAsistenciaPage } from './modules/asistencia.js';
 import { cargarReservasPage } from './modules/reservas.js';
 
-
-// --- MÓDULOS ADMINISTRATIVOS ---
-// Asegúrate de crear este archivo en el paso 2, o dará error 404
 import { initAdminDashboard } from './modules/adminDashboard.js';
-import { initAdminProductos } from './modules/adminProductos.js'; 
+import { initAdminProductos } from './modules/adminProductos.js';
+import { initAdminEspacio } from './modules/adminEspacio.js'; 
+import { initAdminEmpleados } from './modules/adminEmpleados.js'; 
 
-/* ---------------------------------------------------- */
-/* 1. SEGURIDAD Y ENRUTAMIENTO */
-/* ---------------------------------------------------- */
 const token = localStorage.getItem('token_drg');
 const rol = localStorage.getItem('usuario_rol');
 const path = window.location.pathname;
@@ -26,32 +21,50 @@ if (!token) {
     window.location.href = 'login.html';
 }
 
-// Protección de Rutas: Si intenta entrar al Admin y no lo es
 if (path.includes('indexAdmin.html') && rol !== 'ADMIN') {
     alert("Acceso denegado: Área restringida.");
     window.location.href = 'index.html';
 }
 
-/* ---------------------------------------------------- */
-/* 2. INICIALIZACIÓN DE LA APP */
-/* ---------------------------------------------------- */
 document.addEventListener('click', (e) => {
-    if (e.target.id === 'modal-overlay' || e.target.id === 'btn-close-notification' || e.target.id === 'close-notification-modal') {
+    const overlay = document.getElementById('modal-overlay');
+    
+    // 1. Clics específicos para el modal de notificaciones
+    if (e.target.id === 'btn-close-notification' || e.target.id === 'close-notification-modal') {
         cerrarNotificacion();
+        return;
     }
-});
 
-
-document.addEventListener('click', (e) => {
-    // If the user clicks the dark overlay, close any active modal
+    // 2. Clic en el fondo oscuro (Overlay)
     if (e.target.id === 'modal-overlay') {
-        cerrarNotificacion();
-        
-        // Manual trigger for the delete modal since it uses a local let for the ID
+        // Notificación
+        const notificationModal = document.getElementById('notification-modal');
+        if (notificationModal && notificationModal.classList.contains('custom-modal-visible')) {
+            cerrarNotificacion();
+        }
+
+        // Delete Modal (Reservas o Asistencias)
         const deleteModal = document.getElementById('delete-modal');
         if (deleteModal && deleteModal.classList.contains('custom-modal-visible')) {
-            // Trigger the X button click or call your close function
             document.getElementById('close-delete-modal')?.click();
+        }
+
+        // Modal Asistencia (Módulo Asistencia)
+        const modalAsistencia = document.getElementById('modal-asistencia');
+        if (modalAsistencia && modalAsistencia.classList.contains('custom-modal-visible')) {
+            document.getElementById('btn-cerrar-asistencia')?.click();
+        }
+
+        // Modal Aprobar Asistencia (Módulo Asistencia)
+        const modalAprobar = document.getElementById('modal-aprobar');
+        if (modalAprobar && modalAprobar.classList.contains('custom-modal-visible')) {
+            document.getElementById('btn-cerrar-aprobar')?.click();
+        }
+        
+        // Modal Reservas (Módulo Reservas - Si aplica)
+        const reservaModal = document.getElementById('reserva-modal');
+        if (reservaModal && reservaModal.classList.contains('custom-modal-visible')) {
+            document.getElementById('close-reserva-modal')?.click();
         }
     }
 });
@@ -59,35 +72,28 @@ document.addEventListener('click', (e) => {
 
 document.addEventListener('DOMContentLoaded', async () => {
     
-    // Referencias UI Globales
     const sidebar = document.getElementById('sidebar');
     const menuBtn = document.getElementById('menu-btn');
     const darkModeBtn = document.getElementById('dark-mode-btn');
     const menusItemsDropDown = document.querySelectorAll(".menu-item-dropdown");
     const menusItemsStatic = document.querySelectorAll('.menu-item-static');
 
-    // ------------------------------------------------------
-    // A. LÓGICA DIFERENCIADA POR ROL
-    // ------------------------------------------------------
+
     
     if (path.includes('indexAdmin.html')) {
-        /* ================= MODO ADMIN ================= */
-        
-        // Carga por defecto: DASHBOARD
         cargarHTML('../html/admin-registros.html', initAdminDashboard); 
 
-        // Eventos Menú Admin
         document.getElementById("menu-admin-registros")?.addEventListener("click", () => {
             cargarHTML("../html/admin-registros.html", initAdminDashboard);
         });
 
         document.getElementById("menu-admin-empleados")?.addEventListener("click", () => {
-            cargarHTML("../html/admin-empleados.html"); // (Falta crear initEmpleados)
+            cargarHTML("../html/admin-empleados.html", initAdminEmpleados); 
         });
 
 
         document.getElementById("menu-admin-espacio")?.addEventListener("click", () => {
-            cargarHTML("../html/admin-espacio.html"); // (Falta crear initEspacio)
+            cargarHTML("../html/admin-espacio.html", initAdminEspacio);
         });
 
         document.getElementById("menu-admin-productos")?.addEventListener("click", () => {
@@ -95,12 +101,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
     } else {
-        /* ================= MODO CAJERO/MESERO ================= */
-        
-        // Carga por defecto: MESAS
         cargarHTML('../html/mesas.html', initMesas);
 
-        // Eventos Menú Operativo
         document.getElementById("menu-mesas")?.addEventListener("click", () => cargarHTML("../html/mesas.html", initMesas));
         
         document.getElementById("menu-productos")?.addEventListener("click", () => {
@@ -110,10 +112,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         document.getElementById("menu-ordenes")?.addEventListener("click", cargarOrdenesPage);
-        document.getElementById("menu-asistencia")?.addEventListener("click", cargarAsistenciaPage);
+        
+        document.getElementById("menu-asistencia")?.addEventListener("click", () => {
+            cargarHTML("../html/asistencia.html", cargarAsistenciaPage);
+        });
+
         document.getElementById("menu-reservar")?.addEventListener("click", cargarReservasPage);
 
-        // Cerrar Día (Solo Cajero/Mesero tiene este botón en su index)
         const btnCerrarDia = document.querySelector('a[href="cerrado.html"]');
         if (btnCerrarDia) {
             btnCerrarDia.addEventListener('click', (e) => {
@@ -127,11 +132,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ------------------------------------------------------
-    // B. LÓGICA COMPARTIDA (Header, Sidebar, User)
-    // ------------------------------------------------------
 
-    // Cargar Datos del Usuario en el Sidebar
     try {
         const response = await authFetch('/empleados/perfil');
         if (response && response.ok) {
@@ -150,12 +151,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = 'login.html';
     });
 
-    // --- INTERACCIÓN VISUAL SIDEBAR ---
+    
     
     darkModeBtn?.addEventListener('click', () => document.body.classList.toggle('dark-mode'));
     menuBtn?.addEventListener('click', () => sidebar.classList.toggle('minimize'));
 
-    // Dropdowns
+    
     menusItemsDropDown.forEach(menuItem => menuItem.addEventListener("click", () => {
         const subMenu = menuItem.querySelector(".sub-menu");
         const isActive = menuItem.classList.toggle("sub-menu-toggle");
@@ -175,7 +176,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }));
 
-    // Hover Sidebar Minimizado
+    
     menusItemsStatic.forEach(menuItem => menuItem.addEventListener('mouseenter', () => {
         if(!sidebar.classList.contains('minimize')) return;
         menusItemsDropDown.forEach(item => {
@@ -188,7 +189,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }));
 
-    // Clase Active
+    
     document.addEventListener("click", e => {
         const link = e.target.closest(".menu-link");
         if (!link) return;

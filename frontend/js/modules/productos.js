@@ -3,12 +3,9 @@ import { cargarImpresionPage } from './impresion.js';
 import { cargarHTML, activarMenu, mostrarNotificacion, cerrarNotificacion } from '../utils.js';
 import { initMesas } from './mesas.js';
 
-
 let ORDEN_ACTUAL_ID = null; 
 let ITEM_PARA_COMENTAR = null;
 let ITEM_PARA_ELIMINAR = null;
-
-
 
 export const cargarProductosPage = async (mesaId) => {
     const cuerpo = document.getElementById("cuerpo");
@@ -36,7 +33,6 @@ export const cargarProductosPage = async (mesaId) => {
     }
 };
 
-
 const verificarOrdenActiva = async (mesaId) => {
     try {
         const res = await authFetch(`/ordenes?mesa_id=${mesaId}&finalizado=false`);
@@ -44,7 +40,6 @@ const verificarOrdenActiva = async (mesaId) => {
             const ordenes = await res.json();
             if(ordenes.length > 0){
                 ORDEN_ACTUAL_ID = ordenes[0].id;
-                // Load existing notes into the textarea
                 const notepad = document.getElementById('notepad-textarea');
                 if(notepad) notepad.value = ordenes[0].notas || "";
                 
@@ -55,11 +50,9 @@ const verificarOrdenActiva = async (mesaId) => {
                 if(panelMesa) panelMesa.innerHTML = '';
                 actualizarTotalVisual(0);
             }
-            }
+        }
     } catch (error) { console.error(error); }
 };
-
-
 
 const cargarProductos = async (tipo) => {
     const contenedor = document.getElementById('productos-container');
@@ -75,13 +68,23 @@ const cargarProductos = async (tipo) => {
         if (tipo === 'juego') {
             esJuego = true;
             const res = await authFetch('/juegos');
-            if(res.ok) items = await res.json();
+            if(res.ok) {
+                const todosJuegos = await res.json();
+                // NUEVO: Filtrar solo los juegos activos
+                items = todosJuegos.filter(j => j.activado === true);
+            }
         } else {
             const res = await authFetch('/productos');
             if(res.ok) {
                 const todos = await res.json();
-                const zonaFiltro = tipo === 'comida' ? 'Cocina' : 'Cafeteria'; 
-                items = todos.filter(p => p.zona === zonaFiltro);
+                const zonaFiltro = tipo === 'comida' ? 'COCINA' : 'CAFETERIA'; 
+                
+                // NUEVO: Filtrar por zona Y que estén activos
+                items = todos.filter(p => 
+                    p.zona && 
+                    p.zona.toUpperCase() === zonaFiltro && 
+                    p.activado === true
+                );
             }
         }
 
@@ -105,7 +108,6 @@ const renderizarCatalogo = (contenedor, items, esJuego) => {
     contenedor.innerHTML = '';
     const template = document.getElementById('template-producto-card');
 
-
     const IMAGENES_DEFECTO = {
         comida: '../assets/productos/default-burger.png',
         bebida: '../assets/productos/default-drink.png',
@@ -125,31 +127,26 @@ const renderizarCatalogo = (contenedor, items, esJuego) => {
         clon.querySelector('.nombre-producto').textContent = p.nombre;
         clon.querySelector('.precio-producto').textContent = `Bs ${p.precio}`;
 
-
         const img = clon.querySelector('.img-producto');
         
         let tipoActual = 'comida';
         if (esJuego) {
             tipoActual = 'juego';
-        } else if (p.zona === 'BARRA' || p.zona === 'Cafeteria') { 
+        } else if (p.zona && (p.zona.toUpperCase() === 'BARRA' || p.zona.toUpperCase() === 'CAFETERIA')) { 
             tipoActual = 'bebida';
         }
 
-
         if (p.imagen && p.imagen.trim() !== "") {
-
             if (p.imagen.startsWith('http') || p.imagen.startsWith('.') || p.imagen.startsWith('/')) {
                 img.src = p.imagen; 
             } else {
                 img.src = `${RUTA_BASE_PRODUCTOS}${p.imagen}`; 
             }
         } else {
-
             img.src = IMAGENES_DEFECTO[tipoActual];
         }
 
         img.onerror = () => { img.src = IMAGENES_DEFECTO[tipoActual]; };
-
 
         const icono = clon.querySelector('.icono-producto');
         if(icono) icono.style.display = 'none';
@@ -163,16 +160,14 @@ const renderizarCatalogo = (contenedor, items, esJuego) => {
         }
 
         const cardDiv = clon.querySelector('.producto-card');
-        cardDiv.addEventListener('click', () => agregarItemAOrden(p, esJuego));
+        cardDiv.onclick = () => agregarItemAOrden(p, esJuego);
         
         contenedor.appendChild(clon);
     });
 };
 
-
 const agregarItemAOrden = async (item, esJuego) => {
     try {
-
         if (!ORDEN_ACTUAL_ID) {
             const mesaId = sessionStorage.getItem("mesaSeleccionada");
             const resOrden = await authFetch('/ordenes', {
@@ -204,10 +199,7 @@ const agregarItemAOrden = async (item, esJuego) => {
         } else {
             mostrarNotificacion("Error", "No se pudo agregar el producto.");
         }
-
-    } catch (error) {
-        console.error("Error agregando item:", error);
-    }
+    } catch (error) { console.error("Error agregando item:", error); }
 };
 
 const cargarDetalleOrden = async (ordenId) => {
@@ -256,15 +248,9 @@ const cargarDetalleOrden = async (ordenId) => {
                     nombre += ` (${d.porcentaje}%)`;
                 }
 
-                return {
-                    id: d.id,
-                    nombre: nombre,
-                    valorVisual: valorVisual, 
-                    tipo: 'descuento'
-                };
+                return { id: d.id, nombre: nombre, valorVisual: valorVisual, tipo: 'descuento' };
             });
         }
-
 
         items.forEach(item => {
             const clon = template.content.cloneNode(true);
@@ -280,13 +266,13 @@ const cargarDetalleOrden = async (ordenId) => {
                 iconComentario.classList.replace('fa-comment-dots', 'fa-comment');
                 iconComentario.style.color = '#e67e22'; 
             }
-            iconComentario.addEventListener('click', () => {
+            iconComentario.onclick = () => {
                 ITEM_PARA_COMENTAR = { id: item.id, tipo: item.tipo };
                 abrirModalComentario(item.comentario || "");
-            });
+            };
 
             const btnRestar = clon.querySelector('.btn-restar');
-            btnRestar.addEventListener('click', () => gestionarCantidad(item, -1));
+            btnRestar.onclick = () => gestionarCantidad(item, -1);
 
             contenedor.appendChild(clon);
         });
@@ -313,7 +299,6 @@ const cargarDetalleOrden = async (ordenId) => {
                 clon.querySelector('.btn-comentario').style.display = 'none';
 
                 const divIzquierdo = clon.querySelector('div[style*="align-items:center"]');
-                
                 const btnBasura = document.createElement('i');
                 btnBasura.className = "fa-solid fa-trash";
                 btnBasura.style.color = "#cc0000";
@@ -323,23 +308,17 @@ const cargarDetalleOrden = async (ordenId) => {
 
                 divIzquierdo.prepend(btnBasura);
 
-                btnBasura.addEventListener('click', async () => {
-                    prepararEliminacionDescuento(ordenId, desc.id, desc.nombre);
-                });
+                btnBasura.onclick = () => prepararEliminacionDescuento(ordenId, desc.id, desc.nombre);
 
                 contenedor.appendChild(clon);
             });
         }
 
-    } catch (error) {
-        console.error("Error cargando detalle:", error);
-    }
+    } catch (error) { console.error("Error cargando detalle:", error); }
 };
 
 const prepararEliminacionDescuento = (ordenId, descuentoId, nombreDescuento) => {
-    // Contamos todas las filas en el panel de la orden (productos, juegos y descuentos)
     const totalFilas = document.querySelectorAll('#mesa-productos .item-orden').length;
-
     const esUltimoItem = (totalFilas === 1);
 
     ITEM_PARA_ELIMINAR = { 
@@ -355,13 +334,7 @@ const prepararEliminacionDescuento = (ordenId, descuentoId, nombreDescuento) => 
 
 const guardarComentario = async (itemId, tipo, comentario) => {
     try {
-        
-        let endpoint = '';
-        if (tipo === 'producto') {
-            endpoint = `/ordenes-productos/${itemId}`;
-        } else {
-            endpoint = `/ordenes-juegos/${itemId}`; 
-        }
+        let endpoint = tipo === 'producto' ? `/ordenes-productos/${itemId}` : `/ordenes-juegos/${itemId}`;
 
         const res = await authFetch(endpoint, {
             method: 'PUT', 
@@ -373,9 +346,7 @@ const guardarComentario = async (itemId, tipo, comentario) => {
         } else {
             mostrarNotificacion("Error", "Hubo un problema al guardar la nota del producto.");
         }
-    } catch (error) {
-        console.error("Error guardando comentario:", error);
-    }
+    } catch (error) { console.error("Error guardando comentario:", error); }
 };
 
 const gestionarCantidad = async (item, cambio) => {
@@ -391,17 +362,12 @@ const gestionarCantidad = async (item, cambio) => {
             if(res.ok) verificarOrdenActiva(sessionStorage.getItem("mesaSeleccionada"));
         } else {
             const totalFilas = document.querySelectorAll('#mesa-productos .item-orden').length;
-            
             const esUltimoItem = (totalFilas === 1);
-
             ITEM_PARA_ELIMINAR = { ...item, endpoint, esUltimoItem }; 
             abrirModalEliminar(item.nombre, esUltimoItem);
         }
-    } catch (error) {
-        console.error("Error gestionando cantidad:", error);
-    }
+    } catch (error) { console.error("Error gestionando cantidad:", error); }
 };
-
 
 const actualizarTotalVisual = (total) => {
     const el = document.getElementById('total-mesa');
@@ -425,34 +391,20 @@ const initNotepadLogic = () => {
                     method: 'PUT',
                     body: JSON.stringify({ notas: textarea.value })
                 });
-                console.log("Auto-save complete.");
-            } catch (err) {
-                console.error("Failed to save notes:", err);
-            }
+            } catch (err) { console.error("Failed to save notes:", err); }
         }
     };
 
-    btn?.addEventListener('click', (e) => {
+    if(btn) btn.onclick = (e) => {
         e.stopPropagation();
         modal.classList.toggle('notepad-visible');
-        if (modal.classList.contains('notepad-visible')) {
-            textarea.focus();
-        }
-    });
+        if (modal.classList.contains('notepad-visible')) textarea.focus();
+    };
 
-    closeBtn?.addEventListener('click', (e) => {
+    if(closeBtn) closeBtn.onclick = (e) => {
         e.stopPropagation();
         closeAndSave();
-    });
-
-    document.addEventListener('click', (e) => {
-        const isInsideModal = modal?.contains(e.target);
-        const isButton = btn?.contains(e.target);
-        
-        if (modal?.classList.contains('notepad-visible') && !isInsideModal && !isButton) {
-            closeAndSave();
-        }
-    });
+    };
 };
 
 const abrirModalComentario = (comentarioActual) => {
@@ -517,66 +469,130 @@ const cerrarModalDescuento = () => {
     document.getElementById('modal-overlay').classList.remove('modal-overlay-visible');
 };
 
+// --- LÓGICA DE COBRO MIXTO ---
+const abrirModalPago = () => {
+    const modal = document.getElementById('payment-modal');
+    const btnConfirmar = document.getElementById('btn-confirm-payment');
+    const inputQR = document.getElementById('input-pago-qr');
+    const inputEfe = document.getElementById('input-pago-efectivo');
+    
+    const totalTexto = document.getElementById('total-mesa').textContent.replace('Bs ', '');
+    const totalMonto = parseFloat(totalTexto);
+
+    document.getElementById('payment-total-display').textContent = `Bs ${totalMonto.toFixed(2)}`;
+    
+    inputQR.value = "";
+    inputEfe.value = totalMonto.toFixed(2); 
+    inputEfe.placeholder = "0.00";
+
+    btnConfirmar.disabled = false;
+    btnConfirmar.style.opacity = "1";
+    btnConfirmar.style.cursor = "pointer";
+
+    document.getElementById('payment-error-msg').className = 'error-text-hidden';
+    document.getElementById('payment-change-display').textContent = "Bs 0.00";
+
+    const calcularSaldos = (evento) => {
+        if (evento && evento.target.id === 'input-pago-qr' && inputQR.value.trim() !== "") {
+            inputEfe.value = ""; 
+        }
+
+        const qr = parseFloat(inputQR.value) || 0;
+        const efe = parseFloat(inputEfe.value) || 0;
+        const pagado = qr + efe;
+        
+        const faltante = Math.max(0, totalMonto - qr);
+        inputEfe.placeholder = faltante.toFixed(2);
+
+        const sobrante = Math.max(0, pagado - totalMonto);
+        const displaySobrante = document.getElementById('payment-change-display');
+        displaySobrante.textContent = `Bs ${sobrante.toFixed(2)}`;
+        displaySobrante.style.color = sobrante > 0 ? "#2e7d32" : "#333";
+
+        if (pagado >= totalMonto - 0.01) {
+            btnConfirmar.disabled = false;
+            btnConfirmar.style.opacity = "1";
+            btnConfirmar.style.cursor = "pointer";
+            document.getElementById('payment-error-msg').className = 'error-text-hidden';
+        } else {
+            btnConfirmar.disabled = true;
+            btnConfirmar.style.opacity = "0.5";
+            btnConfirmar.style.cursor = "not-allowed";
+        }
+    };
+
+    // CORRECCIÓN: Eventos oninput en lugar de addEventListener
+    inputQR.oninput = calcularSaldos;
+    inputEfe.oninput = calcularSaldos;
+
+    modal.classList.add('custom-modal-visible');
+    document.getElementById('modal-overlay').classList.add('modal-overlay-visible');
+};
+
+const cerrarModalPago = () => {
+    document.getElementById('payment-modal').classList.remove('custom-modal-visible');
+    document.getElementById('modal-overlay').classList.remove('modal-overlay-visible');
+};
 
 const inicializarEventosProductos = () => {
-    document.getElementById('btn-cat-comida')?.addEventListener('click', () => cargarProductos('comida'));
-    document.getElementById('btn-cat-bebida')?.addEventListener('click', () => cargarProductos('bebida'));
-    document.getElementById('btn-cat-juego')?.addEventListener('click', () => cargarProductos('juego'));
-    document.getElementById('btn-close-notification')?.addEventListener('click', cerrarNotificacion);
-    document.getElementById('close-notification-modal')?.addEventListener('click', cerrarNotificacion);
+    // CORRECCIÓN: Cambiado de addEventListener a onclick para evitar fugas de memoria
+    const btnCatComida = document.getElementById('btn-cat-comida');
+    if(btnCatComida) btnCatComida.onclick = () => cargarProductos('comida');
+    
+    const btnCatBebida = document.getElementById('btn-cat-bebida');
+    if(btnCatBebida) btnCatBebida.onclick = () => cargarProductos('bebida');
+    
+    const btnCatJuego = document.getElementById('btn-cat-juego');
+    if(btnCatJuego) btnCatJuego.onclick = () => cargarProductos('juego');
 
     const inputBusqueda = document.querySelector(".input-busqueda");
     if(inputBusqueda){
-        inputBusqueda.addEventListener("input", (e) => {
+        inputBusqueda.oninput = (e) => {
             const texto = e.target.value.toLowerCase();
             document.querySelectorAll(".producto-card").forEach(carta => {
                 const nombre = carta.querySelector("h3")?.textContent.toLowerCase() || "";
                 carta.style.display = nombre.includes(texto) ? "flex" : "none";
             });
-        });
+        };
     }
 
     initNotepadLogic();
 
-    document.getElementById('btn-save-comment')?.addEventListener('click', async () => {
+    const btnSaveComment = document.getElementById('btn-save-comment');
+    if(btnSaveComment) btnSaveComment.onclick = async () => {
         if (ITEM_PARA_COMENTAR) {
             const nuevoComentario = document.getElementById('comment-textarea').value;
             await guardarComentario(ITEM_PARA_COMENTAR.id, ITEM_PARA_COMENTAR.tipo, nuevoComentario);
             cerrarModalComentario();
         }
-    });
+    };
 
-    document.getElementById('btn-cancel-comment')?.addEventListener('click', cerrarModalComentario);
-    document.getElementById('close-comment-modal')?.addEventListener('click', cerrarModalComentario);
-
-    document.getElementById('modal-overlay')?.addEventListener('click', cerrarModalComentario);
+    const btnCancelComment = document.getElementById('btn-cancel-comment');
+    if(btnCancelComment) btnCancelComment.onclick = cerrarModalComentario;
+    
+    const closeCommentModal = document.getElementById('close-comment-modal');
+    if(closeCommentModal) closeCommentModal.onclick = cerrarModalComentario;
 
     const btnDescuento = document.querySelector(".agregar-descuento");
     if (btnDescuento) {
-        btnDescuento.addEventListener("click", () => {
-            if (!ORDEN_ACTUAL_ID) return mostrarNotificacion("Aviso", "Debes seleccionar una mesa con orden activa. Agrega un producto primero");
-        });
+        btnDescuento.onclick = () => {
+            if (!ORDEN_ACTUAL_ID) return mostrarNotificacion("Aviso", "Debes seleccionar una mesa con orden activa.");
+            abrirModalDescuento();
+        };
     }
 
-    document.getElementById('btn-apply-discount')?.addEventListener('click', async () => {
+    const btnApplyDiscount = document.getElementById('btn-apply-discount');
+    if(btnApplyDiscount) btnApplyDiscount.onclick = async () => {
         const tipo = document.getElementById('discount-type-select').value;
         const valor = parseFloat(document.getElementById('discount-amount-input').value);
         const motivo = document.getElementById('discount-reason-input').value.trim();
 
-        if (isNaN(valor) || valor <= 0) {
-            return mostrarErrorDescuento("Por favor, ingrese un monto válido.");
-        }
-
-        if (motivo === "" || motivo.length < 3) {
-            return mostrarErrorDescuento("El motivo es obligatorio (mín. 3 caracteres).");
-        }
+        if (isNaN(valor) || valor <= 0) return mostrarErrorDescuento("Ingrese un monto válido.");
+        if (motivo === "" || motivo.length < 3) return mostrarErrorDescuento("El motivo es obligatorio (mín. 3 caracteres).");
 
         let body = { comentario: motivo };
-        if (tipo === 'P') {
-            body.porcentaje = valor;
-        } else {
-            body.monto = valor;
-        }
+        if (tipo === 'P') body.porcentaje = valor;
+        else body.monto = valor;
 
         try {
             const res = await authFetch(`/ordenes/${ORDEN_ACTUAL_ID}/descuento`, {
@@ -591,204 +607,86 @@ const inicializarEventosProductos = () => {
                 const err = await res.json();
                 mostrarErrorDescuento("Error: " + err.message);
             }
-        } catch (error) {
-            console.error(error);
-            mostrarErrorDescuento("Error de conexión con el servidor.");
-        }
-    });
+        } catch (error) { mostrarErrorDescuento("Error de conexión con el servidor."); }
+    };
 
-    document.getElementById('btn-cancel-discount')?.addEventListener('click', cerrarModalDescuento);
-    document.getElementById('close-discount-modal')?.addEventListener('click', cerrarModalDescuento);
+    const btnCancelDiscount = document.getElementById('btn-cancel-discount');
+    if(btnCancelDiscount) btnCancelDiscount.onclick = cerrarModalDescuento;
 
     const btnCobrar = document.querySelector(".cobrar");
     if (btnCobrar) {
-        btnCobrar.addEventListener("click", () => {
+        btnCobrar.onclick = () => {
             if (!ORDEN_ACTUAL_ID) return mostrarNotificacion("Aviso", "No hay orden activa para cobrar.");
             abrirModalPago();
-        });
+        };
     }
-    // --- LÓGICA DE COBRO MIXTO ---
 
-const abrirModalPago = () => {
-    const modal = document.getElementById('payment-modal');
-    const btnConfirmar = document.getElementById('btn-confirm-payment');
-    const inputQR = document.getElementById('input-pago-qr');
-    const inputEfe = document.getElementById('input-pago-efectivo');
-    
-    const totalTexto = document.getElementById('total-mesa').textContent.replace('Bs ', '');
-    const totalMonto = parseFloat(totalTexto);
+    const btnCancelPayment = document.getElementById('btn-cancel-payment');
+    if(btnCancelPayment) btnCancelPayment.onclick = cerrarModalPago;
 
-    document.getElementById('payment-total-display').textContent = `Bs ${totalMonto.toFixed(2)}`;
-    
-    // --- ESTADO INICIAL (PAGO RÁPIDO) ---
-    inputQR.value = "";
-    // Por defecto, llenamos el valor de efectivo con el total
-    inputEfe.value = totalMonto.toFixed(2); 
-    inputEfe.placeholder = "0.00";
-
-    // El botón se activa de inmediato porque el monto ya está cubierto
-    btnConfirmar.disabled = false;
-    btnConfirmar.style.opacity = "1";
-    btnConfirmar.style.cursor = "pointer";
-
-    document.getElementById('payment-error-msg').className = 'error-text-hidden';
-    document.getElementById('payment-change-display').textContent = "Bs 0.00";
-
-    // --- LÓGICA DINÁMICA ---
-
-    const calcularSaldos = (evento) => {
-        // Si el usuario empieza a escribir en QR, limpiamos el VALOR de efectivo
-        // para que entre en modo "Placeholder retroactivo"
-        if (evento.target.id === 'input-pago-qr' && inputQR.value.trim() !== "") {
-            inputEfe.value = ""; 
-        }
-
-        const qr = parseFloat(inputQR.value) || 0;
-        const efe = parseFloat(inputEfe.value) || 0;
+    const btnConfirmPayment = document.getElementById('btn-confirm-payment');
+    if(btnConfirmPayment) btnConfirmPayment.onclick = async () => {
+        const totalMonto = parseFloat(document.getElementById('total-mesa').textContent.replace('Bs ', ''));
+        const qr = parseFloat(document.getElementById('input-pago-qr').value) || 0;
+        const efe = parseFloat(document.getElementById('input-pago-efectivo').value) || 0;
         const pagado = qr + efe;
-        
-        // Actualizamos el placeholder de efectivo basado en lo que hay en QR
-        const faltante = Math.max(0, totalMonto - qr);
-        inputEfe.placeholder = faltante.toFixed(2);
 
-        // Cálculo de sobrante (Vuelto)
-        const sobrante = Math.max(0, pagado - totalMonto);
-        const displaySobrante = document.getElementById('payment-change-display');
-        displaySobrante.textContent = `Bs ${sobrante.toFixed(2)}`;
-        displaySobrante.style.color = sobrante > 0 ? "#2e7d32" : "#333";
-
-        // Validación del botón Confirmar (Margen 0.01 Bs)
-        if (pagado >= totalMonto - 0.01) {
-            btnConfirmar.disabled = false;
-            btnConfirmar.style.opacity = "1";
-            btnConfirmar.style.cursor = "pointer";
-            document.getElementById('payment-error-msg').className = 'error-text-hidden';
-        } else {
-            btnConfirmar.disabled = true;
-            btnConfirmar.style.opacity = "0.5";
-            btnConfirmar.style.cursor = "not-allowed";
+        if (pagado < totalMonto - 0.01) {
+            const errorEl = document.getElementById('payment-error-msg');
+            errorEl.textContent = `Monto insuficiente. Faltan Bs ${(totalMonto - pagado).toFixed(2)}`;
+            errorEl.className = 'error-text-visible';
+            return;
         }
+
+        const pagosArray = [];
+        if (qr > 0) pagosArray.push({ tipo: 'QR', monto: qr });
+        if (efe > 0) {
+            const montoEfectivoReal = (qr >= totalMonto) ? 0 : totalMonto - qr;
+            if (montoEfectivoReal > 0) pagosArray.push({ tipo: 'EFECTIVO', monto: montoEfectivoReal.toFixed(2) });
+        }
+
+        try {
+            const res = await authFetch(`/ordenes/${ORDEN_ACTUAL_ID}/finalizar`, {
+                method: 'POST',
+                body: JSON.stringify({ pagos: pagosArray })
+            });
+
+            if (res.ok) {
+                cerrarModalPago();
+                mostrarNotificacion("¡Éxito!", "Pago procesado y mesa liberada.", false);
+                cargarHTML("../html/mesas.html", initMesas); 
+                activarMenu('menu-mesas');
+                sessionStorage.removeItem("mesaSeleccionada");
+            } else {
+                const err = await res.json();
+                mostrarNotificacion("Error", err.message || "Error al procesar el pago.");
+            }
+        } catch (error) { mostrarNotificacion("Error", "Error de conexión."); }
     };
-
-    // Si el usuario borra todo el QR, devolvemos el total al campo de efectivo
-    inputQR.addEventListener('input', (e) => {
-        if (inputQR.value === "" && inputEfe.value === "") {
-            inputEfe.value = totalMonto.toFixed(2);
-        }
-        calcularSaldos(e);
-    });
-
-    inputEfe.addEventListener('input', calcularSaldos);
-
-    modal.classList.add('custom-modal-visible');
-    document.getElementById('modal-overlay').classList.add('modal-overlay-visible');
-};
-
-const cerrarModalPago = () => {
-    document.getElementById('payment-modal').classList.remove('custom-modal-visible');
-    document.getElementById('modal-overlay').classList.remove('modal-overlay-visible');
-};
-
-
-// Eventos de botones del modal
-document.getElementById('btn-cancel-payment')?.addEventListener('click', cerrarModalPago);
-document.getElementById('close-payment-modal')?.addEventListener('click', cerrarModalPago);
-
-document.getElementById('btn-confirm-payment')?.addEventListener('click', async () => {
-    const totalMonto = parseFloat(document.getElementById('total-mesa').textContent.replace('Bs ', ''));
-    const qr = parseFloat(document.getElementById('input-pago-qr').value) || 0;
-    const efe = parseFloat(document.getElementById('input-pago-efectivo').value) || 0;
-    const pagado = qr + efe;
-
-    // Validación con redondeo (Epsilon de 0.01 Bs)
-    if (pagado < totalMonto - 0.01) {
-        const errorEl = document.getElementById('payment-error-msg');
-        errorEl.textContent = `Monto insuficiente. Faltan Bs ${(totalMonto - pagado).toFixed(2)}`;
-        errorEl.className = 'error-text-visible';
-        return;
-    }
-
-    // Preparar transacciones para el backend
-    const pagosArray = [];
-    if (qr > 0) pagosArray.push({ tipo: 'QR', monto: qr });
-    if (efe > 0) {
-        // Si pagó de más en efectivo, registramos solo lo necesario para saldar la orden
-        // El resto se considera vuelto entregado.
-        const montoEfectivoReal = (qr >= totalMonto) ? 0 : totalMonto - qr;
-        if (montoEfectivoReal > 0) {
-            pagosArray.push({ tipo: 'EFECTIVO', monto: montoEfectivoReal.toFixed(2) });
-        }
-    }
-
-    try {
-        const res = await authFetch(`/ordenes/${ORDEN_ACTUAL_ID}/finalizar`, {
-            method: 'POST',
-            body: JSON.stringify({ pagos: pagosArray })
-        });
-
-        if (res.ok) {
-            cerrarModalPago();
-            mostrarNotificacion("¡Éxito!", "Pago procesado y mesa liberada.", false);
-            cargarProductosPage(sessionStorage.getItem("mesaSeleccionada"));
-        } else {
-            const err = await res.json();
-            mostrarNotificacion("Error", err.message || "Error al procesar el pago.");
-        }
-    } catch (error) {
-        console.error(error);
-        mostrarNotificacion("Error", "Error de conexión.");
-    }
-});
-
-
-
-
-
-
-
-
-
-    document.getElementById('modal-overlay')?.addEventListener('click', () => {
-        cerrarNotificacion();
-        
-        if (typeof cerrarModalComentario === 'function') cerrarModalComentario();
-        if (typeof cerrarModalEliminar === 'function') cerrarModalEliminar();
-        if (typeof cerrarModalDescuento === 'function') cerrarModalDescuento();
-    });
 
     const btnImprimir = document.querySelector(".imprimir");
     if (btnImprimir) {
-    btnImprimir.addEventListener("click", () => {
-        if (!ORDEN_ACTUAL_ID) return mostrarNotificacion("Aviso", "No hay productos para imprimir.");
-
-        const mesaId = sessionStorage.getItem("mesaSeleccionada");
-        cargarImpresionPage(ORDEN_ACTUAL_ID, mesaId);
-    });
+        btnImprimir.onclick = () => {
+            if (!ORDEN_ACTUAL_ID) return mostrarNotificacion("Aviso", "No hay productos para imprimir.");
+            const mesaId = sessionStorage.getItem("mesaSeleccionada");
+            cargarImpresionPage(ORDEN_ACTUAL_ID, mesaId);
+        };
     }
 
-    document.getElementById('btn-confirm-delete')?.addEventListener('click', async () => {
+    const btnConfirmDelete = document.getElementById('btn-confirm-delete');
+    if(btnConfirmDelete) btnConfirmDelete.onclick = async () => {
         if (ITEM_PARA_ELIMINAR) {
             try {
                 let res;
-                
                 if (ITEM_PARA_ELIMINAR.tipo === 'descuento') {
-                    res = await authFetch(`/ordenes/${ITEM_PARA_ELIMINAR.ordenId}/descuento/${ITEM_PARA_ELIMINAR.id}`, {
-                        method: 'DELETE'
-                    });
+                    res = await authFetch(`/ordenes/${ITEM_PARA_ELIMINAR.ordenId}/descuento/${ITEM_PARA_ELIMINAR.id}`, { method: 'DELETE' });
                 } else {
-                    res = await authFetch(`${ITEM_PARA_ELIMINAR.endpoint}/${ITEM_PARA_ELIMINAR.id}`, {
-                        method: 'DELETE'
-                    });
+                    res = await authFetch(`${ITEM_PARA_ELIMINAR.endpoint}/${ITEM_PARA_ELIMINAR.id}`, { method: 'DELETE' });
                 }
 
                 if (res.ok) {
                     if (ITEM_PARA_ELIMINAR.esUltimoItem && ORDEN_ACTUAL_ID) {
-                        await authFetch(`/ordenes/${ORDEN_ACTUAL_ID}`, {
-                            method: 'DELETE'
-                        });
-
-                        console.log("Orden vacía eliminada. Volviendo a mesas...");
-
+                        await authFetch(`/ordenes/${ORDEN_ACTUAL_ID}`, { method: 'DELETE' });
                         cargarHTML("../html/mesas.html", initMesas); 
                         activarMenu('menu-mesas');
                         sessionStorage.removeItem("mesaSeleccionada");
@@ -796,33 +694,21 @@ document.getElementById('btn-confirm-payment')?.addEventListener('click', async 
                         verificarOrdenActiva(sessionStorage.getItem("mesaSeleccionada"));
                     }
                 }
-            } catch (error) {
-                console.error("Error al eliminar item/descuento:", error);
-            } finally {
-                cerrarModalEliminar();
-            }
+            } catch (error) { console.error("Error al eliminar:", error); } 
+            finally { cerrarModalEliminar(); }
         }
-    });
+    };
 
-    document.getElementById('btn-close-notification')?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        cerrarNotificacion();
-    });
-
-    document.getElementById('close-notification-modal')?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        cerrarNotificacion();
-    });
-
-    document.getElementById('modal-overlay')?.addEventListener('click', () => {
+    const btnCancelDelete = document.getElementById('btn-cancel-delete');
+    if(btnCancelDelete) btnCancelDelete.onclick = cerrarModalEliminar;
+    
+    // El overlay ahora cerrará los modales de esta vista
+    const overlay = document.getElementById('modal-overlay');
+    if(overlay) overlay.onclick = () => {
         cerrarNotificacion();
         cerrarModalComentario();
         cerrarModalEliminar();
         cerrarModalDescuento();
-    });
-
-    document.getElementById('btn-cancel-delete')?.addEventListener('click', cerrarModalEliminar);
-    document.getElementById('close-delete-modal')?.addEventListener('click', cerrarModalEliminar);
-    
-
+        cerrarModalPago();
+    };
 };

@@ -1,4 +1,184 @@
-<div class="cabezeraCuerpo">
-    <div class="tituloCabecera"><p>Dashboard Financiero</p></div>
+<link rel="stylesheet" href="../css/admin-espacio.css">
+
+<header class="main-header">
+    <h1>Gestión de Espacios</h1>
+    <div class="header-right">
+        <div class="search-box">
+            <i class='bx bx-search-alt-2'></i>
+            <input type="text" id="admin-search-input" placeholder="Buscar piso o mesa...">
+        </div>
+        <button class="btn-add btn-secondary" id="btn-nuevo-piso" style="background-color: var(--btn-pill-bg); color: var(--text-main); border: 1px solid #ddd;">
+            <i class='bx bx-plus'></i> Piso
+        </button>
+        <button class="btn-add" id="btn-nueva-mesa">
+            <i class='bx bx-plus'></i> Mesa
+        </button>
+    </div>
+</header>
+
+<div class="contenido" id="admin-content-wrapper">
+    <section class="filter-section">
+        <div class="filter-group js-type">
+            <span class="filter-opt active" data-type="piso">Pisos</span>
+            <span class="filter-opt" data-type="mesa">Mesas</span>
+        </div>
+
+        <div class="filter-group js-stats">
+            <span class="filter-opt" data-status="all">Todos</span>
+            <span class="filter-opt active" data-status="active">Activos</span>
+            <span class="filter-opt" data-status="inactive">Inactivos</span>
+        </div>
+    </section>
+
+    <div class="content-area">
+        <div class="espacio-grid" id="admin-espacio-container">
+            </div>
+    </div>
 </div>
-<div class="contenido"><h1>Aquí irán los gráficos y reportes</h1></div>
+
+<div id="modal-overlay" class="modal-overlay-hidden"></div>
+
+<div id="piso-modal" class="custom-modal-hidden" style="width: 500px;">
+    <div class="modal-content" style="max-width: 100%;">
+        <div class="modal-header">
+            <h2 id="form-piso-title">Nuevo Piso</h2>
+            <span id="close-piso-modal" class="close-btn">&times;</span>
+        </div>
+        
+        <div class="modal-body-scroll">
+            <div class="fields-section" style="flex: 1;">
+                <div class="admin-form-group">
+                    <label>Nombre del Piso:</label>
+                    <input type="text" id="piso-nombre" placeholder="Ej: Planta Baja">
+                </div>
+                <div class="admin-form-row">
+                    <div class="admin-form-group">
+                        <label>Número de Piso (Nivel):</label>
+                        <input type="number" id="piso-numero" placeholder="Ej: 1">
+                    </div>
+                    <div class="admin-form-group">
+                        <label>Estado:</label>
+                        <select id="piso-activo">
+                            <option value="true">Activo</option>
+                            <option value="false">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+                <p id="form-piso-error-msg" class="error-text-hidden" style="text-align: center; margin-top: 10px;"></p>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-secondary" id="btn-cancelar-piso">Cancelar</button>
+            <button class="btn-primary" id="btn-guardar-piso">Guardar Piso</button>
+        </div>
+    </div>
+</div>
+
+<div id="mesa-modal" class="custom-modal-hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="form-mesa-title">Nueva Mesa</h2>
+            <span id="close-mesa-modal" class="close-btn">&times;</span>
+        </div>
+        
+        <div class="modal-body-scroll">
+            <div class="fields-section" style="flex: 1;">
+                <div class="admin-form-group">
+                    <label>Nombre/Identificador:</label>
+                    <input type="text" id="mesa-nombre" placeholder="Ej: Mesa Ventana 1">
+                </div>
+                
+                <div class="admin-form-row">
+                    <div class="admin-form-group">
+                        <label>Número de Mesa:</label>
+                        <input type="number" id="mesa-numero" placeholder="Ej: 5">
+                    </div>
+                    <div class="admin-form-group">
+                        <label>Pertenece al Piso:</label>
+                        <select id="mesa-piso-id">
+                            <option value="" disabled selected>Cargando pisos...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="admin-form-row">
+                    <div class="admin-form-group">
+                        <label>Capacidad Mínima:</label>
+                        <input type="number" id="mesa-cap-min" min="1" value="1">
+                    </div>
+                    <div class="admin-form-group">
+                        <label>Capacidad Máxima:</label>
+                        <input type="number" id="mesa-cap-max" min="1" value="4">
+                    </div>
+                </div>
+
+                <div class="admin-form-group" style="width: 50%;">
+                    <label>Estado Sistema:</label>
+                    <select id="mesa-activo">
+                        <option value="true">Activa</option>
+                        <option value="false">Inactiva (Oculta)</option>
+                    </select>
+                </div>
+
+                <p id="form-mesa-error-msg" class="error-text-hidden" style="text-align: center; margin-top: 10px;"></p>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-secondary" id="btn-cancelar-mesa">Cancelar</button>
+            <button class="btn-primary" id="btn-guardar-mesa">Guardar Mesa</button>
+        </div>
+    </div>
+</div>
+
+<div id="status-modal" class="custom-modal-hidden" style="width: 400px; max-width: 90%;">
+    <div class="modal-content" style="text-align: center;">
+        <div class="modal-header" style="border-bottom: none;">
+            <h2 id="status-modal-title"></h2> 
+            <span id="close-status-modal" class="close-btn">&times;</span>
+        </div>
+        <div class="modal-body" style="padding: 10px 0 30px 0;">
+            <p id="status-modal-message" style="color: var(--text-grey); font-size: 1.1rem; line-height: 1.4;"></p>
+        </div>
+        <div class="modal-footer" style="justify-content: center; border-top: none;">
+            <button class="btn-primary" id="btn-status-confirm" style="padding: 12px 50px; width: 100%; border-radius: 25px;">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<template id="template-piso-card">
+    <div class="contenedor-producto">
+        <i class='bx bxs-pencil btn-edit-float'></i>
+        <div class="espacio-icon-card">
+            <i class='bx bx-building-house'></i>
+        </div>
+        <div class="status-bar"></div>
+        <div class="prod-info">
+            <div class="prod-name"></div>
+            <div class="prod-cat" style="font-weight: 700; color: var(--accent-cyan);">PISO</div>
+            <div class="espacio-extra-text" style="font-size: 0.85rem; color: var(--text-grey); margin-top: 4px;"></div>
+        </div>
+        <div class="prod-footer">
+            <button class="btn-toggle-status">Toggle</button>
+        </div>
+    </div>
+</template>
+
+<template id="template-mesa-card">
+    <div class="contenedor-producto">
+        <i class='bx bxs-pencil btn-edit-float'></i>
+        <div class="espacio-icon-card" style="font-size: 4rem;">
+            <img src="../assets/imágenes/imagenMesaBeige.png" style="width: 80px; opacity: 0.7;">
+        </div>
+        <div class="status-bar"></div>
+        <div class="prod-info">
+            <div class="prod-name"></div>
+            <div class="prod-cat" style="font-weight: 700; color: var(--text-main);"></div>
+            <div class="espacio-extra-text" style="font-size: 0.85rem; color: var(--text-grey); margin-top: 4px;"></div>
+        </div>
+        <div class="prod-footer">
+            <button class="btn-toggle-status">Toggle</button>
+        </div>
+    </div>
+</template>

@@ -1,43 +1,119 @@
-<div class="cabezeraCuerpo">
-    <div class="tituloCabecera">
-        <p>Asistencia</p>
-    </div>
-    <div class="informacion"></div>
-</div>
+<div class="asistencia-wrapper">
+    <header class="asistencia-header">
+        <div class="header-info">
+            <h2 id="fecha-hoy-display">Cargando fecha...</h2>
+        </div>
+        <div class="reloj-container">
+            <h1 id="reloj-vivo">00:00:00</h1>
+        </div>
+    </header>
 
-<div class="contenido" id="contenido">
-    <div class="contenedor-global-asistencia">
-        <div class="cabecera-informacion-horario">
-            <span>Horario laboral:</span>
-            <span id="txt-horario-hoy" style="font-weight: bold; color: #2e7d32;"></span>
+    <section class="turnos-section" style="margin-bottom: 20px;">
+        <div class="section-header">
+            <h3>Empleados con turno programado para hoy</h3>    
         </div>
 
-        <div class="cuerpo-asistencia">
-            <div class="cabecera-tabla">
-                <span>Empleado</span>
-                <span>Llegada</span>
-                <span>Confirmación</span>
+        <div class="table-container">
+            <table class="turnos-table">
+                <thead>
+                    <tr>
+                        <th>Empleado</th>
+                        <th>Rol</th>
+                        <th>Hora Esperada</th>
+                        <th>Estado Actual</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="turnos-tbody">
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="turnos-section">
+        <div class="section-header">
+            <h3>Asistencias Registradas</h3>
+        </div>
+
+        <div class="table-container">
+            <table class="turnos-table">
+                <thead>
+                    <tr>
+                        <th>Empleado</th>
+                        <th>Rol</th>
+                        <th>Hora Esperada</th>
+                        <th>Estado</th>
+                        <th>Aprobación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="registros-tbody">
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<div id="modal-asistencia" class="custom-modal-hidden">
+    <div class="modal-header">
+        <h3 id="modal-asistencia-title">Registrar Llegada</h3>
+    </div>
+
+    <div class="asistencia-detalles">
+        <p><strong>Empleado:</strong> <span id="modal-emp-nombre"></span></p>
+        <p><strong>Hora Programada:</strong> <span id="modal-emp-esperada"></span></p>
+        <p><strong>Hora Exacta de Llegada:</strong> <span id="modal-emp-llegada"></span></p>
+        
+        <div id="alerta-atraso" class="alerta-atraso" style="display: none;">
+            <p><strong>Atraso detectado:</strong> <span id="minutos-atraso"></span> minutos.</p>
+        </div>
+    </div>
+    
+    <form id="form-asistencia" class="form-grid" style="margin-top: 15px;">
+        <div class="form-group">
+            <label for="asistencia-estado">Estado</label>
+            <select id="asistencia-estado" class="form-input">
+                <option value="PRESENTE">Presente</option>
+                <option value="FALTA">Falta</option>
+                <option value="PERMISO">Permiso</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="grupo-descuento" style="display: none;">
+            <label for="asistencia-descuento">Aplicar Descuento por Atraso</label>
+            <select id="asistencia-descuento" class="form-input">
+                <option value="">Ninguno (Perdonar atraso)</option>
+            </select>
+        </div>
+        
+        <div class="form-actions" style="grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+            <button type="button" id="btn-cerrar-asistencia" class="btn-secondary">Cancelar</button>
+            <button type="submit" class="btn-primary">Confirmar</button>
+        </div>
+    </form>
+</div>
+
+<div id="modal-aprobar" class="custom-modal-hidden">
+    <div class="modal-header" style="background-color: #38b6ff;">
+        <h3>Aprobar Registro</h3>
+    </div>
+    <div class="asistencia-detalles">
+        <p style="text-align: center; margin-bottom: 15px;">Ingresa tus credenciales de Administrador o Cajero para validar este registro.</p>
+        
+        <form id="form-aprobar" class="form-grid">
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label>CI / Usuario</label>
+                <input type="text" id="admin-ci" class="form-input" required autocomplete="off">
             </div>
-
-            <div class="contenedor-empleado" id="lista-asistencias"></div>
-        </div>
-
-        <div class="botones-asistencia">
-            <button class="btn-asistencia" id="btn-ir-registro">Registrar llegada (Empleado)</button>
-            <button class="btn-asistencia" id="btn-refrescar">Actualizar Lista</button>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label>Contraseña</label>
+                <input type="password" id="admin-password" class="form-input" required>
+            </div>
             
-            <button class="btn-asistencia" id="btn-confirmar-lote" style="background-color: #2e7d32; color: white; display: none;">
-                Confirmar Seleccionados
-            </button>
-        </div>
+            <div class="form-actions" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+                <button type="button" id="btn-cerrar-aprobar" class="btn-secondary">Cancelar</button>
+                <button type="submit" class="btn-primary" style="background-color: #38b6ff;">Aprobar</button>
+            </div>
+        </form>
     </div>
 </div>
-
-<template id="template-asistencia-card">
-    <div class="tarjeta-empleado">
-        <img src="../assets/imágenes/imagenUsuario.jpg" style="width: 40px; height: 40px; border-radius: 50%;">
-        <span class="nombre-empleado"></span>
-        <span class="hora-llegada"></span>
-        <input type="checkbox" class="check-aprobar">
-    </div>
-</template>

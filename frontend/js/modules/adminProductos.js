@@ -1,10 +1,10 @@
 import { authFetch } from '../api.js';
 
 let allInventory = [];
-let allCategories = [];      // Lista global de categorías desde la DB
-let selectedCategories = []; // Categorías elegidas en el modal actual
+let allCategories = [];  
+let selectedCategories = []; 
 let currentCategory = 'all';
-let currentStatus = 'all';
+let currentStatus = 'active';
 let searchStr = '';
 let EDIT_ID = null;
 let ITEM_PARA_TOGGLE = null;
@@ -16,7 +16,6 @@ export const initAdminProductos = async () => {
 };
 
 const setupEventListeners = () => {
-    // Filtros de categoría
     document.querySelectorAll('.js-cats .filter-opt').forEach(opt => {
         opt.onclick = () => {
             document.querySelectorAll('.js-cats .filter-opt').forEach(o => o.classList.remove('active'));
@@ -26,7 +25,6 @@ const setupEventListeners = () => {
         };
     });
 
-    // Filtros de estado
     document.querySelectorAll('.js-stats .filter-opt').forEach(opt => {
         opt.onclick = () => {
             document.querySelectorAll('.js-stats .filter-opt').forEach(o => o.classList.remove('active'));
@@ -36,7 +34,6 @@ const setupEventListeners = () => {
         };
     });
 
-    // Buscador principal
     const searchInput = document.getElementById('admin-search-input');
     if (searchInput) {
         searchInput.oninput = (e) => {
@@ -45,7 +42,6 @@ const setupEventListeners = () => {
         };
     }
 
-    // Modal Events
     const btnNuevo = document.getElementById('btn-nuevo-producto');
     if (btnNuevo) btnNuevo.onclick = () => openModal();
 
@@ -56,7 +52,6 @@ const setupEventListeners = () => {
     document.getElementById('btn-guardar')?.addEventListener('click', handleSave);
     document.getElementById('btn-status-confirm')?.addEventListener('click', handleConfirmToggle);
 
-    // Cambio de Zona/Tipo
     const selectZona = document.getElementById('prod-zona');
     if (selectZona) {
         selectZona.onchange = (e) => {
@@ -67,7 +62,6 @@ const setupEventListeners = () => {
         };
     }
 
-    // Buscador de Categorías dentro del Modal
     const categorySearchInput = document.getElementById('category-search-input');
     if (categorySearchInput) {
         categorySearchInput.oninput = (e) => {
@@ -76,7 +70,6 @@ const setupEventListeners = () => {
         };
     }
 
-    // Cerrar resultados si se hace click fuera
     document.addEventListener('click', (e) => {
         const results = document.getElementById('category-results');
         if (results && !e.target.closest('.category-search-container')) {
@@ -84,7 +77,6 @@ const setupEventListeners = () => {
         }
     });
 
-    // Image Preview y Carga de Archivo
     const fileInput = document.getElementById('file-input');
     const btnUpload = document.getElementById('btn-upload-img');
     if (btnUpload && fileInput) {
@@ -164,10 +156,15 @@ const renderInventory = () => {
         img.src = item.imagen || imgDefault;
         img.onerror = () => { img.src = imgDefault; };
 
-        clon.querySelector('.btn-toggle-status').onclick = (e) => {
-            e.stopPropagation();
-            toggleStatus(item);
-        };
+        const btnToggle = clon.querySelector('.btn-toggle-status');
+        if (btnToggle) {
+            btnToggle.textContent = item.activado ? 'Anular' : 'Activar';
+            
+            btnToggle.onclick = (e) => {
+                e.stopPropagation();
+                toggleStatus(item);
+            };
+        }
 
         clon.querySelector('.btn-edit-float').onclick = (e) => {
             e.stopPropagation();
@@ -178,7 +175,6 @@ const renderInventory = () => {
     });
 };
 
-/* --- LÓGICA DE CATEGORÍAS (TAGS) --- */
 
 const renderCategoryResults = (term) => {
     const resultsDiv = document.getElementById('category-results');
@@ -225,8 +221,6 @@ const renderTags = () => {
     }
 };
 
-/* --- MODALES Y GUARDADO --- */
-
 const openModal = (item = null) => {
     EDIT_ID = item ? item.id : null;
     selectedCategories = item ? (item.Categorias || []) : [];
@@ -254,7 +248,7 @@ const openModal = (item = null) => {
         previewImg.src = item?.imagen || "../assets/productos/default-burger.png";
     }
 
-    // Lógica de Zona y Bloqueo
+
     const selectZona = document.getElementById('prod-zona');
     if (selectZona) {
         const options = selectZona.options;
@@ -293,22 +287,19 @@ const handleSave = async () => {
     const nombre = document.getElementById('prod-nombre')?.value;
     const precio = parseFloat(document.getElementById('prod-precio')?.value);
 
-    // Validaciones básicas
     if (!nombre || isNaN(precio)) {
         if (errorEl) {
-            errorEl.textContent = "⚠️ Nombre y precio son obligatorios.";
+            errorEl.textContent = "Nombre y precio son obligatorios.";
             errorEl.className = 'error-text-visible';
         }
         return;
     }
 
-    // Construcción del objeto de datos
     const data = {
         nombre,
         precio,
         activado: document.getElementById('prod-activado')?.value === 'true',
         categorias: selectedCategories.map(c => c.id),
-        // Si el src de la imagen es Base64 (nueva carga), lo enviamos, si no, null
         imagen: previewImg.src.includes('data:image') ? previewImg.src : null 
     };
 
@@ -354,7 +345,6 @@ const closeAllModals = () => {
     ITEM_PARA_TOGGLE = null;
     selectedCategories = [];
     
-    // Reset del input de archivo
     const fileInput = document.getElementById('file-input');
     if (fileInput) fileInput.value = '';
 };
