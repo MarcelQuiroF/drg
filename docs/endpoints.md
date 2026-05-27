@@ -597,4 +597,249 @@ Registro de la clientela para control de reservas, consumos y cuentas recurrente
 
 ```
 
+
+## 7. Módulo de Órdenes (`/api/v1/ordenes`)
+
+Control operativo de consumos en mesa, procesamiento de cuentas y aplicación de descuentos. Todas las rutas requieren token JWT en la cabecera (`Authorization: Bearer <token>`)
+
+### Listar Todas las Órdenes
+
+* **Ruta:** `GET /api/v1/ordenes`
+* **Acceso:** Autenticado (Cualquier rol)
+* **Respuesta Exitosa (200 OK):**
+```json
+[
+  {
+    "id": 45,
+    "total": "120.00",
+    "finalizado": false,
+    "mesa_id": 3,
+    "notas": "Cliente solicita vasos con hielo extra.",
+    "createdAt": "2026-05-27T14:00:00.000Z"
+  }
+]
+
+```
+
+### Obtener Orden por ID
+* **Ruta:** `GET /api/v1/ordenes/:id`
+* **Acceso:** Autenticado (Cualquier rol)
+* **Respuesta Exitosa (200 OK):**
+  ```json
+  {
+    "id": 45,
+    "total": "120.00",
+    "finalizado": false,
+    "mesa_id": 3,
+    "notas": "Cliente solicita vasos con hielo extra.",
+    "ContenedorProductos": [],
+    "ContenedorJuegos": []
+  }
+
+### Crear una Nueva Orden
+
+* **Ruta:** `POST /api/v1/ordenes`
+* **Acceso:** Autenticado (Cualquier rol)
+* **Cuerpo de la Solicitud (JSON):**
+```json
+{
+  "mesa_id": 3,
+  "notas": "Mesa de cumpleaños"
+}
+
+```
+
+
+* **Respuesta Exitosa (201 Created):**
+  ```json
+  {
+    "id": 46,
+    "total": "0.00",
+    "finalizado": false,
+    "mesa_id": 3,
+    "notas": "Mesa de cumpleaños",
+    "createdAt": "2026-05-27T14:18:00.000Z"
+  }
+
+### Finalizar y Cerrar Cuenta de una Orden
+
+* **Ruta:** `POST /api/v1/ordenes/:id/finalizar`
+* **Acceso:** `ADMIN`, `CAJERO`, `MESERO`
+* **Respuesta Exitosa (200 OK):**
+```json
+{
+  "message": "Orden finalizada y cuenta cerrada con éxito.",
+  "total_pagado": "120.00"
+}
+
+```
+
+### Aplicar Descuento a una Orden
+* **Ruta:** `POST /api/v1/ordenes/:id/descuento`
+* **Acceso:** `ADMIN`, `CAJERO`, `MESERO`
+* **Cuerpo de la Solicitud (JSON):**
+  ```json
+  {
+    "descuento_id": 2
+  }
+
+
+* **Respuesta Exitosa (200 OK):**
+```json
+{
+  "message": "Descuento aplicado correctamente a la orden."
+}
+
+```
+
+
+
+### Listar Descuentos Aplicados a una Orden
+* **Ruta:** `GET /api/v1/ordenes/:id/descuentos`
+* **Acceso:** `ADMIN`, `CAJERO`, `MESERO`
+* **Respuesta Exitosa (200 OK):**
+  ```json
+
+  {
+    "id": 2,
+    "descripcion": "Descuento por Apertura",
+    "porcentaje": 10.00
+  }
+
+
+### Quitar Descuento de una Orden
+
+* **Ruta:** `DELETE /api/v1/ordenes/:ordenId/descuento/:descuentoId`
+* **Acceso:** `ADMIN`, `CAJERO`, `MESERO`
+* **Respuesta Exitosa (200 OK):**
+```json
+{
+  "message": "Descuento removido de la orden con éxito."
+}
+
+```
+
+### Actualizar Notas o Comentarios de la Orden
+* **Ruta:** `PUT /api/v1/ordenes/:id` 
+* **Acceso:** `ADMIN`, `CAJERO`, `MESERO` 
+* **Cuerpo de la Solicitud (JSON):**
+  ```json
+  {
+    "notas": "Notas actualizadas: El cliente pagará con QR."
+  }
+
+* **Respuesta Exitosa (200 OK):**
+```json
+{
+  "id": 45,
+  "notas": "Notas actualizadas: El cliente pagará con QR."
+}
+
+```
+
+
+### Eliminar una Orden (Borrado Lógico)
+* **Ruta:** `DELETE /api/v1/ordenes/:id` 
+* **Acceso:** `ADMIN`, `CAJERO`, `MESERO` 
+* **Respuesta Exitosa (200 OK):**
+  ```json
+{
+  "message": "Orden eliminada del sistema."
+}
+
+---
+
+## 8. Módulo de Reportes y Métricas (`/api/v1/reportes`)
+
+Procesamiento de datos estadísticos agregados para auditoría del negocio. Requiere token JWT en la cabecera (`Authorization: Bearer <token>`).
+
+### Obtener Datos Analíticos del Dashboard
+
+* **Ruta:** `GET /api/v1/reportes/dashboard`
+* **Acceso:** Exclusivo de **`ADMIN`**
+* **Parámetros Query (Opcionales para filtrado personalizado):** `?inicio=YYYY-MM-DD&fin=YYYY-MM-DD`
+* **Respuesta Exitosa (200 OK):**
+```json
+{
+  "totales": {
+    "ingresos": 5450.00,
+    "efectivo": 2150.00,
+    "qr": 3300.00,
+    "ingresoPromedioDiario": 778.57,
+    "ordenes": 84,
+    "ordenesPromedioDiario": 12.0,
+    "reservas": 14
+  },
+  "distribucion": {
+    "comida": 3850.00,
+    "juegos": 1600.00
+  },
+  "graficas": {
+    "etiquetas": ["2026-05-21", "2026-05-22"],
+    "ingresos": [450.00, 890.00],
+    "ordenes": [8, 14]
+  },
+  "rankings": {
+    "comidas": [["Hamburguesa Dragón", 24], ["Papas Fritas", 18]],
+    "juegos": [["Catan", 12], ["Dixit", 9]]
+  }
+}
+
+```
+
+## 9. Módulo de Configuración del Sistema (`/api/v1/configuracion`)
+
+Ajustes operativos globales del negocio y parámetros de penalizaciones. Requiere token JWT en la cabecera (`Authorization: Bearer <token>`).
+
+### Listar Parámetros de Descuentos por Atraso
+* **Ruta:** `GET /api/v1/configuracion/descuentos-atraso`
+* **Acceso:** Autenticado (Cualquier rol)
+* **Respuesta Exitosa (200 OK):**
+  ```json
+  [
+    {
+      "id": 1,
+      "minutos_min": 1,
+      "minutos_max": 15,
+      "monto_descuento": "10.00"
+    },
+    {
+      "id": 2,
+      "minutos_min": 16,
+      "minutos_max": 30,
+      "monto_descuento": "25.00"
+    }
+  ]
+
+
+### Listar Todas las Configuraciones Globales
+
+* **Ruta:** `GET /api/v1/configuracion` 
+* **Acceso:** Autenticado (Cualquier rol) 
+* **Respuesta Exitosa (200 OK):**
+```json
+
+[
+{ "id": 1, "clave": "minutos_tolerancia", "valor": "20" },
+{ "id": 2, "clave": "ventana_llegada", "valor": "30" }
+]
+
+```
+
+### Actualización Masiva de Configuraciones
+* **Ruta:** `PUT /api/v1/configuracion` 
+* **Acceso:** Autenticado (Cualquier rol) 
+* **Cuerpo de la Solicitud (JSON):**
+  ```json
+
+  { "clave": "minutos_tolerancia", "valor": "15" },
+  { "clave": "ventana_llegada", "valor": "45" }
+
+
+* **Respuesta Exitosa (200 OK):**
+```json
+{
+  "message": "Configuraciones globales actualizadas de manera masiva."
+}
+
 ```
