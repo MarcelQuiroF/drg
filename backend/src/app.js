@@ -21,7 +21,7 @@ const comandaRoute = require('./routes/comandaRoute');
 const asistenciaRoute = require('./routes/asistenciaRoute');
 const reporteRoute = require('./routes/reportesRoute');
 const configuracionRoutes = require('./routes/configuracionRoutes');
-
+const importacionRoute = require('./routes/importacionRoute');
 
 const app = express();
 
@@ -58,6 +58,7 @@ app.use(`${API_PREFIX}/comandas`, comandaRoute);
 app.use(`${API_PREFIX}/asistencias`, asistenciaRoute);
 app.use(`${API_PREFIX}/reportes`, reporteRoute);
 app.use(`${API_PREFIX}/configuracion`, configuracionRoutes);
+app.use(`${API_PREFIX}/importacion`, importacionRoute);
 
 app.use(notFoundHandler); 
 app.use(errorHandler); 

@@ -8,12 +8,15 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       validate: { notEmpty: { msg: "El nombre es obligatorio" } }
     },
-    ci: DataTypes.STRING,
+    ci: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: { msg: "Esta Cédula de Identidad (CI) ya está registrada" }
+    },
     telefono: DataTypes.STRING,
     correo: {
       type: DataTypes.STRING,
       allowNull: true,
-      unique: { msg: "Este correo ya está registrado" },
       validate: { isEmail: { msg: "Debe ser un correo válido" } }
     },
     contrasenia: {

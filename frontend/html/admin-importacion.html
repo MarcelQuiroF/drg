@@ -1,0 +1,53 @@
+<link rel="stylesheet" href="../css/admin-empleados.css">
+<header class="main-header">
+    <h1>Importación Masiva (Excel)</h1>
+</header>
+
+<div class="contenido" style="flex-direction: row; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
+    
+    <div class="kpi-card" style="flex: 1; min-width: 300px; max-height: 500px; overflow-y: auto;">
+        <h3 style="color: var(--color-text-primary); margin-bottom: 10px;">Referencia de Categorías</h3>
+        <p style="font-size: 0.85em; color: var(--text-grey); margin-bottom: 15px;">Usa estos IDs en la última columna de tu Excel.</p>
+        <ul id="lista-categorias-ref" style="list-style: none; padding: 0;">
+            <li>Cargando categorías...</li>
+        </ul>
+    </div>
+
+    <div style="flex: 2; display: flex; flex-direction: column; gap: 20px; min-width: 350px;">
+        
+        <div class="kpi-card" style="border-top: 4px solid #ff5a5e;">
+            <h3 style="color: var(--color-text-primary);">Importar Productos</h3>
+            <p style="font-size: 0.85em; color: var(--text-grey); margin: 5px 0 10px 0;">
+                <b>Estructura exacta del encabezado (Fila 1):</b><br>
+                <code>nombre</code> | <code>zona</code> | <code>precio</code> | <code>imagen</code> | <code>categoria_id</code>
+            </p>
+            
+            <button type="button" id="btn-plantilla-prod" class="btn-secondary" style="margin-bottom: 15px; font-size: 0.85em; padding: 5px 10px;">
+                <i class='bx bx-download'></i> Descargar Plantilla
+            </button>
+
+            <form id="form-import-productos" style="display: flex; gap: 10px; align-items: center;">
+                <input type="file" id="file-productos" accept=".xlsx, .xls" required style="flex: 1; padding: 8px; border: 1px dashed var(--text-grey); border-radius: 5px;">
+                <button type="submit" class="btn-primary" id="btn-submit-productos">Subir Productos</button>
+            </form>
+        </div>
+
+        <div class="kpi-card" style="border-top: 4px solid #3b82f6;">
+            <h3 style="color: var(--color-text-primary);">Importar Juegos</h3>
+            <p style="font-size: 0.85em; color: var(--text-grey); margin: 5px 0 10px 0;">
+                <b>Estructura exacta del encabezado (Fila 1):</b><br>
+                <code>nombre</code> | <code>precio</code> | <code>jugadores_min</code> | <code>jugadores_max</code> | <code>tiempo_partida</code> | <code>enlace</code> | <code>imagen</code> | <code>categoria_id</code>
+            </p>
+
+            <button type="button" id="btn-plantilla-juegos" class="btn-secondary" style="margin-bottom: 15px; font-size: 0.85em; padding: 5px 10px;">
+                <i class='bx bx-download'></i> Descargar Plantilla
+            </button>
+
+            <form id="form-import-juegos" style="display: flex; gap: 10px; align-items: center;">
+                <input type="file" id="file-juegos" accept=".xlsx, .xls" required style="flex: 1; padding: 8px; border: 1px dashed var(--text-grey); border-radius: 5px;">
+                <button type="submit" class="btn-primary" style="background-color: #3b82f6;" id="btn-submit-juegos">Subir Juegos</button>
+            </form>
+        </div>
+
+    </div>
+</div>

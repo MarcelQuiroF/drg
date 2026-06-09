@@ -6,8 +6,22 @@ let chartDistribucionInst = null;
 let chartOrdenesInst = null;
 
 export const initAdminDashboard = () => {
+    establecerFechasPredeterminadas();
     configurarFiltros();
     cargarDatosDashboard(); 
+};
+
+// Nueva función para establecer por defecto la fecha de hoy en ambos inputs
+const establecerFechasPredeterminadas = () => {
+    const hoy = new Date();
+    const yyyy = hoy.getFullYear();
+    const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dd = String(hoy.getDate()).padStart(2, '0');
+    
+    const fechaHoyStr = `${yyyy}-${mm}-${dd}`; // Formato requerido por el navegador
+
+    document.getElementById('fecha-inicio').value = fechaHoyStr;
+    document.getElementById('fecha-fin').value = fechaHoyStr;
 };
 
 const configurarFiltros = () => {
@@ -44,16 +58,29 @@ const obtenerRangoFechas = () => {
     const modo = document.querySelector('input[name="rangoTiempo"]:checked').value;
     const hoy = new Date();
     let inicio = '';
-    let fin = hoy.toISOString().split('T')[0];
+    let fin = '';
+
+    // Formatear la fecha de hoy de forma segura
+    const yyyy = hoy.getFullYear();
+    const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dd = String(hoy.getDate()).padStart(2, '0');
+    const hoyStr = `${yyyy}-${mm}-${dd}`;
+    fin = hoyStr;
 
     if (modo === 'semana') {
         const hace7Dias = new Date(hoy);
         hace7Dias.setDate(hoy.getDate() - 7);
-        inicio = hace7Dias.toISOString().split('T')[0];
+        const y = hace7Dias.getFullYear();
+        const m = String(hace7Dias.getMonth() + 1).padStart(2, '0');
+        const d = String(hace7Dias.getDate()).padStart(2, '0');
+        inicio = `${y}-${m}-${d}`;
     } else if (modo === 'mes') {
         const hace30Dias = new Date(hoy);
         hace30Dias.setDate(hoy.getDate() - 30);
-        inicio = hace30Dias.toISOString().split('T')[0];
+        const y = hace30Dias.getFullYear();
+        const m = String(hace30Dias.getMonth() + 1).padStart(2, '0');
+        const d = String(hace30Dias.getDate()).padStart(2, '0');
+        inicio = `${y}-${m}-${d}`;
     } else if (modo === 'custom') {
         inicio = document.getElementById('fecha-inicio').value;
         fin = document.getElementById('fecha-fin').value;
@@ -132,11 +159,18 @@ const dibujarGraficas = (data) => {
     if(chartDistribucionInst) chartDistribucionInst.destroy();
     if(chartOrdenesInst) chartOrdenesInst.destroy();
 
+    // NUEVO: Mapear y convertir etiquetas de YYYY-MM-DD a DD/MM/YYYY para los gráficos
+    const etiquetasFormateadas = data.graficas.etiquetas.map(fecha => {
+        if (!fecha || !fecha.includes('-')) return fecha;
+        const [yyyy, mm, dd] = fecha.split('-');
+        return `${dd}/${mm}/${yyyy}`;
+    });
+
     const ctxIngresos = document.getElementById('chart-ingresos').getContext('2d');
     chartIngresosInst = new Chart(ctxIngresos, {
         type: 'line',
         data: {
-            labels: data.graficas.etiquetas,
+            labels: etiquetasFormateadas, // Aplicado aquí
             datasets: [{
                 label: 'Ingresos (Bs)',
                 data: data.graficas.ingresos,
@@ -168,7 +202,7 @@ const dibujarGraficas = (data) => {
     chartOrdenesInst = new Chart(ctxOrdenes, {
         type: 'bar', 
         data: {
-            labels: data.graficas.etiquetas,
+            labels: etiquetasFormateadas, // Aplicado aquí
             datasets: [{
                 label: 'Cantidad de Órdenes',
                 data: data.graficas.ordenes,

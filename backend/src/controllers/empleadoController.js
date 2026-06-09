@@ -78,15 +78,15 @@ async function actualizarEmpleado(req, res, next) {
             });
         }
 
-        // 2. Actualizar los datos básicos del empleado
-        empleado.nombre = nombre;
-        empleado.ci = ci;
-        empleado.telefono = telefono;
-        empleado.correo = correo || null;
-        empleado.rol = rol;
-        empleado.activo = activo;
+        // 2. CORRECCIÓN: Actualizar los datos básicos SOLO si vienen en el body
+        if (nombre !== undefined) empleado.nombre = nombre;
+        if (ci !== undefined) empleado.ci = ci;
+        if (telefono !== undefined) empleado.telefono = telefono;
+        if (correo !== undefined) empleado.correo = correo || null;
+        if (rol !== undefined) empleado.rol = rol;
+        if (activo !== undefined) empleado.activo = activo;
 
-        // Si se envió una nueva contraseña, la asignamos (el hook del modelo se encargará de encriptarla)
+        // Si se envió una nueva contraseña y no está vacía
         if (contrasenia && contrasenia.trim() !== "") {
             empleado.contrasenia = contrasenia;
         }
@@ -114,7 +114,7 @@ async function actualizarEmpleado(req, res, next) {
         });
 
     } catch (error) {
-        console.error("ERROR DETALLADO EN ACTUALIZAR EMPLEADO:", error); // <-- AGREGA ESTA LÍNEA
+        console.error("ERROR DETALLADO EN ACTUALIZAR EMPLEADO:", error);
         next(error);
     }
 }
