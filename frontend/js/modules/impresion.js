@@ -68,7 +68,7 @@ const llenarTickets = (items, orden) => {
         `;
 
 
-        if (item.Producto.zona === 'Cocina') {
+        if (item.Producto.zona === 'COCINA') {
             listaCocina.appendChild(li);
         } else {
             listaCafeteria.appendChild(li);

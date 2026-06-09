@@ -160,10 +160,10 @@ const renderizarMesas = (mesas) => {
                 <img src="${obtenerImagenPorEstado(estadoVisual)}" alt="Mesa ${mesa.id}" class="mesa-icono">
             </div>
             <div class="mesa-footer">
-                <p class="mesa-nombre">Nº${mesa.numero} - ${mesa.nombre}</p>
+                <p class="mesa-nombre">Mesa ${mesa.numero}</p>
                 <div class="mesa-capacidad">
                     <img src="../assets/íconos/iconoUsuario.png" alt="Capacidad" class="icono-persona">
-                    <span class="capacidad-texto">${mesa.cantidadMinima}-${mesa.cantidadMaxima}</span>
+                    <span class="capacidad-texto">${mesa.cantidadMaxima}</span>
                 </div>
             </div>
         `;

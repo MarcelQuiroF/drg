@@ -153,7 +153,17 @@ const renderInventory = () => {
             'JUEGO': '../assets/productos/default-game.png'
         }[item.category] || '../assets/productos/default-burger.png';
 
-        img.src = item.imagen || imgDefault;
+        // MODIFICADO: Resolución inteligente del path para nombres de archivos puros
+        if (item.imagen) {
+            if (item.imagen.startsWith('data:image') || item.imagen.startsWith('http') || item.imagen.startsWith('.')) {
+                img.src = item.imagen;
+            } else {
+                img.src = `../assets/imágenes/${item.imagen}`;
+            }
+        } else {
+            img.src = imgDefault;
+        }
+
         img.onerror = () => { img.src = imgDefault; };
 
         const btnToggle = clon.querySelector('.btn-toggle-status');
@@ -174,7 +184,6 @@ const renderInventory = () => {
         container.appendChild(clon);
     });
 };
-
 
 const renderCategoryResults = (term) => {
     const resultsDiv = document.getElementById('category-results');
@@ -245,9 +254,17 @@ const openModal = (item = null) => {
     
     const previewImg = document.getElementById('preview-img');
     if (previewImg) {
-        previewImg.src = item?.imagen || "../assets/productos/default-burger.png";
+        // MODIFICADO: Ajuste de path para previsualización correcta en el modal
+        if (item?.imagen) {
+            if (item.imagen.startsWith('data:image') || item.imagen.startsWith('http') || item.imagen.startsWith('.')) {
+                previewImg.src = item.imagen;
+            } else {
+                previewImg.src = `../assets/imágenes/${item.imagen}`;
+            }
+        } else {
+            previewImg.src = "../assets/productos/default-burger.png";
+        }
     }
-
 
     const selectZona = document.getElementById('prod-zona');
     if (selectZona) {
@@ -300,7 +317,7 @@ const handleSave = async () => {
         precio,
         activado: document.getElementById('prod-activado')?.value === 'true',
         categorias: selectedCategories.map(c => c.id),
-        imagen: previewImg.src.includes('data:image') ? previewImg.src : null 
+        imagen: previewImg.src.includes('data:image') ? previewImg.src : (EDIT_ID && allInventory.find(i => i.id === EDIT_ID)?.imagen || null) 
     };
 
     if (zona === 'JUEGO') {

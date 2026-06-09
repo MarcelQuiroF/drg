@@ -70,7 +70,6 @@ const cargarProductos = async (tipo) => {
             const res = await authFetch('/juegos');
             if(res.ok) {
                 const todosJuegos = await res.json();
-                // NUEVO: Filtrar solo los juegos activos
                 items = todosJuegos.filter(j => j.activado === true);
             }
         } else {
@@ -79,7 +78,6 @@ const cargarProductos = async (tipo) => {
                 const todos = await res.json();
                 const zonaFiltro = tipo === 'comida' ? 'COCINA' : 'CAFETERIA'; 
                 
-                // NUEVO: Filtrar por zona Y que estén activos
                 items = todos.filter(p => 
                     p.zona && 
                     p.zona.toUpperCase() === zonaFiltro && 
@@ -113,8 +111,6 @@ const renderizarCatalogo = (contenedor, items, esJuego) => {
         bebida: '../assets/productos/default-drink.png',
         juego: '../assets/productos/default-game.png'
     };
-    
-    const RUTA_BASE_PRODUCTOS = '../assets/productos/';
 
     if(items.length === 0) {
         contenedor.innerHTML = '<p style="padding:20px; text-align:center;">No hay items disponibles.</p>';
@@ -136,11 +132,12 @@ const renderizarCatalogo = (contenedor, items, esJuego) => {
             tipoActual = 'bebida';
         }
 
+        // MODIFICADO: Resolución inteligente para buscar en assets/imágenes de manera condicional
         if (p.imagen && p.imagen.trim() !== "") {
-            if (p.imagen.startsWith('http') || p.imagen.startsWith('.') || p.imagen.startsWith('/')) {
+            if (p.imagen.startsWith('data:image') || p.imagen.startsWith('http') || p.imagen.startsWith('.') || p.imagen.startsWith('/')) {
                 img.src = p.imagen; 
             } else {
-                img.src = `${RUTA_BASE_PRODUCTOS}${p.imagen}`; 
+                img.src = `../assets/imágenes/${p.imagen}`; 
             }
         } else {
             img.src = IMAGENES_DEFECTO[tipoActual];
@@ -230,7 +227,7 @@ const cargarDetalleOrden = async (ordenId) => {
             const juegos = await resJuegos.json();
             items = items.concat(juegos.map(j => ({
                 id: j.id, nombre: j.Juego.nombre, precio: j.Juego.precio,
-                cantidad: j.cantidad, comentario: j.comentario, tipo: 'juego'
+                indigo: j.cantidad, cantidad: j.cantidad, comentario: j.comentario, tipo: 'juego'
             })));
         }
 
@@ -307,7 +304,6 @@ const cargarDetalleOrden = async (ordenId) => {
                 btnBasura.title = "Eliminar descuento";
 
                 divIzquierdo.prepend(btnBasura);
-
                 btnBasura.onclick = () => prepararEliminacionDescuento(ordenId, desc.id, desc.nombre);
 
                 contenedor.appendChild(clon);
@@ -469,7 +465,6 @@ const cerrarModalDescuento = () => {
     document.getElementById('modal-overlay').classList.remove('modal-overlay-visible');
 };
 
-// --- LÓGICA DE COBRO MIXTO ---
 const abrirModalPago = () => {
     const modal = document.getElementById('payment-modal');
     const btnConfirmar = document.getElementById('btn-confirm-payment');
@@ -556,6 +551,7 @@ const inicializarEventosProductos = () => {
 
     initNotepadLogic();
 
+    // MODAL DE COMENTARIO
     const btnSaveComment = document.getElementById('btn-save-comment');
     if(btnSaveComment) btnSaveComment.onclick = async () => {
         if (ITEM_PARA_COMENTAR) {
@@ -564,13 +560,12 @@ const inicializarEventosProductos = () => {
             cerrarModalComentario();
         }
     };
-
     const btnCancelComment = document.getElementById('btn-cancel-comment');
     if(btnCancelComment) btnCancelComment.onclick = cerrarModalComentario;
-    
     const closeCommentModal = document.getElementById('close-comment-modal');
     if(closeCommentModal) closeCommentModal.onclick = cerrarModalComentario;
 
+    // MODAL DE DESCUENTO
     const btnDescuento = document.querySelector(".agregar-descuento");
     if (btnDescuento) {
         btnDescuento.onclick = () => {
@@ -578,7 +573,6 @@ const inicializarEventosProductos = () => {
             abrirModalDescuento();
         };
     }
-
     const btnApplyDiscount = document.getElementById('btn-apply-discount');
     if(btnApplyDiscount) btnApplyDiscount.onclick = async () => {
         const tipo = document.getElementById('discount-type-select').value;
@@ -607,10 +601,15 @@ const inicializarEventosProductos = () => {
             }
         } catch (error) { mostrarErrorDescuento("Error de conexión con el servidor."); }
     };
-
     const btnCancelDiscount = document.getElementById('btn-cancel-discount');
     if(btnCancelDiscount) btnCancelDiscount.onclick = cerrarModalDescuento;
+    
+    // NUEVO: Funcionalidad de la X en Descuento
+    const closeDiscountModal = document.getElementById('close-discount-modal');
+    if(closeDiscountModal) closeDiscountModal.onclick = cerrarModalDescuento;
 
+
+    // MODAL DE PAGO (COBRAR)
     const btnCobrar = document.querySelector(".cobrar");
     if (btnCobrar) {
         btnCobrar.onclick = () => {
@@ -618,9 +617,12 @@ const inicializarEventosProductos = () => {
             abrirModalPago();
         };
     }
-
     const btnCancelPayment = document.getElementById('btn-cancel-payment');
     if(btnCancelPayment) btnCancelPayment.onclick = cerrarModalPago;
+
+    // NUEVO: Funcionalidad de la X en Cobrar
+    const closePaymentModal = document.getElementById('close-payment-modal');
+    if(closePaymentModal) closePaymentModal.onclick = cerrarModalPago;
 
     const btnConfirmPayment = document.getElementById('btn-confirm-payment');
     if(btnConfirmPayment) btnConfirmPayment.onclick = async () => {
@@ -662,6 +664,7 @@ const inicializarEventosProductos = () => {
         } catch (error) { mostrarNotificacion("Error", "Error de conexión."); }
     };
 
+    // IMPRESIÓN
     const btnImprimir = document.querySelector(".imprimir");
     if (btnImprimir) {
         btnImprimir.onclick = () => {
@@ -671,6 +674,7 @@ const inicializarEventosProductos = () => {
         };
     }
 
+    // MODAL DE ELIMINAR ITEM
     const btnConfirmDelete = document.getElementById('btn-confirm-delete');
     if(btnConfirmDelete) btnConfirmDelete.onclick = async () => {
         if (ITEM_PARA_ELIMINAR) {
@@ -696,11 +700,14 @@ const inicializarEventosProductos = () => {
             finally { cerrarModalEliminar(); }
         }
     };
-
     const btnCancelDelete = document.getElementById('btn-cancel-delete');
     if(btnCancelDelete) btnCancelDelete.onclick = cerrarModalEliminar;
+
+    // NUEVO: Funcionalidad de la X en Eliminar
+    const closeDeleteModal = document.getElementById('close-delete-modal');
+    if(closeDeleteModal) closeDeleteModal.onclick = cerrarModalEliminar;
     
-    // El overlay ahora cerrará los modales de esta vista
+    // OVERLAY GLOBAL
     const overlay = document.getElementById('modal-overlay');
     if(overlay) overlay.onclick = () => {
         cerrarNotificacion();

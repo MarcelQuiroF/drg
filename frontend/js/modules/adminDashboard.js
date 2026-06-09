@@ -144,7 +144,7 @@ const actualizarRankings = (rankings) => {
         });
     };
 
-    renderLista('lista-top-comidas', rankings.comidas, 'uds');
+    renderLista('lista-top-comidas', rankings.comidas, 'veces');
     renderLista('lista-top-juegos', rankings.juegos, 'veces');
 };
 

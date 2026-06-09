@@ -29,48 +29,41 @@
 
         <div class="menu-container">
             <ul class="menu">
-                
                 <li class="menu-item menu-item-static active">
                     <a href="#" class="menu-link" id="menu-admin-registros">
                         <i class='bx bxs-bar-chart-alt-2'></i> 
                         <span>Ver registros</span>
                     </a>
                 </li>
-
                 <li class="menu-item menu-item-static">
                     <a href="#" class="menu-link" id="menu-admin-empleados">
                         <i class='bx bxs-user-detail'></i> 
                         <span>Gestionar empleado</span>
                     </a>
                 </li>
-
                 <li class="menu-item menu-item-static">
                     <a href="#" class="menu-link" id="menu-admin-productos">
                         <i class='bx bxs-package'></i> 
                         <span>Gestionar productos</span>
                     </a>
                 </li>
-
                 <li class="menu-item menu-item-static">
                     <a href="#" class="menu-link" id="menu-admin-espacio">
                         <i class='bx bxs-map-alt'></i> 
                         <span>Gestionar espacio</span>
                     </a>
                 </li>
-
                 <li class="menu-item menu-item-static">
                     <a href="#" class="menu-link" id="menu-admin-importacion">
                         <i class='bx bx-cloud-upload'></i> 
                         <span>Importar Excel</span>
                     </a>
                 </li>
-
             </ul>
         </div>
 
         <div class="footer">
             <div class="user">
-                
                 <div class="user-data">
                     <span class="name" id="user-name">Cargando...</span>
                     <span class="email" id="user-role">ADMIN</span>
@@ -82,11 +75,25 @@
         </div>
     </div>
         
-    <div class="cuerpo" id="cuerpo">
-        </div>
+    <div class="cuerpo" id="cuerpo"></div>
 
+    <div id="modal-overlay" class="modal-overlay-hidden"></div>
+
+    <div id="notification-modal" class="custom-modal-hidden" style="width: 400px; max-width: 90%;">
+        <div class="modal-content" style="text-align: center; padding: 20px;">
+            <div class="modal-header" style="border-bottom: none; display: flex; justify-content: space-between; align-items: center;">
+                <h2 id="notification-title" style="font-size: 1.4rem; margin: 0;"></h2>
+                <span id="close-notification-modal" class="close-btn" style="cursor: pointer; font-size: 1.6rem; line-height: 1;">&times;</span>
+            </div>
+            <div class="modal-body" style="padding: 20px 0;">
+                <p id="notification-message" style="color: var(--text-grey); font-size: 1rem; line-height: 1.4; margin: 0;"></p>
+            </div>
+            <div class="modal-footer" style="border-top: none; justify-content: center; padding: 0;">
+                <button class="btn-primary" id="btn-close-notification" style="width: 100%; border-radius: 25px; padding: 12px;">Aceptar</button>
+            </div>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        
     <script type="module" src="../js/main.js"></script>
 </body>
 </html>
