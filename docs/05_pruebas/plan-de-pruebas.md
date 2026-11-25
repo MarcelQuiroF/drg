@@ -1,6 +1,6 @@
 # Plan de pruebas
 
-> Versión 0.1 · 25/11/2026 · Issue #18. La lista de casos está en [`casos.md`](casos.md).
+> Versión 0.2 · 25/11/2026 · Issues #18 y #19. La lista de casos está en [`casos.md`](casos.md).
 
 ## 1. Objetivo
 
@@ -128,4 +128,16 @@ backend/
 
 ## 7. Integración continua
 
-El workflow de #19 corre `npm run check` (lint y formato) y `npm test` en cada PR, con un servicio de PostgreSQL y `DATABASE_URL_TEST` definida en el propio workflow (sin secretos reales). Un PR con una prueba rota queda en rojo.
+El workflow [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) (#19) corre en cada PR hacia `main` y en cada push a `main`, con dos jobs en paralelo:
+
+| Job | Qué corre | Dónde |
+|-----|-----------|-------|
+| **Lint y formato** | `npm run check` (ESLint + Prettier) | Raíz del repositorio |
+| **Pruebas** | `npm test` contra un PostgreSQL 16 de servicio | `backend/` |
+
+- **Node:** la versión sale de `.nvmrc` (26), la misma que piden `engines` y la guía de instalación.
+- **Caché:** `actions/setup-node` guarda la caché de npm de cada `package-lock.json`; si el lock no cambia, `npm ci` no vuelve a descargar los paquetes.
+- **Sin secretos:** `DATABASE_URL`, `DATABASE_URL_TEST` (`drg_ci_test`) y `JWT_SECRET_TEST` se definen en el propio workflow con valores de prueba. La base vive solo mientras dura el job.
+- **Un error de lint, de formato o una prueba rota dejan el PR en rojo.** Se comprobó con un PR de prueba que se cerró sin mergear (ver el PR de #19).
+- **Protección de `main`:** los dos checks son obligatorios para mergear (configuración del repositorio, no del código).
+- Los `test.failing` (sección 4.5) no ponen el CI en rojo mientras el bug siga ahí.

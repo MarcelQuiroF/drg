@@ -2,6 +2,9 @@
   "name": "drg-mesa-dragon",
   "private": true,
   "description": "Herramientas de calidad de código del repositorio (ESLint y Prettier). La API está en backend/.",
+  "engines": {
+    "node": "26.x"
+  },
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

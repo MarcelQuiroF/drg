@@ -31,7 +31,7 @@ flowchart LR
 
 | Pieza | Tecnología | Dónde |
 |-------|------------|-------|
-| Backend | Node.js (Express 5 pide Node 18 o superior), CommonJS | `backend/src/` |
+| Backend | Node.js 26 (fijado en `.nvmrc` y `engines`), CommonJS | `backend/src/` |
 | Acceso a datos | Sequelize 6 + `pg`; migraciones y seed con `sequelize-cli` | `backend/src/models/`, `migrations/`, `seeders/` |
 | Base de datos | PostgreSQL | variable `DATABASE_URL` |
 | Frontend | HTML, CSS y JavaScript vanilla con módulos ES6, sin compilación | `frontend/` |

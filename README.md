@@ -1,5 +1,7 @@
 # DRG - Mesa Dragón
 
+[![CI](https://github.com/MarcelQuiroF/drg/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/MarcelQuiroF/drg/actions/workflows/ci.yml)
+
 Sistema de gestión diseñado para un café con juegos de mesa. Permite administrar en tiempo real el estado del salón, tomar pedidos de comida, bebida y juegos, cobrar, gestionar reservas, controlar la asistencia del personal y consultar un panel de control financiero.
 
 > **Estado del proyecto (noviembre de 2026):** en continuación. El sistema funciona como demo, pero tiene errores conocidos que se están corrigiendo antes de entregarlo al negocio. El plan está en los [milestones](https://github.com/MarcelQuiroF/drg/milestones) y en las [issues](https://github.com/MarcelQuiroF/drg/issues) del repo.
@@ -25,7 +27,7 @@ La arquitectura está descrita en [`docs/03_diseno/arquitectura.md`](docs/03_dis
 
 ## Requisitos Previos
 
-* Node.js **18 o superior** (Express 5 no funciona con versiones anteriores)
+* Node.js **26** (LTS). La versión está fijada en `.nvmrc` y en `engines`; el CI usa la misma
 * PostgreSQL (Base de datos local o remota)
 * Navegador web moderno con soporte para módulos ES6
 
