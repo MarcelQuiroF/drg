@@ -24,7 +24,8 @@ const ARCHIVOS = [
     ['azval.jpg', 'space-aztecs.jpg'],
     ['Avalon.jpg', 'avalon.jpg'],
     ['Azul.jpg', 'azul.jpg'],
-    ['here.png', 'here-to-slay.png']
+    ['here.png', 'here-to-slay.png'],
+    ['chochos.jpg', 'tarwi.jpg']
 ];
 
 const CARPETAS = [
