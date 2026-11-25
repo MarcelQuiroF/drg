@@ -95,6 +95,22 @@ describe('Pagos por tipo', () => {
     });
 });
 
+describe('Ingresos por comida y juegos', () => {
+    test('usan el precio cobrado, aunque después cambie el precio del catálogo (#22)', async () => {
+        const orden = await ordenDe61(); // 2 Cappuccino (18) y 1 Catan (25)
+        const cappuccino = await producto('Cappuccino');
+        const catan = await juego('Catan');
+        expect((await admin.put(`/productos/${cappuccino.id}`).send({ precio: 30 })).status).toBe(200);
+        expect((await admin.put(`/juegos/${catan.id}`).send({ precio: 99 })).status).toBe(200);
+        await fecharOrden(orden.id, mediodia('2026-02-15'));
+        const { distribucion } = await dashboard('2026-02-15');
+        expect(distribucion).toEqual({ comida: 36, juegos: 25 }); // antes 60 y 99: el precio actual
+        // Deja los precios como estaban para las demás pruebas del archivo
+        await admin.put(`/productos/${cappuccino.id}`).send({ precio: 18 });
+        await admin.put(`/juegos/${catan.id}`).send({ precio: 25 });
+    });
+});
+
 describe('Rankings', () => {
     test.failing('el ranking de juegos suma cantidades, como el de comida (#31)', async () => {
         const orden = await ordenDe61(); // 2 Cappuccino y 1 Catan

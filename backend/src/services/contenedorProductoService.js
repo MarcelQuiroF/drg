@@ -10,10 +10,13 @@ async function agregarItem(datos) {
         const producto = await Producto.findByPk(datos.producto_id, { transaction: t });
         if (!producto) throw new Error('El producto no existe.');
 
+        // Se suma a la línea que ya tiene el producto con el mismo precio. Si el precio cambió
+        // desde que se pidió, las unidades nuevas van en otra línea con el precio nuevo (#22).
         const itemExistente = await ContenedorProducto.findOne({
             where: {
                 orden_id: datos.orden_id,
-                producto_id: datos.producto_id
+                producto_id: datos.producto_id,
+                precio_unitario: producto.precio
             },
             transaction: t
         });
@@ -38,6 +41,7 @@ async function agregarItem(datos) {
                 {
                     orden_id: datos.orden_id,
                     producto_id: datos.producto_id,
+                    precio_unitario: producto.precio,
                     cantidad: datos.cantidad,
                     comentario: datos.comentario,
                     cantidad_recibido: datos.cantidad,
@@ -52,7 +56,7 @@ async function agregarItem(datos) {
         await actualizarTotalOrden(datos.orden_id, t);
 
         return await ContenedorProducto.findByPk(itemFinal.id, {
-            include: [{ model: Producto, attributes: ['id', 'nombre', 'precio'] }],
+            include: [{ model: Producto, attributes: ['id', 'nombre', 'precio'], paranoid: false }],
             transaction: t
         });
     });
@@ -64,7 +68,9 @@ async function listarPorOrden(ordenId) {
         include: [
             {
                 model: Producto,
-                attributes: ['id', 'nombre', 'precio', 'zona', 'imagen']
+                attributes: ['id', 'nombre', 'precio', 'zona', 'imagen'],
+                // Un producto borrado del catálogo sigue apareciendo en las órdenes que lo tienen
+                paranoid: false
             }
         ],
         order: [['createdAt', 'ASC']]
@@ -79,7 +85,10 @@ async function actualizarItem(id, datos) {
         const orden = await Orden.findByPk(item.orden_id, { transaction: t });
         if (orden.finalizado) throw new Error('Orden cerrada.');
 
-        await item.update(datos, { transaction: t });
+        // El precio cobrado no se cambia desde aquí: se fija al agregar el ítem (#22)
+        const cambios = { ...datos };
+        delete cambios.precio_unitario;
+        await item.update(cambios, { transaction: t });
 
         await actualizarTotalOrden(item.orden_id, t);
 

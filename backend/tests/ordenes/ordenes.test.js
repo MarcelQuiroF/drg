@@ -4,7 +4,7 @@
 // Casos T5, T6, T10, T13, P2, P3, P4, P7, P9 y P9b del análisis.
 const { comoRol } = require('../soporte/api');
 const { producto, juego, mesaLibre } = require('../soporte/datos');
-const { ContenedorTransaccion, Producto, Mesa, Orden } = require('../../src/models');
+const { ContenedorTransaccion, Producto, Juego, Mesa, Orden } = require('../../src/models');
 
 let api;
 
@@ -102,18 +102,95 @@ describe('Total de la orden', () => {
         expect(await totalDe(orden)).toBe(61);
     });
 
-    test.failing(
-        'T10 · borrar del catálogo un producto que está en una orden abierta no cambia su total (#22)',
-        async () => {
-            const admin = await comoRol('ADMIN');
-            const sandwich = await Producto.create({ nombre: 'Sandwich T10', precio: 35, zona: 'COCINA' });
-            const orden = await abrirOrden(await mesaLibre());
-            await agregarProducto(orden, 'Sandwich T10', 1);
-            expect((await admin.delete(`/productos/${sandwich.id}`)).status).toBe(200);
-            await agregarProducto(orden, 'Cappuccino', 1);
-            expect(await totalDe(orden)).toBe(53); // hoy 18: el producto borrado vale 0 al recalcular
-        }
-    );
+    test('T10 · borrar del catálogo un producto que está en una orden abierta no cambia su total (#22)', async () => {
+        const admin = await comoRol('ADMIN');
+        const sandwich = await Producto.create({ nombre: 'Sandwich T10', precio: 35, zona: 'COCINA' });
+        const orden = await abrirOrden(await mesaLibre());
+        await agregarProducto(orden, 'Sandwich T10', 1);
+        expect((await admin.delete(`/productos/${sandwich.id}`)).status).toBe(200);
+        await agregarProducto(orden, 'Cappuccino', 1);
+        expect(await totalDe(orden)).toBe(53); // antes 18: el producto borrado valía 0 al recalcular
+    });
+
+    test('T10b · borrar del catálogo un juego que está en una orden abierta no cambia su total (#22)', async () => {
+        const admin = await comoRol('ADMIN');
+        const j = await Juego.create({
+            nombre: 'Juego T10b',
+            precio: 25,
+            jugadores_min: 2,
+            jugadores_max: 4,
+            tiempo_partida: 30
+        });
+        const orden = await abrirOrden(await mesaLibre());
+        await agregarJuego(orden, 'Juego T10b', 1);
+        expect((await admin.delete(`/juegos/${j.id}`)).status).toBe(200);
+        await agregarProducto(orden, 'Cappuccino', 1);
+        expect(await totalDe(orden)).toBe(43);
+    });
+
+    test('la orden sigue listando el producto y el juego borrados del catálogo, con el precio cobrado (#22)', async () => {
+        const admin = await comoRol('ADMIN');
+        const p = await Producto.create({ nombre: 'Producto borrado', precio: 12, zona: 'COCINA' });
+        const j = await Juego.create({
+            nombre: 'Juego borrado',
+            precio: 15,
+            jugadores_min: 2,
+            jugadores_max: 4,
+            tiempo_partida: 30
+        });
+        const orden = await abrirOrden(await mesaLibre());
+        await agregarProducto(orden, 'Producto borrado', 2);
+        await agregarJuego(orden, 'Juego borrado', 1);
+        expect((await admin.delete(`/productos/${p.id}`)).status).toBe(200);
+        expect((await admin.delete(`/juegos/${j.id}`)).status).toBe(200);
+
+        const productos = await api.get(`/ordenes-productos?orden_id=${orden.id}`);
+        expect(productos.status).toBe(200);
+        expect(productos.body).toHaveLength(1);
+        expect(productos.body[0]).toMatchObject({ cantidad: 2, Producto: { nombre: 'Producto borrado' } });
+        expect(Number(productos.body[0].precio_unitario)).toBe(12);
+
+        const juegos = await api.get(`/ordenes-juegos?orden_id=${orden.id}`);
+        expect(juegos.status).toBe(200);
+        expect(juegos.body[0]).toMatchObject({ Juego: { nombre: 'Juego borrado' } });
+        expect(Number(juegos.body[0].precio_unitario)).toBe(15);
+    });
+
+    test('cambiar el precio de un producto no cambia el total de una orden abierta; las unidades nuevas van en otra línea con el precio nuevo (#22)', async () => {
+        const admin = await comoRol('ADMIN');
+        const p = await Producto.create({ nombre: 'Jugo precio', precio: 10, zona: 'CAFETERIA' });
+        const orden = await abrirOrden(await mesaLibre());
+        await agregarProducto(orden, 'Jugo precio', 2);
+        await agregarProducto(orden, 'Jugo precio', 1); // mismo precio: se suma a la misma línea
+        expect(await totalDe(orden)).toBe(30);
+
+        expect((await admin.put(`/productos/${p.id}`).send({ precio: 14 })).status).toBe(200);
+        await agregarProducto(orden, 'Cappuccino', 1); // fuerza el recálculo del total
+        expect(await totalDe(orden)).toBe(48); // 3 × 10 + 18, no 3 × 14 + 18
+
+        await agregarProducto(orden, 'Jugo precio', 1);
+        expect(await totalDe(orden)).toBe(62); // + 1 × 14
+        const { body } = await api.get(`/ordenes-productos?orden_id=${orden.id}`);
+        const lineas = body
+            .filter((i) => i.producto_id === p.id)
+            .map((i) => [i.cantidad, Number(i.precio_unitario)])
+            .sort((a, b) => a[1] - b[1]);
+        expect(lineas).toEqual([
+            [3, 10],
+            [1, 14]
+        ]);
+    });
+
+    test('editar un ítem no permite cambiar su precio cobrado (#22)', async () => {
+        const orden = await abrirOrden(await mesaLibre());
+        const item = await agregarProducto(orden, 'Cappuccino', 1);
+        const res = await api
+            .put(`/ordenes-productos/${item.id}`)
+            .send({ comentario: 'sin azúcar', precio_unitario: 0 });
+        expect(res.status).toBe(200);
+        expect(Number(res.body.precio_unitario)).toBe(18);
+        expect(await totalDe(orden)).toBe(18);
+    });
 });
 
 describe('Ítems de la orden', () => {
