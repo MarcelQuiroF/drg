@@ -80,7 +80,7 @@ async function listar(req, res, next) {
 
 async function finalizar(req, res, next) {
     try {
-        const orden = await ordenService.finalizarOrden(req.params.id);
+        const orden = await ordenService.finalizarOrden(req.params.id, req.body.pagos);
         res.status(httpCodes.OK.code).json({
             message: 'Orden finalizada y mesa liberada.',
             orden

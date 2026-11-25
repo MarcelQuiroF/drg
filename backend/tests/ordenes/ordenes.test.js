@@ -2,7 +2,7 @@
 
 // Órdenes: abrir, agregar productos y juegos, descuentos, notas y cobro.
 // Casos T5, T6, T10, T13, P2, P3, P4, P7, P9 y P9b del análisis.
-const { comoRol } = require('../soporte/api');
+const { comoRol, cobrarEnEfectivo } = require('../soporte/api');
 const { producto, juego, mesaLibre } = require('../soporte/datos');
 const { ContenedorTransaccion, Producto, Mesa, Orden } = require('../../src/models');
 
@@ -169,24 +169,32 @@ describe('Descuentos (RN-06: sin tope ni autorización)', () => {
 });
 
 describe('Cobro', () => {
-    test('finalizar sin detalle de pagos registra un pago EFECTIVO por el total y libera la mesa', async () => {
+    const pagosDe = async (orden) =>
+        (
+            await ContenedorTransaccion.findAll({
+                where: { orden_id: orden.id },
+                order: [['tipo', 'DESC']],
+                raw: true
+            })
+        ).map((p) => [p.tipo, Number(p.cantidad)]);
+
+    test('un pago EFECTIVO por el total registra ese pago y libera la mesa', async () => {
         const orden = await ordenDe61();
-        const res = await api.post(`/ordenes/${orden.id}/finalizar`).send({});
+        const res = await api.post(`/ordenes/${orden.id}/finalizar`).send({ pagos: [{ tipo: 'EFECTIVO', monto: 61 }] });
         expect(res.status).toBe(200);
-        const pagos = await ContenedorTransaccion.findAll({ where: { orden_id: orden.id }, raw: true });
-        expect(pagos.map((p) => [p.tipo, Number(p.cantidad)])).toEqual([['EFECTIVO', 61]]);
+        expect(await pagosDe(orden)).toEqual([['EFECTIVO', 61]]);
         const mesa = await Mesa.findByPk(orden.mesa_id);
         expect(mesa.estado).toBe(0);
     });
 
     test('una orden ya cobrada no se puede volver a cobrar', async () => {
         const orden = await ordenDe61();
-        expect((await api.post(`/ordenes/${orden.id}/finalizar`).send({})).status).toBe(200);
-        const res = await api.post(`/ordenes/${orden.id}/finalizar`).send({});
+        expect((await cobrarEnEfectivo(api, orden.id)).status).toBe(200);
+        const res = await cobrarEnEfectivo(api, orden.id);
         expect(res.status).toBeGreaterThanOrEqual(400);
     });
 
-    test.failing('T6 · finalizar con QR 30 + EFECTIVO 31 registra los dos pagos (#21)', async () => {
+    test('T6 · finalizar con QR 30 + EFECTIVO 31 registra los dos pagos (#21)', async () => {
         const orden = await ordenDe61();
         const res = await api.post(`/ordenes/${orden.id}/finalizar`).send({
             pagos: [
@@ -195,21 +203,76 @@ describe('Cobro', () => {
             ]
         });
         expect(res.status).toBe(200);
-        const pagos = await ContenedorTransaccion.findAll({
-            where: { orden_id: orden.id },
-            order: [['tipo', 'DESC']],
-            raw: true
-        });
-        // hoy: una sola transacción EFECTIVO 61.00
-        expect(pagos.map((p) => [p.tipo, Number(p.cantidad)])).toEqual([
+        expect(await pagosDe(orden)).toEqual([
             ['QR', 30],
             ['EFECTIVO', 31]
         ]);
     });
 
+    test('acepta el tipo en minúsculas y el monto como texto (lo que manda la caja) (#21)', async () => {
+        const orden = await ordenDe61();
+        const res = await api.post(`/ordenes/${orden.id}/finalizar`).send({
+            pagos: [
+                { tipo: 'qr', monto: '30' },
+                { tipo: 'efectivo', monto: '31.00' }
+            ]
+        });
+        expect(res.status).toBe(200);
+        expect(await pagosDe(orden)).toEqual([
+            ['QR', 30],
+            ['EFECTIVO', 31]
+        ]);
+    });
+
+    // Antes se inventaba un pago EFECTIVO por el total (#21).
+    test.each([
+        ['sin cuerpo', {}],
+        ['con la lista vacía', { pagos: [] }],
+        ['con "pagos" que no es una lista', { pagos: 'QR' }],
+        ['con un tipo inválido', { pagos: [{ tipo: 'TARJETA', monto: 61 }] }],
+        [
+            'con un monto 0',
+            {
+                pagos: [
+                    { tipo: 'QR', monto: 0 },
+                    { tipo: 'EFECTIVO', monto: 61 }
+                ]
+            }
+        ],
+        [
+            'con un monto negativo',
+            {
+                pagos: [
+                    { tipo: 'QR', monto: -9 },
+                    { tipo: 'EFECTIVO', monto: 70 }
+                ]
+            }
+        ],
+        ['con un monto que no es número', { pagos: [{ tipo: 'EFECTIVO', monto: 'mucho' }] }],
+        ['si la suma no coincide con el total', { pagos: [{ tipo: 'QR', monto: 30 }] }]
+    ])('%s responde 400, no registra pagos y la orden sigue abierta (#21)', async (_caso, cuerpo) => {
+        const orden = await ordenDe61();
+        const res = await api.post(`/ordenes/${orden.id}/finalizar`).send(cuerpo);
+        expect(res.status).toBe(400);
+        expect(await pagosDe(orden)).toEqual([]);
+        expect((await Orden.findByPk(orden.id)).finalizado).toBe(false);
+        expect((await Mesa.findByPk(orden.mesa_id)).estado).toBe(1);
+    });
+
+    test('una orden con total 0 (descuento del 100 %) se cierra sin pagos y sin una transacción de 0 Bs', async () => {
+        const orden = await ordenDe61();
+        expect(
+            (await api.post(`/ordenes/${orden.id}/descuento`).send({ porcentaje: 100, comentario: 'cortesía' })).status
+        ).toBe(200);
+        const res = await api.post(`/ordenes/${orden.id}/finalizar`).send({ pagos: [] });
+        expect(res.status).toBe(200);
+        expect(await pagosDe(orden)).toEqual([]);
+        expect((await Orden.findByPk(orden.id)).finalizado).toBe(true);
+    });
+
     test.failing('T13 · las notas de una orden cobrada no se pueden editar: 409 (#41)', async () => {
         const orden = await ordenDe61();
-        expect((await api.post(`/ordenes/${orden.id}/finalizar`).send({})).status).toBe(200);
+        expect((await cobrarEnEfectivo(api, orden.id)).status).toBe(200);
         const res = await api.put(`/ordenes/${orden.id}`).send({ notas: 'cambio después de cobrar' });
         expect(res.status).toBe(409); // hoy 200
     });

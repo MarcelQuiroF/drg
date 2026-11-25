@@ -1,7 +1,7 @@
 'use strict';
 
 // Comandas de cocina y cafetería (GET /comandas, POST /comandas/:id/avanzar). Caso T7 del análisis.
-const { comoRol } = require('../soporte/api');
+const { comoRol, cobrarEnEfectivo } = require('../soporte/api');
 const { producto, mesaLibre } = require('../soporte/datos');
 
 let api;
@@ -58,7 +58,7 @@ describe('Listado de comandas', () => {
 describe('T7 · comandas de órdenes que ya no están en curso', () => {
     test.failing('un ítem de una orden cobrada no aparece en las comandas (#33)', async () => {
         const { orden, item } = await pedir('Sandwich de Pollo');
-        expect((await api.post(`/ordenes/${orden.id}/finalizar`).send({})).status).toBe(200);
+        expect((await cobrarEnEfectivo(api, orden.id)).status).toBe(200);
         expect(await idsEnComandas()).not.toContain(item.id); // hoy aparece
     });
 
