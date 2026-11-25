@@ -109,6 +109,7 @@ Gestión de perfiles de usuarios y personal del restaurante. Todas las rutas de 
 
 ```
 
+* `rol`: `ADMIN`, `CAJERO` o `MESERO`, escrito así (#109). Cualquier otro valor, incluido el texto vacío, responde **400** y no crea el empleado.
 
 * **Respuesta Exitosa (201 Created):**
 ```json
@@ -138,6 +139,11 @@ Gestión de perfiles de usuarios y personal del restaurante. Todas las rutas de 
 }
 
 ```
+
+* Solo se cambian los campos que vienen en el cuerpo. Una `contrasenia` vacía no cambia la actual. Si viene `horarios`, reemplaza la agenda completa.
+* `rol` (si viene): `ADMIN`, `CAJERO` o `MESERO`; otro valor → **400** (#109). `activo` (si viene): `true` o `false`; otro valor → **400**.
+* **409** si el cambio le quita el rol `ADMIN` o desactiva al **último administrador activo** (RN-18, #109). No se guarda ningún cambio.
+* **404** si el empleado no existe.
 
 
 * **Respuesta Exitosa (200 OK):**
