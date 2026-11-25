@@ -31,7 +31,11 @@ La arquitectura está descrita en [`docs/03_diseno/arquitectura.md`](docs/03_dis
 
 ## Configuración del Entorno
 
-Crea un archivo `.env` en la raíz de la carpeta `backend` siguiendo la siguiente estructura:
+Copia `backend/.env.example` como `backend/.env` y completa los valores:
+
+```bash
+cp backend/.env.example backend/.env
+```
 
 ```env
 PORT=3000
@@ -44,14 +48,14 @@ JWT_SECRET=una_clave_larga_y_aleatoria
 JWT_EXPIRATION=8h
 ```
 
-| Variable | Para qué |
-|----------|----------|
-| `PORT` | Puerto del servidor (3000 por defecto) |
-| `DATABASE_URL` | Conexión a PostgreSQL |
-| `JWT_SECRET` | Clave para firmar las sesiones. Es obligatoria: sin ella el login falla |
-| `JWT_EXPIRATION` | Duración de la sesión (por ejemplo `8h`) |
+| Variable | Obligatoria | Para qué |
+|----------|-------------|----------|
+| `DATABASE_URL` | Sí | Conexión a PostgreSQL. La misma para las migraciones, el seed y la aplicación |
+| `JWT_SECRET` | Sí | Clave para firmar las sesiones |
+| `PORT` | No | Puerto del servidor (3000 por defecto) |
+| `JWT_EXPIRATION` | No | Duración de la sesión (8h por defecto) |
 
-> ⚠ **No definas `DATABASE_URL2`.** Si existe, la aplicación la usa en lugar de `DATABASE_URL`, mientras que las migraciones siguen usando `DATABASE_URL`: podrías migrar una base y correr la aplicación contra otra. Se unifica en [#14](https://github.com/MarcelQuiroF/drg/issues/14).
+Si falta una variable obligatoria, el backend no arranca y muestra cuál falta. `DATABASE_URL2` ya no se usa.
 
 ## Instalación y Despliegue
 
