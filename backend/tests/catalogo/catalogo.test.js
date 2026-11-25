@@ -3,7 +3,7 @@
 // Catálogo (categorías, productos, juegos) y espacio (pisos, mesas), más el alta de empleados.
 // Casos F2, C1, C2, C3, T4, P1 y T16 del análisis, y el CRUD básico del ADMIN.
 const { comoRol, anonimo } = require('../soporte/api');
-const { sequelize } = require('../../src/models');
+const { sequelize, Producto, JuegoCategoria } = require('../../src/models');
 
 let admin;
 
@@ -64,7 +64,7 @@ describe('Productos', () => {
         expect((await admin.post('/productos').send({ nombre: 'Sin precio' })).status).toBe(400);
     });
 
-    test.failing('C1 · editar un producto conservando su categoría responde 200 y la mantiene (#78)', async () => {
+    test('C1 · editar un producto conservando su categoría responde 200 y la mantiene (#78)', async () => {
         const cat = await categoria('Salados');
         const creado = (
             await admin.post('/productos').send({ nombre: 'Empanada', precio: 8, zona: 'COCINA', categorias: [cat.id] })
@@ -72,9 +72,54 @@ describe('Productos', () => {
         const res = await admin
             .put(`/productos/${creado.id}`)
             .send({ nombre: 'Empanada de queso', categorias: [cat.id] });
-        expect(res.status).toBe(200); // hoy 400: choca con la clave primaria de producto_categoria
+        expect(res.status).toBe(200); // antes 400: chocaba con la clave primaria de producto_categoria
         const guardado = (await admin.get(`/productos/${creado.id}`)).body;
-        expect(nombresDe(guardado)).toEqual(['Salados']); // hoy queda sin categorías
+        expect(nombresDe(guardado)).toEqual(['Salados']); // antes quedaba sin categorías
+    });
+
+    test('C1b · agregar, quitar y volver a asignar categorías deja exactamente las elegidas (#78)', async () => {
+        const [a, b, c] = [await categoria('Cat A'), await categoria('Cat B'), await categoria('Cat C')];
+        const creado = (
+            await admin
+                .post('/productos')
+                .send({ nombre: 'Tostado', precio: 12, zona: 'COCINA', categorias: [a.id, b.id] })
+        ).body;
+        const editar = async (categorias) => {
+            const res = await admin.put(`/productos/${creado.id}`).send({ categorias });
+            expect(res.status).toBe(200);
+            return nombresDe((await admin.get(`/productos/${creado.id}`)).body).sort();
+        };
+        expect(await editar([b.id, c.id])).toEqual(['Cat B', 'Cat C']); // quita A, conserva B, agrega C
+        expect(await editar([])).toEqual([]); // quita todas
+        expect(await editar([a.id])).toEqual(['Cat A']); // vuelve a asignar una que se había quitado
+        expect(await editar([a.id, a.id])).toEqual(['Cat A']); // un id repetido no choca
+        // sin "categorias" en el cuerpo no se tocan
+        expect((await admin.put(`/productos/${creado.id}`).send({ precio: 13 })).status).toBe(200);
+        expect(nombresDe((await admin.get(`/productos/${creado.id}`)).body)).toEqual(['Cat A']);
+    });
+
+    test('C1c · editar con una categoría que no existe responde 400 y no cambia nada (#78)', async () => {
+        const cat = await categoria('Dulces');
+        const creado = (
+            await admin
+                .post('/productos')
+                .send({ nombre: 'Alfajor', precio: 6, zona: 'CAFETERIA', categorias: [cat.id] })
+        ).body;
+        const res = await admin
+            .put(`/productos/${creado.id}`)
+            .send({ nombre: 'Alfajor cambiado', categorias: [999999] });
+        expect(res.status).toBe(400);
+        const guardado = (await admin.get(`/productos/${creado.id}`)).body;
+        expect(guardado.nombre).toBe('Alfajor'); // la transacción deshace también el cambio de nombre
+        expect(nombresDe(guardado)).toEqual(['Dulces']);
+    });
+
+    test('C1d · crear con una categoría que no existe responde 400 y no crea el producto (#78)', async () => {
+        const res = await admin
+            .post('/productos')
+            .send({ nombre: 'Producto huérfano', precio: 5, zona: 'COCINA', categorias: [999999] });
+        expect(res.status).toBe(400);
+        expect(await Producto.findOne({ where: { nombre: 'Producto huérfano' }, paranoid: false })).toBeNull();
     });
 
     test.failing('P1 · una zona que no es COCINA ni CAFETERIA responde 400 (#32)', async () => {
@@ -97,6 +142,15 @@ describe('Juegos', () => {
         const res = await anonimo.get('/juegos');
         expect(res.status).toBe(200);
         expect(res.body.map((j) => j.nombre)).toEqual(expect.arrayContaining(['Catan', 'Exploding Kittens']));
+    });
+
+    test('juego_categoria: quitar una categoría y volver a asignarla funciona (#78; el servicio de juegos es #24)', async () => {
+        const cat = await categoria('Cooperativo');
+        const j = (await admin.post('/juegos').send(juegoValido({ nombre: 'Pandemic' }))).body;
+        await JuegoCategoria.create({ juego_id: j.id, categoria_id: cat.id });
+        await JuegoCategoria.destroy({ where: { juego_id: j.id } });
+        expect(await JuegoCategoria.count({ where: { juego_id: j.id } })).toBe(0); // borrado físico
+        await expect(JuegoCategoria.create({ juego_id: j.id, categoria_id: cat.id })).resolves.toBeDefined();
     });
 
     test.failing('F2 · crear un juego con categorías responde 201 y las guarda (#24)', async () => {
