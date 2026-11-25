@@ -24,8 +24,7 @@ describe('Base de pruebas', () => {
     test('tiene la configuración de reservas del seed', async () => {
         const filas = await Configuracion.findAll({ raw: true });
         const config = Object.fromEntries(filas.map((f) => [f.clave, Number(f.valor)]));
-        expect(config).toMatchObject({ minutos_tolerancia: 30, ventana_bloqueo: 120 });
-        expect(config).toHaveProperty('ventana_llegada');
+        expect(config).toMatchObject({ minutos_tolerancia: 30, ventana_llegada: 30, ventana_bloqueo: 120 });
     });
 
     test('los ids empiezan en 1 en cada archivo (TRUNCATE ... RESTART IDENTITY)', async () => {
