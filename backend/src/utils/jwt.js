@@ -8,12 +8,13 @@ function generateToken(payload) {
     return token;
 }
 
+// Devuelve { payload } si el token es válido, o { payload: null, vencido } si no lo es, para que
+// el middleware pueda decir "la sesión venció" en lugar de "token inválido" (#26).
 function verifyToken(token) {
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        return decoded;
+        return { payload: jwt.verify(token, JWT_SECRET), vencido: false };
     } catch (error) {
-        return null;
+        return { payload: null, vencido: error.name === 'TokenExpiredError' };
     }
 }
 

@@ -69,15 +69,17 @@ async function aprobarAsistencia(req, res, next) {
 
         // 1. Buscar al supervisor y validar credenciales
         const supervisor = await Empleado.findOne({ where: { ci, activo: true } });
+        // La firma del supervisor que no sirve responde 403, no 401: quien hace la petición sí tiene
+        // sesión (su token es válido) y el frontend vuelve al login ante cualquier 401 (#26).
         if (!supervisor || (supervisor.rol !== 'ADMIN' && supervisor.rol !== 'CAJERO')) {
             return res
-                .status(httpCodes.UNAUTHORIZED.code)
+                .status(httpCodes.FORBIDDEN.code)
                 .json({ message: 'Credenciales inválidas o sin privilegios de aprobación.' });
         }
 
         const validPassword = await bcrypt.compare(contrasenia, supervisor.contrasenia);
         if (!validPassword) {
-            return res.status(httpCodes.UNAUTHORIZED.code).json({ message: 'Contraseña incorrecta.' });
+            return res.status(httpCodes.FORBIDDEN.code).json({ message: 'Contraseña incorrecta.' });
         }
 
         // 2. Aprobar asistencia

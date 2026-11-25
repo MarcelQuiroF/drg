@@ -20,7 +20,7 @@ Cocina y cafetería **no usan el sistema**: solo reciben la comanda impresa (P-1
 
 | Mecanismo | Dónde | Qué hace |
 |-----------|-------|----------|
-| `authenticate` | `middlewares/authMiddleware.js` | Exige un token JWT válido. Sin token responde 401; con un token inválido o vencido responde **403** (bug #26) |
+| `authenticate` | `middlewares/authMiddleware.js` | Exige un token JWT válido. Sin token, o con un token inválido o vencido, responde **401** (#26) |
 | `authorize([...])` | `middlewares/roleMiddleware.js` | Exige que el rol del token esté en la lista. Si no está, responde 403 |
 | Chequeo a mano | Algunos controladores | Revisan `req.empleado.rol` dentro de la función. Duplica o reemplaza a `authorize` (ver más abajo) |
 

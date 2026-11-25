@@ -10,6 +10,23 @@ Este documento detalla las rutas del servidor, los datos requeridos para las sol
 
 ---
 
+## Errores de sesión y permisos (todas las rutas protegidas)
+
+Desde #26 las rutas protegidas distinguen dos errores, para que el frontend web y la app móvil sepan qué hacer:
+
+| Código | Cuándo | Qué hace el cliente |
+|--------|--------|---------------------|
+| **401** | Sin cabecera `Authorization: Bearer …`, token con otra firma, token mal formado o **vencido**. La respuesta trae `WWW-Authenticate: Bearer` (sin token) o `Bearer error="invalid_token"` (token que no sirve) | Borrar la sesión y volver al login. El `message` dice el motivo: *"La sesión venció. Vuelva a iniciar sesión."* o *"Token inválido. Vuelva a iniciar sesión."* |
+| **403** | La sesión es válida, pero el rol no tiene permiso para la ruta, o la firma de un supervisor que pide la ruta no sirve (aprobar asistencia) | Mostrar el `message` y quedarse en la pantalla |
+
+```json
+{ "message": "La sesión venció. Vuelva a iniciar sesión." }
+```
+
+`POST /auth/login` con credenciales incorrectas sigue respondiendo 401: ahí no hay sesión que borrar.
+
+---
+
 ## 1. Módulo de Autenticación (`/api/v1/auth`)
 
 Maneja el control de acceso inicial al sistema para todo el personal.
@@ -249,6 +266,8 @@ Monitoreo de asistencia diaria y control de penalizaciones por atrasos. Requiere
 }
 
 ```
+
+* **Errores:** `400` si falta el CI o la contraseña; **`403`** si el supervisor no existe, no es `ADMIN` ni `CAJERO`, o la contraseña es incorrecta (antes 401, que cerraba la sesión de quien aprobaba, #26); `404` si la asistencia no existe.
 
 
 

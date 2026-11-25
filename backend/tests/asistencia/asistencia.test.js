@@ -91,15 +91,16 @@ describe('Registrar la llegada', () => {
 describe('Aprobar la llegada (doble verificación)', () => {
     const aprobar = (id, ci, contrasenia) => cajero.put(`/asistencias/${id}/aprobar`).send({ ci, contrasenia });
 
-    test('A2 · con contraseña incorrecta responde 401 y no se aprueba', async () => {
+    // 403 y no 401: quien aprueba tiene sesión; lo que no sirve es la firma del supervisor (#26)
+    test('A2 · con contraseña incorrecta responde 403 y no se aprueba', async () => {
         const asistencia = await asistenciaNueva();
-        expect((await aprobar(asistencia.id, USUARIOS.CAJERO.ci, 'incorrecta')).status).toBe(401);
+        expect((await aprobar(asistencia.id, USUARIOS.CAJERO.ci, 'incorrecta')).status).toBe(403);
         await expect(Asistencia.findByPk(asistencia.id)).resolves.toMatchObject({ aprobado: false });
     });
 
-    test('A2 · con la firma de un MESERO responde 401 y no se aprueba', async () => {
+    test('A2 · con la firma de un MESERO responde 403 y no se aprueba', async () => {
         const asistencia = await asistenciaNueva();
-        expect((await aprobar(asistencia.id, USUARIOS.MESERO.ci, CONTRASENIA)).status).toBe(401);
+        expect((await aprobar(asistencia.id, USUARIOS.MESERO.ci, CONTRASENIA)).status).toBe(403);
         await expect(Asistencia.findByPk(asistencia.id)).resolves.toMatchObject({ aprobado: false });
     });
 

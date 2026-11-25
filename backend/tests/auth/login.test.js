@@ -61,16 +61,34 @@ describe('Token', () => {
         expect((await api.get(rutaProtegida)).status).toBe(200);
     });
 
-    test.failing('T1 · un token con firma inválida responde 401 (#26)', async () => {
+    test('T1 · un token con firma inválida responde 401 (#26)', async () => {
         const falso = jwt.sign({ id: 1, rol: 'ADMIN' }, 'otro-secreto');
         const res = await request(app).get(`${API}${rutaProtegida}`).set('Authorization', `Bearer ${falso}`);
-        expect(res.status).toBe(401); // hoy 403
+        expect(res.status).toBe(401); // antes 403
+        expect(res.body.message).toMatch(/inválido/);
+        expect(res.headers['www-authenticate']).toBe('Bearer error="invalid_token"');
     });
 
-    test.failing('T1 · un token vencido responde 401 (#26)', async () => {
+    test('T1 · un token vencido responde 401 con "la sesión venció" (#26)', async () => {
         const vencido = jwt.sign({ id: 1, rol: 'ADMIN' }, process.env.JWT_SECRET, { expiresIn: -10 });
         const res = await request(app).get(`${API}${rutaProtegida}`).set('Authorization', `Bearer ${vencido}`);
-        expect(res.status).toBe(401); // hoy 403
+        expect(res.status).toBe(401); // antes 403
+        expect(res.body.message).toMatch(/venció/);
+        expect(res.headers['www-authenticate']).toBe('Bearer error="invalid_token"');
+    });
+
+    test('T1 · un texto que no es un token y una cabecera sin "Bearer" responden 401 (#26)', async () => {
+        const basura = await request(app).get(`${API}${rutaProtegida}`).set('Authorization', 'Bearer abc.def');
+        expect(basura.status).toBe(401);
+        const sinBearer = await request(app).get(`${API}${rutaProtegida}`).set('Authorization', 'Basic eDp5');
+        expect(sinBearer.status).toBe(401);
+        expect(sinBearer.headers['www-authenticate']).toBe('Bearer');
+    });
+
+    test('T1 · un rol sin permiso sigue respondiendo 403, no 401 (#26)', async () => {
+        const mesero = await comoRol('MESERO');
+        const res = await mesero.post('/productos').send({ nombre: 'No debería', precio: 1, zona: 'COCINA' });
+        expect(res.status).toBe(403);
     });
 });
 
