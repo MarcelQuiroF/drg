@@ -2,11 +2,15 @@
 
 // Configuración que leen sequelize-cli (migraciones y seed) y la aplicación
 // (models/index.js). Desarrollo y producción usan DATABASE_URL; las pruebas, DATABASE_URL_TEST.
-require('./env');
+const { ZONA_HORARIA } = require('./env');
 
 const base = {
     url: process.env.DATABASE_URL,
-    dialect: 'postgres'
+    dialect: 'postgres',
+    // Zona de la conexión (#27): Sequelize manda los Date con el desfase de Bolivia (-04:00) y
+    // PostgreSQL usa esa zona en now(), CURRENT_DATE y al convertir un Date a una columna `time`.
+    // Las columnas timestamptz guardan el instante igual con cualquier zona.
+    timezone: ZONA_HORARIA
 };
 
 module.exports = {

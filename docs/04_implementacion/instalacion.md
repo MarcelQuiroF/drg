@@ -99,7 +99,9 @@ Conexión a la base de datos exitosa.
 Servidor Express escuchando en http://localhost:3000/api/v1
 ```
 
-El backend sirve también el frontend. Se abre **http://localhost:3000** y aparece la pantalla de inicio de sesión. Para desarrollar, `npm run dev` reinicia el servidor al guardar un archivo (nodemon).
+El backend sirve también el frontend. Se abre **http://localhost:3000** y aparece la pantalla de inicio de sesión.
+
+**Zona horaria:** el servidor trabaja siempre en la hora de Bolivia (`America/La_Paz`), sin importar la zona de la PC: la fija el propio código al arrancar (`backend/src/config/env.js`) y la usa también la conexión a PostgreSQL (#27). No hace falta configurar nada. Para desarrollar, `npm run dev` reinicia el servidor al guardar un archivo (nodemon).
 
 Para detenerlo: `Ctrl + C` en la terminal.
 

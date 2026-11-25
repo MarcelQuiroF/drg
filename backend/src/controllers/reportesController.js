@@ -8,15 +8,18 @@ const {
     Juego
 } = require('../models');
 const httpCodes = require('../utils/httpCodes');
+const { fechaLocal, inicioDelDia, finDelDia } = require('../utils/fechas');
 const { Op } = require('sequelize');
 
 async function obtenerDatosDashboard(req, res, next) {
     try {
         const { inicio, fin } = req.query;
 
-        // Si no mandan fechas, usamos un rango muy amplio (Todos los registros)
-        const fechaInicio = inicio ? new Date(`${inicio}T00:00:00.000Z`) : new Date('2000-01-01');
-        const fechaFin = fin ? new Date(`${fin}T23:59:59.999Z`) : new Date('2100-01-01');
+        // Si no mandan fechas, usamos un rango muy amplio (Todos los registros).
+        // Los días son de Bolivia, no de UTC: antes, con "T00:00:00.000Z", el día 12 iba desde las
+        // 20:00 del 11 hasta las 19:59 del 12 y una venta a las 21:00 caía en el día siguiente (#27).
+        const fechaInicio = inicio ? inicioDelDia(inicio) : new Date('2000-01-01');
+        const fechaFin = fin ? finDelDia(fin) : new Date('2100-01-01');
 
         const rangoFechas = { [Op.between]: [fechaInicio, fechaFin] };
 
@@ -68,7 +71,7 @@ async function obtenerDatosDashboard(req, res, next) {
         // 4. Agrupar Órdenes e Ingresos por Fecha (Para las gráficas de líneas)
         const timelineMap = {};
         ordenes.forEach((o) => {
-            const fechaStr = new Date(o.createdAt).toISOString().split('T')[0]; // YYYY-MM-DD
+            const fechaStr = fechaLocal(o.createdAt); // YYYY-MM-DD en hora de Bolivia (#27)
             if (!timelineMap[fechaStr]) timelineMap[fechaStr] = { ingresos: 0, cantidad: 0 };
             timelineMap[fechaStr].ingresos += parseFloat(o.total || 0);
             timelineMap[fechaStr].cantidad += 1;

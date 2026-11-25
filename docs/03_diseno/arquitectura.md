@@ -122,6 +122,7 @@ sequenceDiagram
 - **Comandas:** cada ítem de producto tiene contadores `cantidad_recibido`, `cantidad_preparando`, `cantidad_terminado` y `cantidad_enviado`; `POST /comandas/:id/avanzar` mueve unidades de un estado al siguiente dentro de una transacción. **Hoy ningún módulo del frontend llama a `/comandas`**: la vista de impresión lee los ítems con `/ordenes-productos`.
 - **Asistencia:** el atraso y el descuento se calculan **en el navegador** (`asistencia.js`) y el servidor guarda lo que recibe (#29). La aprobación pide el CI y la contraseña de un ADMIN o CAJERO.
 - **Cierre del día:** no existe en el servidor; se guarda en `localStorage` (#34).
+- **Zona horaria (#27):** todo trabaja en `America/La_Paz`. `config/env.js` fija `TZ` al arrancar (para `new Date()`, `setHours`, etc.) y Sequelize usa la misma zona en la conexión (`timezone` en `config/config.js`, para `now()`, `LOCALTIME` y la conversión de un `Date` a `time`). Los días se arman con `utils/fechas.js` (`fechaLocal`, `inicioDelDia`, `finDelDia`), nunca con `toISOString()`. En el frontend, `fechaLocalISO` y `horaLocal` de `utils.js` usan `Intl` con la zona fija, sin depender de la configuración del navegador. Las columnas `timestamptz` guardan instantes y no cambian; las `time` guardan la hora del reloj de Bolivia.
 
 ## 3. Frontend
 

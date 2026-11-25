@@ -831,6 +831,8 @@ Procesamiento de datos estadísticos agregados para auditoría del negocio. Requ
 * **Ruta:** `GET /api/v1/reportes/dashboard`
 * **Acceso:** Exclusivo de **`ADMIN`**
 * **Parámetros Query (Opcionales para filtrado personalizado):** `?inicio=YYYY-MM-DD&fin=YYYY-MM-DD`
+  * Son días **de Bolivia** (`America/La_Paz`): `inicio` desde las 00:00 y `fin` hasta las 23:59:59.999 de ese día. Antes se leían en UTC y una venta a las 21:00 caía en el día siguiente (#27). Las `etiquetas` de las gráficas también son días de Bolivia.
+  * Una fecha con otro formato responde `400`.
 * **Respuesta Exitosa (200 OK):**
 ```json
 {
@@ -1097,6 +1099,7 @@ Control detallado de los tiempos de juego prestados en las mesas y vinculados a 
 ### Finalizar Préstamo de Juego (Fijar Hora de Fin)
 * **Ruta:** `PATCH /api/v1/ordenes-juegos/:id/terminar`
 * **Acceso:** Autenticado (Cualquier rol operativo)
+* `hora_inicio` (al agregar el juego) y `hora_fin` las pone el servidor con la hora de Bolivia, en formato `HH:mm:ss` (#27). Antes `hora_fin` quedaba en hora UTC. El `hora_inicio` que llegue en el cuerpo se ignora.
 * **Respuesta Exitosa (200 OK):**
   ```json
   {

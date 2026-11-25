@@ -248,7 +248,7 @@ erDiagram
 |-------|----------|-------|
 | `orden` | Cuenta abierta de una mesa | `total` (se recalcula con precios actuales, #22), `finalizado`, `notas`. `mesa_id` admite nulos. No guarda qué empleado la abrió (#46) |
 | `contenedor_producto` | Productos de una orden | `cantidad`, `comentario` y los contadores de la comanda: `cantidad_recibido`, `cantidad_preparando`, `cantidad_terminado`, `cantidad_enviado`. `precio_unitario` (`numeric(10,2)`): precio cobrado por unidad, fijado al agregar el ítem (#22, ADR-007) |
-| `contenedor_juego` | Juegos prestados en una orden | `cantidad`, `comentario`, `hora_inicio` y `hora_fin` (tipo `time`, sin fecha ni zona horaria: #27). `precio_unitario` (`numeric(10,2)`): precio cobrado por unidad, fijado al agregar el juego (#22, ADR-007) |
+| `contenedor_juego` | Juegos prestados en una orden | `cantidad`, `comentario`, `hora_inicio` y `hora_fin` (tipo `time`, sin fecha ni zona horaria; desde #27 las pone PostgreSQL con `LOCALTIME`, en hora de Bolivia). `precio_unitario` (`numeric(10,2)`): precio cobrado por unidad, fijado al agregar el juego (#22, ADR-007) |
 | `descuento` | Un descuento aplicado | `porcentaje` y `monto` (los dos obligatorios; el que no se usa va en 0) y `comentario` opcional (pasa a obligatorio: #39). Se crea uno por cada vez que se aplica |
 | `orden_descuento` | Relación entre la orden y sus descuentos | Clave primaria compuesta y borrado lógico |
 | `contenedor_transaccion` | Pagos de una orden | `tipo` (`EFECTIVO` o `QR`, texto libre), `cantidad`, `fecha`, `activo` y `cliente_id` opcional. Anular un pago hace un borrado lógico; `activo` se guarda siempre en `true`. `orden_id` admite nulos y queda en `NULL` si se borra la orden |

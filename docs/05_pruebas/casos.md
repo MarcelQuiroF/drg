@@ -76,7 +76,8 @@ Además de los casos del análisis, `tests/ordenes/` fija lo que ya funciona (�
 | R2 | Abrir una orden en una mesa con reserva dentro de `ventana_llegada` | ✅ | La reserva pasa a LLEGÓ; fuera de la ventana sigue PENDIENTE; en `GET /mesas` la mesa aparece reservada (estado 3) | — | ✔ |
 | R3 | Reserva vencida (pasada la tolerancia de `minutos_tolerancia`) | ✅ | Pasa a EXPIRADA al listar las reservas, y la mesa reservada vuelve a libre al listar las mesas | RN-02 | ✔ |
 | R4 | Cancelar una reserva (`DELETE`) | 🐞 | La reserva queda en CANCELADA (RF-28). Hoy se borra (soft delete); lo que sí funciona (✅) es que el horario queda libre | #50 | ✔ |
-| R1 | La fecha por defecto del formulario de reservas después de las 20:00 | 🖥 | El día de hoy en Bolivia (hoy, el de mañana por usar UTC) | #27 | 📋 |
+| R1 | La fecha por defecto del formulario de reservas después de las 20:00 | ✅ | El día de hoy en Bolivia (corregido en #27; antes el de mañana, por usar UTC). Prueba unitaria de `fechaLocalISO` con el equipo en UTC, Tokio y La Paz; probado en Chrome con el navegador en UTC a las 21:00 de Bolivia (`main`: 26/11, con el arreglo: 25/11) | #27 | ✔ |
+| Z27 | Zona horaria del servidor (`tests/infraestructura/zonaHoraria.test.js`, el proceso arranca en UTC) | ✅ | `TZ` y la conexión en `America/La_Paz`; una venta a las 21:00 cuenta en su día del dashboard y no en el siguiente; las asistencias de hoy incluyen las de las 00:30 y 21:30 y no la de ayer a las 22:00; `hora_inicio` y `hora_fin` de los juegos en hora de Bolivia; una reserva para las 19:00 se guarda como 23:00 UTC. Con `main` fallan 11 de 14 | #27 | ✔ |
 
 Las pruebas leen `ventana_bloqueo`, `ventana_llegada` y `minutos_tolerancia` de la configuración en lugar de fijar los minutos, así que no cambian cuando se ajusta el seed (#98) o cuando el ADMIN edita los valores (#51).
 
@@ -125,6 +126,6 @@ Las pruebas leen `ventana_bloqueo`, `ventana_llegada` y `minutos_tolerancia` de 
 | F7 | Consola del navegador al recorrer las pantallas | Sin errores 404 ni 403 propios | #63, #96 |
 | P1 (UI) | Un producto de zona `CAFETERIA` en el POS | Aparece en la pestaña de bebidas | #32 |
 | P10 | Cobrar una orden de más de 1000 Bs | El monto a cobrar es el total de la API | #36 |
-| R1 | Abrir *Nueva reserva* después de las 20:00 | La fecha por defecto es la de hoy | #27 |
+| R1 | Abrir *Nueva reserva* después de las 20:00 | La fecha por defecto es la de hoy. **Probado en Chrome el 25/11 (#27)** con el navegador en UTC y el reloj a las 21:00 de Bolivia | #27 ✅ |
 | T15 | Cerrar el día y entrar desde otro navegador | El día figura cerrado (hoy solo en el navegador que lo cerró) | #34 ⏳ |
 | T1 (UI) | Con un token vencido o con otra firma, abrir cualquier pantalla. Con la sesión del MESERO, pedir una ruta de ADMIN. Aprobar una asistencia con la contraseña del supervisor mal escrita | Vuelve al login con *"La sesión venció…"* o *"Token inválido…"*; el 403 muestra *Sin permiso* y no cierra la sesión; la firma incorrecta tampoco la cierra (probado en Chrome el 25/11) | #26 |

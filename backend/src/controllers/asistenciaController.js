@@ -1,5 +1,6 @@
 const { Asistencia, Empleado, Horario } = require('../models');
 const httpCodes = require('../utils/httpCodes');
+const { fechaLocal, inicioDelDia, finDelDia } = require('../utils/fechas');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 
@@ -32,10 +33,10 @@ async function registrarAsistencia(req, res, next) {
 
 async function listarHoy(req, res, next) {
     try {
-        const hoyInicio = new Date();
-        hoyInicio.setHours(0, 0, 0, 0);
-        const hoyFin = new Date();
-        hoyFin.setHours(23, 59, 59, 999);
+        // "Hoy" en Bolivia, aunque el servidor esté en UTC (#27)
+        const hoy = fechaLocal();
+        const hoyInicio = inicioDelDia(hoy);
+        const hoyFin = finDelDia(hoy);
 
         const asistencias = await Asistencia.findAll({
             where: {
