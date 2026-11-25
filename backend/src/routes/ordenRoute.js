@@ -2,27 +2,27 @@ const express = require('express');
 const router = express.Router();
 const ordenController = require('../controllers/ordenController');
 const { authenticate } = require('../middlewares/authMiddleware');
-const { authorize } = require('../middlewares/roleMiddleware');
+const { requierePermiso } = require('../middlewares/permisoMiddleware');
 
 router.use(authenticate);
 
-router.get('/', ordenController.listar);
-router.get('/:id', ordenController.obtenerPorId);
-router.post('/', ordenController.crear);
+router.get('/', requierePermiso('ordenes.ver'), ordenController.listar);
+router.get('/:id', requierePermiso('ordenes.ver'), ordenController.obtenerPorId);
+router.post('/', requierePermiso('ordenes.tomar'), ordenController.crear);
 
-router.post('/:id/finalizar', authorize(['ADMIN', 'CAJERO', 'MESERO']), ordenController.finalizar);
+router.post('/:id/finalizar', requierePermiso('ordenes.cobrar'), ordenController.finalizar);
 
-router.delete('/:id', authorize(['ADMIN', 'CAJERO', 'MESERO']), ordenController.eliminar);
+router.delete('/:id', requierePermiso('ordenes.eliminar'), ordenController.eliminar);
 
-router.post('/:id/descuento', authorize(['ADMIN', 'CAJERO', 'MESERO']), ordenController.aplicarDescuento);
+router.post('/:id/descuento', requierePermiso('ordenes.descontar'), ordenController.aplicarDescuento);
 
-router.get('/:id/descuentos', authorize(['ADMIN', 'CAJERO', 'MESERO']), ordenController.listarDescuentos);
+router.get('/:id/descuentos', requierePermiso('ordenes.ver'), ordenController.listarDescuentos);
 router.delete(
     '/:ordenId/descuento/:descuentoId',
-    authorize(['ADMIN', 'CAJERO', 'MESERO']),
+    requierePermiso('ordenes.descontar'),
     ordenController.quitarDescuento
 );
 
-router.put('/:id', authorize(['ADMIN', 'CAJERO', 'MESERO']), ordenController.actualizarNotas);
+router.put('/:id', requierePermiso('ordenes.tomar'), ordenController.actualizarNotas);
 
 module.exports = router;

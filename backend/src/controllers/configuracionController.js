@@ -1,5 +1,6 @@
 const { Configuracion, DescuentoAtraso } = require('../models');
 const httpCodes = require('../utils/httpCodes');
+const configuracionService = require('../services/configuracionService');
 
 async function listar(req, res, next) {
     try {
@@ -12,19 +13,7 @@ async function listar(req, res, next) {
 
 async function actualizarMasivo(req, res, next) {
     try {
-        const { configuraciones } = req.body;
-
-        if (!Array.isArray(configuraciones)) {
-            return res.status(httpCodes.BAD_REQUEST.code).json({ message: 'Formato de datos inválido.' });
-        }
-
-        for (const item of configuraciones) {
-            await Configuracion.upsert({
-                clave: item.clave,
-                valor: parseInt(item.valor)
-            });
-        }
-
+        await configuracionService.actualizarVarias(req.body?.configuraciones);
         res.status(httpCodes.OK.code).json({ message: 'Configuración actualizada con éxito.' });
     } catch (error) {
         next(error);

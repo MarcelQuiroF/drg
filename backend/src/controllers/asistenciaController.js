@@ -1,5 +1,6 @@
 const { Asistencia, Empleado, Horario } = require('../models');
 const httpCodes = require('../utils/httpCodes');
+const { tienePermiso } = require('../config/permisos');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 
@@ -71,7 +72,8 @@ async function aprobarAsistencia(req, res, next) {
         const supervisor = await Empleado.findOne({ where: { ci, activo: true } });
         // La firma del supervisor que no sirve responde 403, no 401: quien hace la petición sí tiene
         // sesión (su token es válido) y el frontend vuelve al login ante cualquier 401 (#26).
-        if (!supervisor || (supervisor.rol !== 'ADMIN' && supervisor.rol !== 'CAJERO')) {
+        // Quien firma tiene que tener el permiso de aprobar (ADMIN y CAJERO hoy, ADR-008)
+        if (!supervisor || !tienePermiso(supervisor.rol, 'asistencia.aprobar')) {
             return res
                 .status(httpCodes.FORBIDDEN.code)
                 .json({ message: 'Credenciales inválidas o sin privilegios de aprobación.' });

@@ -1,4 +1,5 @@
 const { Empleado } = require('../models');
+const { permisosDe } = require('../config/permisos');
 const { comparePassword } = require('../utils/bcrypt');
 const { generateToken } = require('../utils/jwt');
 
@@ -44,7 +45,9 @@ async function login(ci, contrasenia) {
 
         return {
             token,
-            empleado: empleadoSeguro
+            empleado: empleadoSeguro,
+            // Para que la interfaz sepa qué mostrar; el servidor igual revisa cada ruta (ADR-008)
+            permisos: permisosDe(empleado.rol)
         };
     } catch (error) {
         console.error('Error in login service:', error);

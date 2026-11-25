@@ -41,10 +41,6 @@ async function listar(req, res, next) {
 
 async function anular(req, res, next) {
     try {
-        if (req.empleado.rol === 'MESERO') {
-            return res.status(httpCodes.FORBIDDEN.code).json({ message: 'No autorizado.' });
-        }
-
         const exito = await transaccionService.anularPago(req.params.id);
         if (!exito) return res.status(httpCodes.NOT_FOUND.code).json({ message: 'Transacción no encontrada.' });
 

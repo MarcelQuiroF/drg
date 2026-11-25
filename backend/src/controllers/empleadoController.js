@@ -1,4 +1,5 @@
 const empleadoService = require('../services/empleadoService');
+const { permisosDe } = require('../config/permisos');
 const httpCodes = require('../utils/httpCodes');
 
 async function crearEmpleado(req, res, next) {
@@ -20,7 +21,8 @@ async function obtenerPerfil(req, res, next) {
         }
         res.status(httpCodes.OK.code).json({
             message: 'Perfil obtenido',
-            empleado: req.empleado
+            empleado: req.empleado,
+            permisos: permisosDe(req.empleado.rol)
         });
     } catch (error) {
         next(error);

@@ -2,7 +2,7 @@ const { verifyToken } = require('../utils/jwt');
 const httpCodes = require('../utils/httpCodes');
 
 // 401 = "no sé quién eres" (sin token, token inválido o vencido): el cliente tiene que volver a
-// iniciar sesión. 403 = "sé quién eres, pero no tienes permiso" (roleMiddleware). Antes un token
+// iniciar sesión. 403 = "sé quién eres, pero no tienes permiso" (requierePermiso, permisoMiddleware.js). Antes un token
 // inválido o vencido respondía 403 y el frontend no volvía al login (#26).
 // La cabecera WWW-Authenticate es la que pide el estándar de los tokens Bearer (RFC 6750).
 function noAutenticado(res, mensaje, errorBearer) {

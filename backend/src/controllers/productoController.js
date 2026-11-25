@@ -3,10 +3,6 @@ const httpCodes = require('../utils/httpCodes');
 
 async function crear(req, res, next) {
     try {
-        if (req.empleado.rol !== 'ADMIN') {
-            return res.status(httpCodes.FORBIDDEN.code).json({ message: 'Requiere permisos de administrador.' });
-        }
-
         const { categorias, ...datosProducto } = req.body;
 
         if (!datosProducto.nombre || !datosProducto.precio) {
@@ -43,10 +39,6 @@ async function listar(req, res, next) {
 
 async function actualizar(req, res, next) {
     try {
-        if (req.empleado.rol !== 'ADMIN') {
-            return res.status(httpCodes.FORBIDDEN.code).json({ message: 'Acceso denegado.' });
-        }
-
         const { categorias, ...datos } = req.body;
         const actualizado = await productoService.actualizarProducto(req.params.id, datos, categorias);
 
@@ -61,9 +53,6 @@ async function actualizar(req, res, next) {
 
 async function eliminar(req, res, next) {
     try {
-        if (req.empleado.rol !== 'ADMIN') {
-            return res.status(httpCodes.FORBIDDEN.code).json({ message: 'Acceso denegado.' });
-        }
         const exito = await productoService.eliminarProducto(req.params.id);
         if (!exito) return res.status(httpCodes.NOT_FOUND.code).json({ message: 'Producto no encontrado.' });
 

@@ -2,14 +2,14 @@ const express = require('express');
 const router = express.Router();
 const empleadoController = require('../controllers/empleadoController');
 const { authenticate } = require('../middlewares/authMiddleware');
-const { authorize } = require('../middlewares/roleMiddleware');
+const { requierePermiso } = require('../middlewares/permisoMiddleware');
 
 router.use(authenticate);
 
 router.get('/perfil', empleadoController.obtenerPerfil);
-router.get('/', authorize(['ADMIN', 'CAJERO']), empleadoController.listar);
+router.get('/', requierePermiso('asistencia.registrar'), empleadoController.listar);
 
-router.post('/', authorize(['ADMIN']), empleadoController.crearEmpleado);
-router.put('/:id', authorize(['ADMIN']), empleadoController.actualizarEmpleado);
+router.post('/', requierePermiso('empleados.gestionar'), empleadoController.crearEmpleado);
+router.put('/:id', requierePermiso('empleados.gestionar'), empleadoController.actualizarEmpleado);
 
 module.exports = router;
