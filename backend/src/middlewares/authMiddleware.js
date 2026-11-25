@@ -1,13 +1,12 @@
 const { verifyToken } = require('../utils/jwt');
 const httpCodes = require('../utils/httpCodes');
 
-
 function authenticate(req, res, next) {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(httpCodes.UNAUTHORIZED.code).json({
-            message: "Acceso denegado. Se requiere un token de autenticación (Bearer)."
+            message: 'Acceso denegado. Se requiere un token de autenticación (Bearer).'
         });
     }
 
@@ -17,7 +16,7 @@ function authenticate(req, res, next) {
 
     if (!decodedPayload) {
         return res.status(httpCodes.FORBIDDEN.code).json({
-            message: "Token inválido o expirado. Vuelva a iniciar sesión."
+            message: 'Token inválido o expirado. Vuelva a iniciar sesión.'
         });
     }
 
@@ -27,5 +26,5 @@ function authenticate(req, res, next) {
 }
 
 module.exports = {
-    authenticate,
+    authenticate
 };

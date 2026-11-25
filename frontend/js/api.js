@@ -6,7 +6,7 @@ export function getToken() {
 
 export async function authFetch(endpoint, options = {}) {
     const token = getToken();
-    
+
     if (!token) {
         window.location.href = '/html/login.html';
         return;
@@ -14,7 +14,7 @@ export async function authFetch(endpoint, options = {}) {
 
     const headers = {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         ...options.headers
     };
 

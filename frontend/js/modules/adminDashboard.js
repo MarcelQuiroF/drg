@@ -8,7 +8,7 @@ let chartOrdenesInst = null;
 export const initAdminDashboard = () => {
     establecerFechasPredeterminadas();
     configurarFiltros();
-    cargarDatosDashboard(); 
+    cargarDatosDashboard();
 };
 
 // Nueva función para establecer por defecto la fecha de hoy en ambos inputs
@@ -17,7 +17,7 @@ const establecerFechasPredeterminadas = () => {
     const yyyy = hoy.getFullYear();
     const mm = String(hoy.getMonth() + 1).padStart(2, '0');
     const dd = String(hoy.getDate()).padStart(2, '0');
-    
+
     const fechaHoyStr = `${yyyy}-${mm}-${dd}`; // Formato requerido por el navegador
 
     document.getElementById('fecha-inicio').value = fechaHoyStr;
@@ -35,10 +35,10 @@ const configurarFiltros = () => {
         inputInicio.disabled = !isCustom;
         inputFin.disabled = !isCustom;
     };
-    
-    toggleDates('semana'); 
 
-    radios.forEach(r => {
+    toggleDates('semana');
+
+    radios.forEach((r) => {
         r.addEventListener('change', (e) => {
             toggleDates(e.target.value);
             if (e.target.value !== 'custom') {
@@ -84,8 +84,8 @@ const obtenerRangoFechas = () => {
     } else if (modo === 'custom') {
         inicio = document.getElementById('fecha-inicio').value;
         fin = document.getElementById('fecha-fin').value;
-        if(!inicio || !fin) {
-            mostrarNotificacion("Aviso", "Selecciona ambas fechas", true);
+        if (!inicio || !fin) {
+            mostrarNotificacion('Aviso', 'Selecciona ambas fechas', true);
             return null;
         }
     } else if (modo === 'todos') {
@@ -113,11 +113,11 @@ const cargarDatosDashboard = async () => {
             dibujarGraficas(data);
             actualizarRankings(data.rankings);
         } else {
-            mostrarNotificacion("Error", "No se pudieron cargar los datos", true);
+            mostrarNotificacion('Error', 'No se pudieron cargar los datos', true);
         }
     } catch (e) {
         console.error(e);
-        mostrarNotificacion("Error", "Fallo de conexión", true);
+        mostrarNotificacion('Error', 'Fallo de conexión', true);
     }
 };
 
@@ -130,7 +130,7 @@ const actualizarKPIs = (totales) => {
 
     const pctQR = totales.ingresos > 0 ? (totales.qr / totales.ingresos) * 100 : 0;
     const pctEfectivo = totales.ingresos > 0 ? (totales.efectivo / totales.ingresos) * 100 : 0;
-    
+
     document.getElementById('kpi-qr').textContent = `${pctQR.toFixed(1)}%`;
     document.getElementById('kpi-efectivo').textContent = `${pctEfectivo.toFixed(1)}%`;
 };
@@ -139,7 +139,7 @@ const actualizarRankings = (rankings) => {
     const renderLista = (id, arr, labelUnidad) => {
         const ul = document.getElementById(id);
         ul.innerHTML = arr.length === 0 ? '<li>Sin datos</li>' : '';
-        arr.forEach(item => {
+        arr.forEach((item) => {
             ul.innerHTML += `<li><span>${item[0]}</span> <span class="ranking-qty">${item[1]} ${labelUnidad}</span></li>`;
         });
     };
@@ -155,12 +155,12 @@ const dibujarGraficas = (data) => {
 
     Chart.defaults.color = textColor;
 
-    if(chartIngresosInst) chartIngresosInst.destroy();
-    if(chartDistribucionInst) chartDistribucionInst.destroy();
-    if(chartOrdenesInst) chartOrdenesInst.destroy();
+    if (chartIngresosInst) chartIngresosInst.destroy();
+    if (chartDistribucionInst) chartDistribucionInst.destroy();
+    if (chartOrdenesInst) chartOrdenesInst.destroy();
 
     // NUEVO: Mapear y convertir etiquetas de YYYY-MM-DD a DD/MM/YYYY para los gráficos
-    const etiquetasFormateadas = data.graficas.etiquetas.map(fecha => {
+    const etiquetasFormateadas = data.graficas.etiquetas.map((fecha) => {
         if (!fecha || !fecha.includes('-')) return fecha;
         const [yyyy, mm, dd] = fecha.split('-');
         return `${dd}/${mm}/${yyyy}`;
@@ -171,17 +171,22 @@ const dibujarGraficas = (data) => {
         type: 'line',
         data: {
             labels: etiquetasFormateadas, // Aplicado aquí
-            datasets: [{
-                label: 'Ingresos (Bs)',
-                data: data.graficas.ingresos,
-                borderColor: '#ff5a5e',
-                backgroundColor: 'rgba(255, 90, 94, 0.2)',
-                borderWidth: 2,
-                fill: true,
-                tension: 0.3 
-            }]
+            datasets: [
+                {
+                    label: 'Ingresos (Bs)',
+                    data: data.graficas.ingresos,
+                    borderColor: '#ff5a5e',
+                    backgroundColor: 'rgba(255, 90, 94, 0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }
+            ]
         },
-        options: { responsive: true, scales: { x: { grid: { color: gridColor } }, y: { grid: { color: gridColor }, beginAtZero: true } } }
+        options: {
+            responsive: true,
+            scales: { x: { grid: { color: gridColor } }, y: { grid: { color: gridColor }, beginAtZero: true } }
+        }
     });
 
     const ctxDist = document.getElementById('chart-distribucion').getContext('2d');
@@ -189,27 +194,34 @@ const dibujarGraficas = (data) => {
         type: 'doughnut',
         data: {
             labels: ['Comida/Bebida', 'Juegos'],
-            datasets: [{
-                data: [data.distribucion.comida, data.distribucion.juegos],
-                backgroundColor: ['#f59e0b', '#3b82f6'],
-                borderWidth: 0
-            }]
+            datasets: [
+                {
+                    data: [data.distribucion.comida, data.distribucion.juegos],
+                    backgroundColor: ['#f59e0b', '#3b82f6'],
+                    borderWidth: 0
+                }
+            ]
         },
         options: { responsive: true, maintainAspectRatio: false }
     });
 
     const ctxOrdenes = document.getElementById('chart-ordenes').getContext('2d');
     chartOrdenesInst = new Chart(ctxOrdenes, {
-        type: 'bar', 
+        type: 'bar',
         data: {
             labels: etiquetasFormateadas, // Aplicado aquí
-            datasets: [{
-                label: 'Cantidad de Órdenes',
-                data: data.graficas.ordenes,
-                backgroundColor: '#10b981',
-                borderRadius: 4
-            }]
+            datasets: [
+                {
+                    label: 'Cantidad de Órdenes',
+                    data: data.graficas.ordenes,
+                    backgroundColor: '#10b981',
+                    borderRadius: 4
+                }
+            ]
         },
-        options: { responsive: true, scales: { x: { grid: { color: gridColor } }, y: { grid: { color: gridColor }, beginAtZero: true } } }
+        options: {
+            responsive: true,
+            scales: { x: { grid: { color: gridColor } }, y: { grid: { color: gridColor }, beginAtZero: true } }
+        }
     });
 };

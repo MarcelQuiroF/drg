@@ -6,7 +6,6 @@ const { authorize } = require('../middlewares/roleMiddleware');
 
 router.use(authenticate);
 
-
 router.get('/', pisoController.listar);
 
 router.post('/', authorize(['ADMIN']), pisoController.crear);

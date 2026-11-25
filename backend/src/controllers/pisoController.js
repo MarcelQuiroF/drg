@@ -5,7 +5,7 @@ async function crear(req, res, next) {
     try {
         const { nombre, numero } = req.body;
         if (!nombre || numero === undefined || numero === null || isNaN(numero)) {
-            return res.status(httpCodes.BAD_REQUEST.code).json({ message: "Nombre y número válido son obligatorios." });
+            return res.status(httpCodes.BAD_REQUEST.code).json({ message: 'Nombre y número válido son obligatorios.' });
         }
         const nuevo = await pisoService.crearPiso(req.body);
         res.status(httpCodes.CREATED.code).json(nuevo);
@@ -28,7 +28,7 @@ async function actualizar(req, res, next) {
     try {
         const actualizado = await pisoService.actualizarPiso(req.params.id, req.body);
         if (!actualizado) {
-            return res.status(httpCodes.NOT_FOUND.code).json({ message: "Piso no encontrado." });
+            return res.status(httpCodes.NOT_FOUND.code).json({ message: 'Piso no encontrado.' });
         }
         res.status(httpCodes.OK.code).json(actualizado);
     } catch (error) {
@@ -39,8 +39,8 @@ async function actualizar(req, res, next) {
 async function eliminar(req, res, next) {
     try {
         const exito = await pisoService.eliminarPiso(req.params.id);
-        if (!exito) return res.status(httpCodes.NOT_FOUND.code).json({ message: "Piso no encontrado." });
-        res.status(httpCodes.OK.code).json({ message: "Piso eliminado." });
+        if (!exito) return res.status(httpCodes.NOT_FOUND.code).json({ message: 'Piso no encontrado.' });
+        res.status(httpCodes.OK.code).json({ message: 'Piso eliminado.' });
     } catch (error) {
         next(error);
     }

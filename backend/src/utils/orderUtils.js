@@ -1,11 +1,4 @@
-const { 
-    Orden, 
-    ContenedorProducto, 
-    ContenedorJuego, 
-    Producto, 
-    Juego, 
-    Descuento 
-} = require('../models');
+const { Orden, ContenedorProducto, ContenedorJuego, Producto, Juego, Descuento } = require('../models');
 
 async function actualizarTotalOrden(ordenId, transaction) {
     const orden = await Orden.findByPk(ordenId, {
@@ -21,12 +14,12 @@ async function actualizarTotalOrden(ordenId, transaction) {
 
     let subtotal = (orden.ContenedorProductos || []).reduce((sum, item) => {
         const precio = item.Producto ? parseFloat(item.Producto.precio) : 0;
-        return sum + (precio * (item.cantidad || 0));
+        return sum + precio * (item.cantidad || 0);
     }, 0);
 
     subtotal += (orden.ContenedorJuegos || []).reduce((sum, item) => {
         const precio = item.Juego ? parseFloat(item.Juego.precio) : 0;
-        return sum + (precio * (item.cantidad || 0));
+        return sum + precio * (item.cantidad || 0);
     }, 0);
 
     let totalDescuento = 0;
@@ -47,7 +40,7 @@ async function actualizarTotalOrden(ordenId, transaction) {
     if (finalTotal < 0) finalTotal = 0;
 
     await orden.update({ total: finalTotal }, { transaction });
-    
+
     return finalTotal;
 }
 

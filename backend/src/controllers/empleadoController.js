@@ -1,14 +1,13 @@
 const { Empleado, Horario } = require('../models');
 const httpCodes = require('../utils/httpCodes');
 
-
 async function crearEmpleado(req, res, next) {
     try {
         const { nombre, ci, telefono, correo, contrasenia, rol, direccion } = req.body;
 
         if (!nombre || !ci || !contrasenia || !rol) {
             return res.status(httpCodes.BAD_REQUEST.code).json({
-                message: "Faltan datos obligatorios (nombre, ci, contraseña, rol)."
+                message: 'Faltan datos obligatorios (nombre, ci, contraseña, rol).'
             });
         }
 
@@ -28,10 +27,9 @@ async function crearEmpleado(req, res, next) {
         delete empleadoResponse.deletedAt;
 
         res.status(httpCodes.CREATED.code).json({
-            message: "Empleado creado exitosamente.",
+            message: 'Empleado creado exitosamente.',
             data: empleadoResponse
         });
-
     } catch (error) {
         next(error);
     }
@@ -40,10 +38,10 @@ async function crearEmpleado(req, res, next) {
 async function obtenerPerfil(req, res, next) {
     try {
         if (!req.empleado) {
-             return res.status(httpCodes.UNAUTHORIZED.code).json({ message: "No autorizado" });
+            return res.status(httpCodes.UNAUTHORIZED.code).json({ message: 'No autorizado' });
         }
         res.status(httpCodes.OK.code).json({
-            message: "Perfil obtenido",
+            message: 'Perfil obtenido',
             empleado: req.empleado
         });
     } catch (error) {
@@ -74,7 +72,7 @@ async function actualizarEmpleado(req, res, next) {
         const empleado = await Empleado.findByPk(id);
         if (!empleado) {
             return res.status(httpCodes.NOT_FOUND.code).json({
-                message: "Empleado no encontrado."
+                message: 'Empleado no encontrado.'
             });
         }
 
@@ -87,7 +85,7 @@ async function actualizarEmpleado(req, res, next) {
         if (activo !== undefined) empleado.activo = activo;
 
         // Si se envió una nueva contraseña y no está vacía
-        if (contrasenia && contrasenia.trim() !== "") {
+        if (contrasenia && contrasenia.trim() !== '') {
             empleado.contrasenia = contrasenia;
         }
 
@@ -100,7 +98,7 @@ async function actualizarEmpleado(req, res, next) {
 
             // Insertamos las nuevas asignaciones
             if (horarios.length > 0) {
-                const nuevosHorarios = horarios.map(h => ({
+                const nuevosHorarios = horarios.map((h) => ({
                     dia: h.dia,
                     hora_entrada: h.hora_entrada,
                     empleado_id: id
@@ -110,11 +108,10 @@ async function actualizarEmpleado(req, res, next) {
         }
 
         res.status(httpCodes.OK.code).json({
-            message: "Empleado actualizado exitosamente."
+            message: 'Empleado actualizado exitosamente.'
         });
-
     } catch (error) {
-        console.error("ERROR DETALLADO EN ACTUALIZAR EMPLEADO:", error);
+        console.error('ERROR DETALLADO EN ACTUALIZAR EMPLEADO:', error);
         next(error);
     }
 }

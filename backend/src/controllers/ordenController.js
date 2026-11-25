@@ -5,13 +5,13 @@ async function crear(req, res, next) {
     try {
         const { mesa_id } = req.body;
         if (!mesa_id) {
-            return res.status(httpCodes.BAD_REQUEST.code).json({ message: "Se requiere el ID de la mesa." });
+            return res.status(httpCodes.BAD_REQUEST.code).json({ message: 'Se requiere el ID de la mesa.' });
         }
 
         const nuevaOrden = await ordenService.crearOrden(mesa_id, req.empleado.id);
-        
+
         res.status(httpCodes.CREATED.code).json({
-            message: "Orden abierta exitosamente.",
+            message: 'Orden abierta exitosamente.',
             orden: nuevaOrden
         });
     } catch (error) {
@@ -32,9 +32,9 @@ async function listarDescuentos(req, res, next) {
 async function obtenerPorId(req, res, next) {
     try {
         const orden = await ordenService.obtenerOrdenPorId(req.params.id);
-        
+
         if (!orden) {
-            return res.status(httpCodes.NOT_FOUND.code).json({ message: "Orden no encontrada." });
+            return res.status(httpCodes.NOT_FOUND.code).json({ message: 'Orden no encontrada.' });
         }
 
         res.status(httpCodes.OK.code).json(orden);
@@ -49,15 +49,15 @@ async function aplicarDescuento(req, res, next) {
         const { porcentaje, monto, comentario } = req.body;
 
         if (!porcentaje && !monto) {
-            return res.status(httpCodes.BAD_REQUEST.code).json({ 
-                message: "Debe enviar un porcentaje o un monto fijo." 
+            return res.status(httpCodes.BAD_REQUEST.code).json({
+                message: 'Debe enviar un porcentaje o un monto fijo.'
             });
         }
 
         const resultado = await ordenService.aplicarDescuento(id, { porcentaje, monto, comentario });
-        
+
         res.status(httpCodes.OK.code).json({
-            message: "Descuento aplicado correctamente.",
+            message: 'Descuento aplicado correctamente.',
             descuento: resultado
         });
     } catch (error) {
@@ -82,7 +82,7 @@ async function finalizar(req, res, next) {
     try {
         const orden = await ordenService.finalizarOrden(req.params.id);
         res.status(httpCodes.OK.code).json({
-            message: "Orden finalizada y mesa liberada.",
+            message: 'Orden finalizada y mesa liberada.',
             orden
         });
     } catch (error) {
@@ -93,8 +93,8 @@ async function finalizar(req, res, next) {
 async function eliminar(req, res, next) {
     try {
         const exito = await ordenService.eliminarOrden(req.params.id);
-        if (!exito) return res.status(httpCodes.NOT_FOUND.code).json({ message: "Orden no encontrada." });
-        res.status(httpCodes.OK.code).json({ message: "Orden eliminada." });
+        if (!exito) return res.status(httpCodes.NOT_FOUND.code).json({ message: 'Orden no encontrada.' });
+        res.status(httpCodes.OK.code).json({ message: 'Orden eliminada.' });
     } catch (error) {
         next(error);
     }
@@ -104,9 +104,9 @@ async function quitarDescuento(req, res, next) {
     try {
         const { ordenId, descuentoId } = req.params;
         await ordenService.removerDescuento(ordenId, descuentoId);
-        res.status(httpCodes.OK.code).json({ message: "Descuento eliminado." });
+        res.status(httpCodes.OK.code).json({ message: 'Descuento eliminado.' });
     } catch (error) {
-        console.error("ERROR REAL EN QUITAR DESCUENTO:", error); 
+        console.error('ERROR REAL EN QUITAR DESCUENTO:', error);
         next(error);
     }
 }
@@ -117,19 +117,19 @@ async function actualizarNotas(req, res, next) {
         const { notas } = req.body;
 
         if (notas === undefined) {
-            return res.status(httpCodes.BAD_REQUEST.code).json({ 
-                message: "Se requiere el campo 'notas'." 
+            return res.status(httpCodes.BAD_REQUEST.code).json({
+                message: "Se requiere el campo 'notas'."
             });
         }
 
         const ordenActualizada = await ordenService.actualizarNotasDeOrden(id, notas);
 
         if (!ordenActualizada) {
-            return res.status(httpCodes.NOT_FOUND.code).json({ message: "Orden no encontrada." });
+            return res.status(httpCodes.NOT_FOUND.code).json({ message: 'Orden no encontrada.' });
         }
 
         res.status(httpCodes.OK.code).json({
-            message: "Notas actualizadas exitosamente.",
+            message: 'Notas actualizadas exitosamente.',
             orden: ordenActualizada
         });
     } catch (error) {

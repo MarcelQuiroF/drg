@@ -8,7 +8,7 @@ let descuentosDB = [];
 let empleadoSeleccionado = null;
 let horarioSeleccionado = null;
 let asistenciaAAprobarId = null;
-let ASISTENCIA_ID_ELIMINAR = null; 
+let ASISTENCIA_ID_ELIMINAR = null;
 
 const DIAS_SEMANA = ['DOMINGO', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
 
@@ -17,7 +17,7 @@ export const cargarAsistenciaPage = async () => {
     await cargarDescuentos();
     await recargarDatos();
     configurarEventosModales();
-    configurarBotonEliminarGlobal(); 
+    configurarBotonEliminarGlobal();
 };
 
 const recargarDatos = async () => {
@@ -32,7 +32,7 @@ const iniciarReloj = () => {
         const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         const fechaEl = document.getElementById('fecha-hoy-display');
         if (fechaEl) {
-            let f = ahora.toLocaleDateString('es-ES', opcionesFecha);
+            const f = ahora.toLocaleDateString('es-ES', opcionesFecha);
             fechaEl.textContent = f.charAt(0).toUpperCase() + f.slice(1);
         }
         const relojEl = document.getElementById('reloj-vivo');
@@ -46,7 +46,9 @@ const cargarDescuentos = async () => {
     try {
         const res = await authFetch('/configuracion/descuentos-atraso');
         if (res.ok) descuentosDB = await res.json();
-    } catch (e) { console.error("Error cargando descuentos:", e); }
+    } catch (e) {
+        console.error('Error cargando descuentos:', e);
+    }
 };
 
 const cargarTurnosHoy = async () => {
@@ -55,16 +57,22 @@ const cargarTurnosHoy = async () => {
         const res = await authFetch('/empleados');
         if (res.ok) {
             const todos = await res.json();
-            empleadosHoy = todos.filter(emp => emp.activo && emp.Horarios && emp.Horarios.some(h => h.dia === diaActual));
+            empleadosHoy = todos.filter(
+                (emp) => emp.activo && emp.Horarios && emp.Horarios.some((h) => h.dia === diaActual)
+            );
         }
-    } catch (error) { mostrarNotificacion("Error", "Error al cargar empleados.", true); }
+    } catch (error) {
+        mostrarNotificacion('Error', 'Error al cargar empleados.', true);
+    }
 };
 
 const cargarAsistenciasHoy = async () => {
     try {
         const res = await authFetch('/asistencias/hoy');
         if (res.ok) asistenciasHoy = await res.json();
-    } catch (error) { console.error("Error al cargar asistencias de hoy.", error); }
+    } catch (error) {
+        console.error('Error al cargar asistencias de hoy.', error);
+    }
 };
 
 const renderizarTablas = () => {
@@ -79,11 +87,11 @@ const renderizarTablas = () => {
     const ahora = new Date();
     let contadorTurnos = 0;
 
-    empleadosHoy.forEach(emp => {
-        const yaRegistro = asistenciasHoy.find(a => a.empleado_id === emp.id);
+    empleadosHoy.forEach((emp) => {
+        const yaRegistro = asistenciasHoy.find((a) => a.empleado_id === emp.id);
         if (yaRegistro) return;
 
-        const horarioHoy = emp.Horarios.find(h => h.dia === diaActual);
+        const horarioHoy = emp.Horarios.find((h) => h.dia === diaActual);
         if (!horarioHoy) return;
 
         contadorTurnos++;
@@ -93,9 +101,10 @@ const renderizarTablas = () => {
         fechaEsperada.setHours(horaE, minE, 0, 0);
 
         const diferenciaMinutos = Math.floor((ahora - fechaEsperada) / 60000);
-        let estadoHTML = diferenciaMinutos <= 0 
-            ? '<span class="status-badge status-ontime">A tiempo</span>' 
-            : `<span class="status-badge status-late">Atrasado (${diferenciaMinutos} min)</span>`;
+        const estadoHTML =
+            diferenciaMinutos <= 0
+                ? '<span class="status-badge status-ontime">A tiempo</span>'
+                : `<span class="status-badge status-late">Atrasado (${diferenciaMinutos} min)</span>`;
 
         tr.innerHTML = `
             <td><strong>${emp.nombre}</strong></td>
@@ -109,27 +118,29 @@ const renderizarTablas = () => {
     });
 
     if (contadorTurnos === 0) {
-        tbodyTurnos.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px; color: #888;">No hay turnos pendientes.</td></tr>';
+        tbodyTurnos.innerHTML =
+            '<tr><td colspan="5" style="text-align:center; padding: 20px; color: #888;">No hay turnos pendientes.</td></tr>';
     }
 
     if (asistenciasHoy.length === 0) {
-        tbodyRegistros.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: #888;">Aún no hay asistencias registradas hoy.</td></tr>';
+        tbodyRegistros.innerHTML =
+            '<tr><td colspan="6" style="text-align:center; padding: 20px; color: #888;">Aún no hay asistencias registradas hoy.</td></tr>';
     } else {
-        asistenciasHoy.forEach(asist => {
+        asistenciasHoy.forEach((asist) => {
             const tr = document.createElement('tr');
-            
-            let colorEstado = '#3730a3'; 
-            if(asist.estado === 'FALTA') colorEstado = '#dc2626'; 
-            if(asist.estado === 'PERMISO') colorEstado = '#d97706'; 
+
+            let colorEstado = '#3730a3';
+            if (asist.estado === 'FALTA') colorEstado = '#dc2626';
+            if (asist.estado === 'PERMISO') colorEstado = '#d97706';
 
             const estadoSpan = `<span style="font-weight: bold; color: ${colorEstado}">${asist.estado}</span>`;
-            
-            const checkIcon = asist.aprobado 
-                ? '<i class="fa-solid fa-circle-check status-aprobado" title="Aprobado"></i>' 
+
+            const checkIcon = asist.aprobado
+                ? '<i class="fa-solid fa-circle-check status-aprobado" title="Aprobado"></i>'
                 : '<i class="fa-solid fa-clock status-pendiente" title="Pendiente de aprobación"></i>';
 
-            const btnAprobarHTML = asist.aprobado 
-                ? `<span style="color: #16a34a; font-size: 0.9em; margin-right: 5px;">Aprobado</span>` 
+            const btnAprobarHTML = asist.aprobado
+                ? `<span style="color: #16a34a; font-size: 0.9em; margin-right: 5px;">Aprobado</span>`
                 : `<button class="btn-aprobar" data-id="${asist.id}">Aprobar</button>`;
 
             tr.innerHTML = `
@@ -147,8 +158,8 @@ const renderizarTablas = () => {
             if (!asist.aprobado) {
                 tr.querySelector('.btn-aprobar').onclick = () => abrirModalAprobar(asist.id);
             }
-            
-            tr.querySelector('.btn-eliminar').onclick = () => 
+
+            tr.querySelector('.btn-eliminar').onclick = () =>
                 prepararEliminacion(asist.id, asist.Empleado?.nombre || 'Desconocido');
 
             tbodyRegistros.appendChild(tr);
@@ -182,7 +193,7 @@ const abrirModalAsistencia = (empleado, horario) => {
         if (grupoDescuento) grupoDescuento.style.display = 'block';
 
         if (selectDescuento) {
-            descuentosDB.forEach(desc => {
+            descuentosDB.forEach((desc) => {
                 const opt = document.createElement('option');
                 opt.value = desc.id;
                 opt.textContent = `Descuento: ${desc.descuento_porcentual ? desc.descuento_porcentual + '%' : desc.descuento + ' Bs'}`;
@@ -206,13 +217,13 @@ const abrirModalAprobar = (id) => {
 
 const prepararEliminacion = (id, nombre) => {
     ASISTENCIA_ID_ELIMINAR = id;
-    
+
     const modal = document.getElementById('delete-modal');
     const overlay = document.getElementById('modal-overlay');
-    
-    document.getElementById('delete-modal-message').innerHTML = 
+
+    document.getElementById('delete-modal-message').innerHTML =
         `¿Eliminar el registro de asistencia de <strong>${nombre}</strong>?<br><small>El empleado regresará a la lista de turnos pendientes.</small>`;
-    
+
     if (modal && overlay) {
         overlay.classList.remove('modal-overlay-hidden');
         overlay.classList.add('modal-overlay-visible');
@@ -233,7 +244,7 @@ const abrirCerrarModal = (modalId, abrir) => {
         } else {
             modal.classList.remove('custom-modal-visible');
             modal.classList.add('custom-modal-hidden');
-            
+
             const algunModalAbierto = document.querySelector('.custom-modal-visible');
             if (!algunModalAbierto) {
                 overlay.classList.remove('modal-overlay-visible');
@@ -249,7 +260,7 @@ const cerrarModalEliminarGlobal = () => {
     if (modal && overlay) {
         modal.classList.remove('custom-modal-visible');
         modal.classList.add('custom-modal-hidden');
-        
+
         const algunModalAbierto = document.querySelector('.custom-modal-visible');
         if (!algunModalAbierto) {
             overlay.classList.remove('modal-overlay-visible');
@@ -260,8 +271,10 @@ const cerrarModalEliminarGlobal = () => {
 };
 
 const configurarEventosModales = () => {
-    document.getElementById('btn-cerrar-asistencia')?.addEventListener('click', () => abrirCerrarModal('modal-asistencia', false));
-    
+    document
+        .getElementById('btn-cerrar-asistencia')
+        ?.addEventListener('click', () => abrirCerrarModal('modal-asistencia', false));
+
     document.getElementById('form-asistencia')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const payload = {
@@ -274,17 +287,21 @@ const configurarEventosModales = () => {
         try {
             const res = await authFetch('/asistencias', { method: 'POST', body: JSON.stringify(payload) });
             if (res.ok) {
-                mostrarNotificacion("Éxito", "Asistencia registrada correctamente.", false);
+                mostrarNotificacion('Éxito', 'Asistencia registrada correctamente.', false);
                 abrirCerrarModal('modal-asistencia', false);
                 await recargarDatos();
             } else {
                 const err = await res.json();
-                mostrarNotificacion("Error", err.message || "Error al registrar.", true);
+                mostrarNotificacion('Error', err.message || 'Error al registrar.', true);
             }
-        } catch (e) { mostrarNotificacion("Error", "Fallo de conexión.", true); }
+        } catch (e) {
+            mostrarNotificacion('Error', 'Fallo de conexión.', true);
+        }
     });
 
-    document.getElementById('btn-cerrar-aprobar')?.addEventListener('click', () => abrirCerrarModal('modal-aprobar', false));
+    document
+        .getElementById('btn-cerrar-aprobar')
+        ?.addEventListener('click', () => abrirCerrarModal('modal-aprobar', false));
 
     document.getElementById('form-aprobar')?.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -300,14 +317,16 @@ const configurarEventosModales = () => {
             });
 
             if (res.ok) {
-                mostrarNotificacion("Aprobado", "La asistencia ha sido aprobada.", false);
+                mostrarNotificacion('Aprobado', 'La asistencia ha sido aprobada.', false);
                 abrirCerrarModal('modal-aprobar', false);
                 await recargarDatos();
             } else {
                 const err = await res.json();
-                mostrarNotificacion("Error", err.message || "Credenciales incorrectas.", true);
+                mostrarNotificacion('Error', err.message || 'Credenciales incorrectas.', true);
             }
-        } catch (e) { mostrarNotificacion("Error", "Fallo de conexión al aprobar.", true); }
+        } catch (e) {
+            mostrarNotificacion('Error', 'Fallo de conexión al aprobar.', true);
+        }
     });
 };
 
@@ -323,21 +342,21 @@ const configurarBotonEliminarGlobal = () => {
     if (deleteConfirmBtn) {
         const newConfirmBtn = deleteConfirmBtn.cloneNode(true);
         deleteConfirmBtn.parentNode.replaceChild(newConfirmBtn, deleteConfirmBtn);
-        
+
         newConfirmBtn.addEventListener('click', async () => {
             if (!ASISTENCIA_ID_ELIMINAR) return;
-            
+
             try {
                 const res = await authFetch(`/asistencias/${ASISTENCIA_ID_ELIMINAR}`, { method: 'DELETE' });
                 if (res.ok) {
-                    mostrarNotificacion("Eliminado", "Registro eliminado correctamente.", false);
+                    mostrarNotificacion('Eliminado', 'Registro eliminado correctamente.', false);
                     cerrarModalEliminarGlobal();
                     await recargarDatos();
                 } else {
-                    mostrarNotificacion("Error", "No se pudo eliminar el registro.", true);
+                    mostrarNotificacion('Error', 'No se pudo eliminar el registro.', true);
                 }
-            } catch (e) { 
-                mostrarNotificacion("Error", "Fallo de conexión.", true); 
+            } catch (e) {
+                mostrarNotificacion('Error', 'Fallo de conexión.', true);
             }
         });
     }

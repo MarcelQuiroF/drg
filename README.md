@@ -79,7 +79,7 @@ npx sequelize-cli db:seed:all
 
 ### 4. Iniciar el Servidor
 ```bash
-npm start
+npm start      # o, para desarrollo, npm run dev (nodemon reinicia el servidor al guardar)
 ```
 
 El sistema queda en `http://localhost:3000` (la API, en `http://localhost:3000/api/v1`).
@@ -97,6 +97,10 @@ El seed carga datos **ficticios** de desarrollo (pisos, mesas, catálogo, la tab
 Estas credenciales son **solo para desarrollo** y son públicas (están en este README). Si el seed se usa en el local, el administrador tiene que cambiar las contraseñas al instalar desde *Empleados* (o borrar los usuarios de prueba). Una guía de instalación completa llega con [#20](https://github.com/MarcelQuiroF/drg/issues/20).
 
 El seed corre dentro de una transacción: si algo falla, no deja datos a medias. `npx sequelize-cli db:seed:undo:all` borra solo lo que insertó el seed.
+
+### 6. Herramientas de desarrollo
+
+ESLint y Prettier se instalan en la raíz del repositorio (`npm install` en `drg/`). Antes de abrir un PR: `npm run check`. Detalle en [`CONTRIBUTING.md`](CONTRIBUTING.md#6-estilo-de-código).
 
 
 ## 👥 Estructura de Roles

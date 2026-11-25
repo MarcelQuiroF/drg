@@ -15,16 +15,15 @@ const VARIABLES_OBLIGATORIAS = {
 // Detiene el arranque con un mensaje claro si falta una variable obligatoria,
 // en lugar de fallar más tarde (por ejemplo, recién en el primer login).
 function validarEntorno() {
-    const faltantes = Object.keys(VARIABLES_OBLIGATORIAS)
-        .filter((nombre) => !process.env[nombre] || !process.env[nombre].trim());
+    const faltantes = Object.keys(VARIABLES_OBLIGATORIAS).filter(
+        (nombre) => !process.env[nombre] || !process.env[nombre].trim()
+    );
 
     if (faltantes.length > 0) {
-        const detalle = faltantes
-            .map((nombre) => `  - ${nombre}: ${VARIABLES_OBLIGATORIAS[nombre]}`)
-            .join('\n');
+        const detalle = faltantes.map((nombre) => `  - ${nombre}: ${VARIABLES_OBLIGATORIAS[nombre]}`).join('\n');
         throw new Error(
             `Faltan variables de entorno obligatorias:\n${detalle}\n` +
-            'Copia backend/.env.example a backend/.env y completa los valores.'
+                'Copia backend/.env.example a backend/.env y completa los valores.'
         );
     }
 
