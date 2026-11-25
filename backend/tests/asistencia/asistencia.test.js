@@ -39,8 +39,17 @@ async function empleadoConHorarioHoy() {
     return { empleado: nuevo, horario };
 }
 
+// La llegada la registra el propio empleado con su CI y contraseña (RF-43, #30). Los empleados
+// de prueba se crean con 'no-se-usa'; los del seed, con la contraseña de desarrollo.
+async function credencialesDe(empleadoId) {
+    const e = await Empleado.findByPk(empleadoId, { rejectOnEmpty: true });
+    const delSeed = Object.values(USUARIOS).find((u) => u.ci === e.ci);
+    return { ci: e.ci, contrasenia: delSeed ? delSeed.contrasenia : 'no-se-usa' };
+}
+
 async function registrarLlegada(datos) {
-    return cajero.post('/asistencias').send({ estado: 'PRESENTE', ...datos });
+    const credenciales = datos.empleado_id ? await credencialesDe(datos.empleado_id) : {};
+    return cajero.post('/asistencias').send({ estado: 'PRESENTE', ...credenciales, ...datos });
 }
 
 async function asistenciaNueva() {
@@ -61,14 +70,14 @@ describe('Registrar la llegada', () => {
     test('sin empleado_id o sin estado responde 400', async () => {
         expect((await cajero.post('/asistencias').send({ estado: 'PRESENTE' })).status).toBe(400);
         const { empleado: e } = await empleadoConHorarioHoy();
-        expect((await cajero.post('/asistencias').send({ empleado_id: e.id, estado: '' })).status).toBe(400);
+        expect((await registrarLlegada({ empleado_id: e.id, estado: '' })).status).toBe(400);
     });
 
-    test.failing('A1 · registrar dos veces la llegada del mismo empleado el mismo día responde 409 (#30)', async () => {
+    test('A1 · registrar dos veces la llegada del mismo empleado el mismo día responde 409 (#30)', async () => {
         const { empleado: e, horario } = await empleadoConHorarioHoy();
         expect((await registrarLlegada({ empleado_id: e.id, horario_id: horario.id })).status).toBe(201);
         const res = await registrarLlegada({ empleado_id: e.id, horario_id: horario.id });
-        expect(res.status).toBe(409); // hoy 201
+        expect(res.status).toBe(409); // antes de #30, 201
     });
 
     test('T11 · un empleado sin horario ese día recibe 400 con un mensaje claro (#28)', async () => {
@@ -121,16 +130,18 @@ describe('Anular una asistencia', () => {
         const asistencia = await asistenciaNueva();
         expect((await cajero.delete(`/asistencias/${asistencia.id}`)).status).toBe(200);
         expect(await Asistencia.findByPk(asistencia.id)).toBeNull();
+        // RN-09: queda anulada, no borrada (#30)
+        expect(await Asistencia.findByPk(asistencia.id, { paranoid: false })).not.toBeNull();
     });
 
-    test.failing('A4 · una asistencia aprobada no se puede borrar sin firma (#30)', async () => {
+    test('A4 · una asistencia aprobada no se puede borrar sin firma (#30)', async () => {
         const asistencia = await asistenciaNueva();
         await cajero
             .put(`/asistencias/${asistencia.id}/aprobar`)
             .send({ ci: USUARIOS.CAJERO.ci, contrasenia: CONTRASENIA });
         const res = await cajero.delete(`/asistencias/${asistencia.id}`);
-        expect(res.status).toBeGreaterThanOrEqual(400); // hoy 200
-        // RN-09: se anula sin borrar; hoy desaparece por el borrado físico
+        expect(res.status).toBeGreaterThanOrEqual(400); // antes de #30, 200
+        // RN-09: se anula sin borrar; antes desaparecía por el borrado físico
         expect(await Asistencia.findByPk(asistencia.id, { paranoid: false })).not.toBeNull();
     });
 });

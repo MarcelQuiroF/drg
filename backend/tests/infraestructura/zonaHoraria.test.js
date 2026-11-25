@@ -95,15 +95,23 @@ describe('Asistencias de hoy', () => {
         const horario = await Horario.create({ dia: 'LUNES', hora_entrada: '08:00:00', empleado_id: nuevo.id });
         const hoy = diaBolivia();
         const ayer = diaBolivia(new Date(new Date(`${hoy}T12:00:00-04:00`).getTime() - 24 * 60 * 60 * 1000));
-        const llegada = (instante) =>
+        const llegada = (instante, e = nuevo, h = horario) =>
             Asistencia.create({
-                empleado_id: nuevo.id,
-                horario_id: horario.id,
+                empleado_id: e.id,
+                horario_id: h.id,
                 estado: 'PRESENTE',
                 fecha_hora_llegada: new Date(instante)
             });
+        // Desde #30 hay una sola llegada por empleado y día: la de la noche es de otro empleado
+        const otro = await Empleado.create({
+            nombre: 'Otro',
+            ci: '9100002LP',
+            contrasenia: 'no-se-usa',
+            rol: 'MESERO'
+        });
+        const horarioOtro = await Horario.create({ dia: 'LUNES', hora_entrada: '08:00:00', empleado_id: otro.id });
         const temprano = await llegada(`${hoy}T00:30:00-04:00`);
-        const noche = await llegada(`${hoy}T21:30:00-04:00`);
+        const noche = await llegada(`${hoy}T21:30:00-04:00`, otro, horarioOtro);
         const deAyer = await llegada(`${ayer}T22:00:00-04:00`);
 
         const cajero = await comoRol('CAJERO');

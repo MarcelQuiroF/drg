@@ -8,6 +8,8 @@ let descuentosDB = [];
 let empleadoSeleccionado = null;
 let horarioSeleccionado = null;
 let asistenciaAAprobarId = null;
+// La misma ventana de firma sirve para aprobar y para anular una asistencia ya aprobada (#30)
+let modoFirma = 'aprobar';
 let ASISTENCIA_ID_ELIMINAR = null;
 
 const DIAS_SEMANA = ['DOMINGO', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
@@ -151,7 +153,7 @@ const renderizarTablas = () => {
                 <td style="text-align:center;">${checkIconHTML}</td>
                 <td>
                     ${btnAprobarHTML}
-                    <button class="btn-eliminar" data-id="${Number(asist.id)}" title="Eliminar registro"><i class="fa-solid fa-xmark"></i></button>
+                    <button class="btn-eliminar" data-id="${Number(asist.id)}" title="Anular registro"><i class="fa-solid fa-xmark"></i></button>
                 </td>
             `;
 
@@ -160,7 +162,9 @@ const renderizarTablas = () => {
             }
 
             tr.querySelector('.btn-eliminar').onclick = () =>
-                prepararEliminacion(asist.id, asist.Empleado?.nombre || 'Desconocido');
+                asist.aprobado
+                    ? abrirModalFirma(asist.id, 'anular')
+                    : prepararEliminacion(asist.id, asist.Empleado?.nombre || 'Desconocido');
 
             tbodyRegistros.appendChild(tr);
         });
@@ -170,6 +174,9 @@ const renderizarTablas = () => {
 const abrirModalAsistencia = (empleado, horario) => {
     empleadoSeleccionado = empleado;
     horarioSeleccionado = horario;
+    // RF-43 (#30): la llegada la confirma el propio empleado con su CI y contraseña
+    document.getElementById('asistencia-ci').value = '';
+    document.getElementById('asistencia-contrasenia').value = '';
     const ahora = new Date();
 
     document.getElementById('modal-emp-nombre').textContent = empleado.nombre;
@@ -208,12 +215,31 @@ const abrirModalAsistencia = (empleado, horario) => {
     abrirCerrarModal('modal-asistencia', true);
 };
 
-const abrirModalAprobar = (id) => {
+const TEXTOS_FIRMA = {
+    aprobar: {
+        titulo: 'Aprobar Registro',
+        texto: 'Ingresa tus credenciales de Administrador o Cajero para validar este registro.',
+        boton: 'Aprobar'
+    },
+    anular: {
+        titulo: 'Anular Registro Aprobado',
+        texto: 'Esta asistencia ya está aprobada: para anularla, firma con tus credenciales de Administrador o Cajero. El registro queda guardado como anulado.',
+        boton: 'Anular'
+    }
+};
+
+const abrirModalFirma = (id, modo) => {
     asistenciaAAprobarId = id;
+    modoFirma = modo;
+    document.getElementById('modal-aprobar-titulo').textContent = TEXTOS_FIRMA[modo].titulo;
+    document.getElementById('modal-aprobar-texto').textContent = TEXTOS_FIRMA[modo].texto;
+    document.getElementById('btn-firmar-aprobar').textContent = TEXTOS_FIRMA[modo].boton;
     document.getElementById('admin-ci').value = '';
     document.getElementById('admin-password').value = '';
     abrirCerrarModal('modal-aprobar', true);
 };
+
+const abrirModalAprobar = (id) => abrirModalFirma(id, 'aprobar');
 
 const prepararEliminacion = (id, nombre) => {
     ASISTENCIA_ID_ELIMINAR = id;
@@ -222,7 +248,7 @@ const prepararEliminacion = (id, nombre) => {
     const overlay = document.getElementById('modal-overlay');
 
     document.getElementById('delete-modal-message').innerHTML =
-        `¿Eliminar el registro de asistencia de <strong>${escaparHTML(nombre)}</strong>?<br><small>El empleado regresará a la lista de turnos pendientes.</small>`;
+        `¿Anular el registro de asistencia de <strong>${escaparHTML(nombre)}</strong>?<br><small>El empleado regresará a la lista de turnos pendientes. El registro queda guardado como anulado.</small>`;
 
     if (modal && overlay) {
         overlay.classList.remove('modal-overlay-hidden');
@@ -279,6 +305,8 @@ const configurarEventosModales = () => {
         e.preventDefault();
         const payload = {
             empleado_id: empleadoSeleccionado.id,
+            ci: document.getElementById('asistencia-ci').value.trim(),
+            contrasenia: document.getElementById('asistencia-contrasenia').value,
             horario_id: horarioSeleccionado ? horarioSeleccionado.id : null,
             estado: document.getElementById('asistencia-estado').value,
             descuento_id: document.getElementById('asistencia-descuento')?.value || null
@@ -310,14 +338,19 @@ const configurarEventosModales = () => {
             contrasenia: document.getElementById('admin-password').value
         };
 
+        const anular = modoFirma === 'anular';
         try {
-            const res = await authFetch(`/asistencias/${asistenciaAAprobarId}/aprobar`, {
-                method: 'PUT',
-                body: JSON.stringify(payload)
-            });
+            const res = await authFetch(
+                anular ? `/asistencias/${asistenciaAAprobarId}` : `/asistencias/${asistenciaAAprobarId}/aprobar`,
+                { method: anular ? 'DELETE' : 'PUT', body: JSON.stringify(payload) }
+            );
 
             if (res.ok) {
-                mostrarNotificacion('Aprobado', 'La asistencia ha sido aprobada.', false);
+                mostrarNotificacion(
+                    anular ? 'Anulado' : 'Aprobado',
+                    anular ? 'La asistencia quedó anulada.' : 'La asistencia ha sido aprobada.',
+                    false
+                );
                 abrirCerrarModal('modal-aprobar', false);
                 await recargarDatos();
             } else {
@@ -349,11 +382,12 @@ const configurarBotonEliminarGlobal = () => {
             try {
                 const res = await authFetch(`/asistencias/${ASISTENCIA_ID_ELIMINAR}`, { method: 'DELETE' });
                 if (res.ok) {
-                    mostrarNotificacion('Eliminado', 'Registro eliminado correctamente.', false);
+                    mostrarNotificacion('Anulado', 'Registro anulado correctamente.', false);
                     cerrarModalEliminarGlobal();
                     await recargarDatos();
                 } else {
-                    mostrarNotificacion('Error', 'No se pudo eliminar el registro.', true);
+                    const err = await res.json().catch(() => ({}));
+                    mostrarNotificacion('Error', err.message || 'No se pudo anular el registro.', true);
                 }
             } catch (e) {
                 mostrarNotificacion('Error', 'Fallo de conexión.', true);

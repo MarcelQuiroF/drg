@@ -223,10 +223,14 @@ Monitoreo de asistencia diaria y control de penalizaciones por atrasos. Requiere
 
 * **Ruta:** `POST /api/v1/asistencias`
 * **Acceso:** `ADMIN`, `CAJERO`, `MESERO` (permiso `asistencia.registrar`; el mesero, desde #25 por RN-16)
+* **Credenciales del empleado (RF-43, #30):** la llegada la registra **el propio empleado** con su `ci` y su `contrasenia` (quien tiene la sesión solo presta la pantalla). El servidor registra al empleado de esas credenciales: `empleado_id` es opcional y, si viene, tiene que ser el mismo. Faltan → `400`; incorrectas o empleado inactivo → **`403`** (no 401: la sesión de la caja sigue valiendo, #26); de otro empleado que el `empleado_id` enviado → `400`. La contraseña no se guarda.
+* **Una por día (RN-10, A1):** una segunda llegada del mismo empleado el mismo día (en hora de Bolivia) responde **`409`** *"El empleado ya registró su llegada hoy."*. Lo garantiza un índice único en la base, también con pedidos simultáneos. Las anuladas no cuentan.
 * **Cuerpo de la Solicitud (JSON):**
 ```json
 {
   "empleado_id": 3,
+  "ci": "8888888",
+  "contrasenia": "contraseña_del_empleado",
   "horario_id": 2,
   "estado": "PRESENTE",
   "descuento_id": 1
@@ -279,16 +283,25 @@ Monitoreo de asistencia diaria y control de penalizaciones por atrasos. Requiere
 
 
 
-### Eliminar Registro de Asistencia
+### Anular Registro de Asistencia
 
 * **Ruta:** `DELETE /api/v1/asistencias/:id`
-* **Acceso:** `ADMIN`, `CAJERO`
+* **Acceso:** `ADMIN`, `CAJERO` (permiso `asistencia.aprobar`)
+* **Qué hace (RN-09, #30):** **anula sin borrar**: borrado lógico (`deletedAt`) y `anulada_por` con quién la anuló. La asistencia deja de aparecer en `GET /hoy`, el empleado vuelve a la lista de turnos y puede registrar su llegada otra vez. Antes era un borrado físico (A4).
+* **Cuerpo:** solo si la asistencia **ya está aprobada**: la firma de un supervisor con el permiso `asistencia.aprobar` (queda como `anulada_por`). Sin aprobar, no hace falta cuerpo (`anulada_por` = quien hace la petición).
+```json
+{
+  "ci": "1234567",
+  "contrasenia": "password_admin"
+}
+```
 * **Respuesta Exitosa (200 OK):**
 ```json
 {
-  "message": "Registro eliminado, empleado regresado a turnos."
+  "message": "Asistencia anulada, empleado regresado a turnos."
 }
 ```
+* **Errores:** `400` si está aprobada y falta la firma; **`403`** si la firma no sirve (contraseña incorrecta o sin `asistencia.aprobar`); `404` si no existe o ya estaba anulada.
 
 
 ## 4. Módulo de Productos (`/api/v1/productos`)

@@ -1,6 +1,6 @@
 # Modelo de datos de DRG – Mesa Dragón
 
-> **25/11/2026 · Versión 0.3** · Issues #11, #22 y #28.
+> **25/11/2026 · Versión 0.4** · Issues #11, #22, #28 y #30.
 > Describe la base **tal como la dejan las migraciones de `main`** (36 migraciones, de noviembre de 2025 a junio de 2026). No sale de los modelos de Sequelize porque en varios puntos no coinciden con la base real (ver la sección 5).
 
 ## Cómo se obtuvo
@@ -35,6 +35,7 @@ erDiagram
     descuento_atraso |o--o{ asistencia : "descuento_id"
     empleado ||--o{ asistencia : "empleado_id"
     horario ||--o{ asistencia : "horario_id"
+    empleado |o--o{ asistencia : "anulada_por"
     juego ||--o{ contenedor_juego : "juego_id"
     orden ||--o{ contenedor_juego : "orden_id"
     orden ||--o{ contenedor_producto : "orden_id"
@@ -66,6 +67,7 @@ erDiagram
         bool aprobado
         int horario_id FK
         varchar estado
+        int anulada_por FK
     }
     categoria {
         int id PK
@@ -266,7 +268,7 @@ erDiagram
 |-------|----------|-------|
 | `empleado` | Usuarios del sistema | `ci` único (pero admite nulos), `contrasenia` con hash bcrypt, `rol` como texto (`ADMIN`, `CAJERO`, `MESERO`), `activo`, `direccion` y `correo` |
 | `horario` | Horario de cada empleado por día | `dia` como texto, `hora_entrada` obligatoria, `hora_salida` opcional (hoy se descarta: #61) |
-| `asistencia` | Llegada de un empleado | `fecha_hora_llegada`, `estado` (`PRESENTE`, `FALTA`, `PERMISO`, validado solo en el modelo), `aprobado` (por defecto `false` desde #28), `horario_id` obligatorio (sin horario, 400) y `descuento_id` opcional |
+| `asistencia` | Llegada de un empleado | `fecha_hora_llegada`, `estado` (`PRESENTE`, `FALTA`, `PERMISO`, validado solo en el modelo), `aprobado` (por defecto `false` desde #28), `horario_id` obligatorio (sin horario, 400) y `descuento_id` opcional. Desde #30: **una sola llegada por empleado y día** (índice único parcial `asistencia_una_llegada_por_dia` sobre `empleado_id` y el día de la llegada en hora de Bolivia, solo filas no anuladas) y **anular no borra**: borrado lógico (`deletedAt`) más `anulada_por` (quién anuló; FK a `empleado`, `RESTRICT`) |
 | `descuento_atraso` | Tabla de descuentos por atraso | `cantidad_tiempo` (tipo `time`), `descuento` y `descuento_porcentual`. El seed carga la tabla RN-01: desde `00:10:00` −10 %, desde `00:20:00` −20 % y desde `00:25:01` −100 % (`cantidad_tiempo` es el atraso mínimo, inclusive). El cálculo en el servidor llega con #29 |
 
 ### Configuración y bitácora
@@ -278,7 +280,7 @@ erDiagram
 
 ## 4. Reglas de borrado de las claves foráneas
 
-Hoy casi todo usa borrado lógico, así que estas reglas casi no se activan. Importan si alguna vez se borra algo **físicamente** (por ejemplo, hoy `DELETE /asistencias/:id` hace un borrado físico, #30, o un `DELETE` a mano en la base).
+Hoy todo usa borrado lógico, así que estas reglas casi no se activan. Importan si alguna vez se borra algo **físicamente** (un `DELETE` a mano en la base o un `force: true`). `DELETE /asistencias/:id` hacía un borrado físico hasta #30; ahora anula con borrado lógico.
 
 Desde la migración `20261125160000-alinear-base-con-modelos` (#28), lo que es **historial** (asistencias, ventas, reservas) ya no se borra en cascada: la base **rechaza** el borrado (`RESTRICT`) mientras haya filas que dependan. Solo se borra en cascada lo que es parte de la misma cosa: los ítems de una orden y las relaciones con categorías.
 
@@ -320,7 +322,7 @@ Siguen sin lista de valores en la base `asistencia.estado`, `contenedor_transacc
 | Tabla de jornadas (apertura, cierre y reapertura del día) | #34, #35 |
 | Empleado que abre la orden y que registra cada pago o descuento | #46, #39 |
 | Cantidad de personas en `reserva` | #40 |
-| Unicidad de llegada por empleado y día; número de mesa único por piso | #30, #48 |
+| Número de mesa único por piso | #48 |
 | Zonas de producto como lista cerrada | #32 |
 | Tabla de tickets de impresión | ADR-006, #67 |
 
@@ -331,3 +333,4 @@ Siguen sin lista de valores en la base `asistencia.estado`, `contenedor_transacc
 | 0.1 | 25/11/2026 | Primera versión, a partir de las migraciones de `main` (issue #11) |
 | 0.2 | 25/11/2026 | `precio_unitario` en `contenedor_producto` y `contenedor_juego` (#22) |
 | 0.3 | 25/11/2026 | #28: `DEFAULT false` en `orden.finalizado` y `asistencia.aprobado`; claves foráneas de historial con `RESTRICT`; sección 5 con cómo se resolvió cada diferencia |
+| 0.4 | 25/11/2026 | #30: `asistencia.anulada_por` e índice único parcial de una llegada por empleado y día (migración `20261125170000-una-llegada-por-dia-y-anulacion`) |
