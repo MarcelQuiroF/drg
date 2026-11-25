@@ -49,7 +49,7 @@
   2. Migración de datos: un tamaño por precio distinto; asignar cada juego. Los ítems existentes reciben `precio_unitario` = precio actual del juego (es el mejor dato disponible; el historial anterior ya se calculaba así).
   3. El código lee el precio del tamaño y escribe `precio_unitario`; se actualizan el formulario del admin, la importación (columna `tamano` en lugar de `precio`) y los reportes.
   4. Cuando todo funciona y se verificó con datos reales, `juego.tamano_id` pasa a obligatorio y se elimina `juego.precio` en una migración aparte.
-- **No se elige la opción 2** (precio propio por juego) mientras el dueño no confirme que hay excepciones. ⚠ Pregunta para el 10/12: ¿algún juego tiene un precio distinto al de su etiqueta de color?
+- **No se elige la opción 2** (precio propio por juego) mientras el dueño no confirme que hay excepciones. ⚠ Pregunta para el 10/12 (**P-23**): ¿algún juego tiene un precio distinto al de su etiqueta de color?
 
 ## Consecuencias
 
@@ -65,6 +65,6 @@
 - **Qué hay que hacer ahora:**
   - Primero #22 (guardar `precio_unitario` en los ítems de productos y juegos).
   - Después #37 (tamaños), siguiendo los pasos de arriba.
-  - Agregar la pregunta sobre excepciones de precio a `preguntas-dueno.md`.
+  - Preguntar **P-23** el 10/12 (excepciones de precio).
 
 **Relacionado:** RF-37, RF-38, RF-57, RN-04 · #22 · #31 · #37 · #59

@@ -36,6 +36,11 @@ Mostrarle la lista de requisitos marcados como **I** (imprescindibles) y pedirle
 - ¿Se cobra cada préstamo aunque devuelvan un juego y saquen otro?
 *Por qué:* confirma RN-04; si el precio va por tamaño, cambia el modelo de datos.
 
+**P-23 · ¿Hay juegos con un precio distinto al de su etiqueta?** *(agregada el 25/11/2026, al escribir el ADR-007)*
+- ¿Algún juego se cobra distinto de lo que indica el color de su etiqueta (por ejemplo, un juego grande que se presta más barato)?
+*Por qué:* el ADR-007 propone que el precio salga **solo** del tamaño, sin precio propio por juego, para que la etiqueta siempre diga cuánto cobrar. Si hay excepciones, hay que permitir un precio propio por juego (#37).
+*Propuesta:* sin excepciones; si un juego tiene otro precio, se le cambia la etiqueta.
+
 **P-05 · Reservas: tiempos**
 - ¿Cuánto se espera a un cliente con reserva antes de liberar la mesa? (En 2025 dijo **30 min**; el sistema tiene 20.)
 - ¿Cuánto tiempo antes de la hora reservada se deja de ocupar la mesa con otros clientes?
@@ -182,6 +187,7 @@ Mostrarle la lista de requisitos marcados como **I** (imprescindibles) y pedirle
 | P-20 Piloto y entrega | Pendiente | — | — |
 | P-21 Quién borra órdenes | Pendiente. Mientras tanto, los 3 roles (como hoy). Relacionado: Marcelo decidió que **el mesero también cobra** y que mesero y cajero tienen casi los mismos permisos | M (cobro) · resto pendiente | RF-17, RF-22, **RN-16 nueva**, RF-52 |
 | P-22 Editar permisos desde el panel | Pendiente | — | RF-58, RN-16, RN-17 |
+| P-23 Juegos con precio distinto al de su etiqueta | Pendiente. Mientras tanto, sin excepciones (ADR-007) | Prueba | RF-57, RN-04 |
 
 **Requisito nuevo sin pregunta:** mover una orden abierta a otra mesa (RF-55), para cuando un grupo chico ocupa una mesa grande y llega un grupo más grande. La mesa de destino tiene que estar libre y sin reserva próxima (RN-15).
 
@@ -193,12 +199,13 @@ Lista corta para la presentación del MVP al dueño, en orden de importancia:
 2. **P-09** · ¿Se cuenta el dinero al abrir y al cerrar (arqueo)? ¿Qué debe mostrar el reporte de cierre? ¿Quién puede reabrir un día cerrado?
 3. **P-21** · ¿Quién puede borrar una orden con ítems ya enviados a cocina? ¿Con motivo? (Mientras tanto: cualquier rol.) Confirmar también que el mesero cobra y tiene casi los mismos permisos que el cajero (RN-16).
 4. **P-22** · ¿Quiere cambiar él mismo los permisos del cajero y del mesero desde el panel? ¿El mesero también puede aprobar asistencias y anular pagos?
-5. **P-05** · ¿Cuánto tiempo antes de una reserva se deja de dar la mesa? (Prueba: 1 h.)
-6. **P-07** · ¿Quién confirma la llegada de un empleado? (Prueba: el cajero.)
-7. **P-08** · ¿El sistema solo reporta atrasos, o también calcula sueldos? (Prueba: solo atrasos.)
-8. **P-10** · Impresoras (cuántas, tipo, marca y modelo). ¿El mesero tiene que ver al instante cuándo está listo un pedido?
-9. **P-12** · ¿Las zonas son solo Cocina y Cafetería? ¿Quién marca un producto como agotado?
-10. **P-13 a P-15** · Equipos del local, respaldos y los Excel actuales.
-11. **P-16** · ¿Cuántos pisos y mesas hay hoy?
-12. **P-17 a P-20** · Clientes frecuentes, catálogo por QR, bitácora, piloto y entrega.
-13. **Confirmar con el dueño** las respuestas de Marcelo, sobre todo la tabla de atrasos (RN-01) y los descuentos sin tope (RN-06).
+5. **P-23** · ¿Algún juego tiene un precio distinto al de su etiqueta de color? (Mientras tanto: no; el precio sale solo del tamaño.)
+6. **P-05** · ¿Cuánto tiempo antes de una reserva se deja de dar la mesa? (Prueba: 1 h.)
+7. **P-07** · ¿Quién confirma la llegada de un empleado? (Prueba: el cajero.)
+8. **P-08** · ¿El sistema solo reporta atrasos, o también calcula sueldos? (Prueba: solo atrasos.)
+9. **P-10** · Impresoras (cuántas, tipo, marca y modelo). ¿El mesero tiene que ver al instante cuándo está listo un pedido?
+10. **P-12** · ¿Las zonas son solo Cocina y Cafetería? ¿Quién marca un producto como agotado?
+11. **P-13 a P-15** · Equipos del local, respaldos y los Excel actuales.
+12. **P-16** · ¿Cuántos pisos y mesas hay hoy?
+13. **P-17 a P-20** · Clientes frecuentes, catálogo por QR, bitácora, piloto y entrega.
+14. **Confirmar con el dueño** las respuestas de Marcelo, sobre todo la tabla de atrasos (RN-01) y los descuentos sin tope (RN-06).
