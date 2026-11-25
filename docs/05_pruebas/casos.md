@@ -1,6 +1,6 @@
 # Casos de prueba
 
-> Versión 0.2 · 25/11/2026 · Issue #18. Cómo se escriben y por qué: [`plan-de-pruebas.md`](plan-de-pruebas.md).
+> Versión 0.3 · 25/11/2026 · Issue #18. Cómo se escriben y por qué: [`plan-de-pruebas.md`](plan-de-pruebas.md).
 > Los códigos (S1, T6, F2…) vienen del análisis técnico del 12/11/2026 (secciones 10 a 12). Cada prueba automática lleva su código en el nombre.
 
 ## Categorías
@@ -68,12 +68,17 @@ Además de los casos del análisis, `tests/ordenes/` fija lo que ya funciona (�
 
 | Código | Caso | Cat. | Resultado esperado | Issue | Estado |
 |--------|------|:----:|--------------------|-------|:------:|
-| T9 | Dos reservas que se cruzan en la misma mesa | ✅ | La segunda se rechaza | — | 🔜 |
-| T9b | Dos reservas de la misma mesa separadas por más que `ventana_bloqueo` | ✅ | Las dos se crean | — | 🔜 |
-| T9c | Editar una reserva (estado, `mesa_id` como texto) | ✅ | 200 | — | 🔜 |
-| R2 | Abrir una orden en una mesa con reserva dentro de `ventana_llegada` | ✅ | La reserva pasa a LLEGÓ | — | 🔜 |
-| R3 | Reserva vencida (pasada la tolerancia de `minutos_tolerancia`) | ✅ | Pasa a EXPIRADA al listar | RN-02 | 🔜 |
+| T9 | Dos reservas que se cruzan en la misma mesa | ✅ | La segunda se rechaza | — | ✔ |
+| T9b | Dos reservas de la misma mesa separadas por más que `ventana_bloqueo` | ✅ | Las dos se crean | — | ✔ |
+| T9c | Editar una reserva: cambiar el estado, o reenviar la misma `mesa_id` como número | ✅ | 200 | — | ✔ |
+| T9d | Editar una reserva reenviando la misma `mesa_id` **como texto** (como lo hace el formulario) | 🐞 | 200 (hoy 500: la reserva choca consigo misma). El análisis la daba por buena porque se probó con un número | #50 | ✔ |
+| T9e | Marcar LLEGO o CANCELADA una reserva cuya hora ya pasó, reenviando la misma hora | ✅ | 200. #50 temía un error de `isFuture`: no ocurre, porque Sequelize solo valida los campos que cambian | #50 | ✔ |
+| R2 | Abrir una orden en una mesa con reserva dentro de `ventana_llegada` | ✅ | La reserva pasa a LLEGÓ; fuera de la ventana sigue PENDIENTE; en `GET /mesas` la mesa aparece reservada (estado 3) | — | ✔ |
+| R3 | Reserva vencida (pasada la tolerancia de `minutos_tolerancia`) | ✅ | Pasa a EXPIRADA al listar las reservas, y la mesa reservada vuelve a libre al listar las mesas | RN-02 | ✔ |
+| R4 | Cancelar una reserva (`DELETE`) | 🐞 | La reserva queda en CANCELADA (RF-28). Hoy se borra (soft delete); lo que sí funciona (✅) es que el horario queda libre | #50 | ✔ |
 | R1 | La fecha por defecto del formulario de reservas después de las 20:00 | 🖥 | El día de hoy en Bolivia (hoy, el de mañana por usar UTC) | #27 | 📋 |
+
+Las pruebas leen `ventana_bloqueo`, `ventana_llegada` y `minutos_tolerancia` de la configuración en lugar de fijar los minutos, así que no cambian cuando se ajusta el seed (#98) o cuando el ADMIN edita los valores (#51).
 
 ## Asistencia (`tests/asistencia/`)
 
