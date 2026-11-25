@@ -17,7 +17,7 @@ describe('Base de pruebas', () => {
         expect(empleados.map((e) => [e.ci, e.rol])).toEqual([
             ['1234567LP', 'ADMIN'],
             ['2345678LP', 'CAJERO'],
-            ['3456789LP', 'MESERO']
+            ['3456789LP', 'COCINERO']
         ]);
     });
 
