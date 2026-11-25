@@ -1,9 +1,8 @@
 import { authFetch } from '../api.js';
 import { cargarHTML } from '../utils.js';
 
-
 export const cargarClienteNuevoPage = (callbackReturn) => {
-    cargarHTML("../html/cliente-nuevo.html", () => initClienteNuevo(callbackReturn));
+    cargarHTML('../html/cliente-nuevo.html', () => initClienteNuevo(callbackReturn));
 };
 
 const initClienteNuevo = (callbackReturn) => {
@@ -22,7 +21,7 @@ const initClienteNuevo = (callbackReturn) => {
             const ci = document.getElementById('new-ci').value;
             const telf = document.getElementById('new-telf').value;
 
-            if (!nombre) return alert("El nombre es obligatorio.");
+            if (!nombre) return alert('El nombre es obligatorio.');
 
             try {
                 const res = await authFetch('/clientes', {
@@ -35,16 +34,16 @@ const initClienteNuevo = (callbackReturn) => {
                 });
 
                 if (res.ok) {
-                    alert("Cliente creado exitosamente.");
+                    alert('Cliente creado exitosamente.');
 
                     if (callbackReturn) callbackReturn();
                 } else {
                     const err = await res.json();
-                    alert("Error: " + err.message);
+                    alert('Error: ' + err.message);
                 }
             } catch (error) {
                 console.error(error);
-                alert("Error de conexión.");
+                alert('Error de conexión.');
             }
         });
     }

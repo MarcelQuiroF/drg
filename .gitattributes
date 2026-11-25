@@ -1,0 +1,14 @@
+# Finales de línea: LF en el repositorio y en la copia de trabajo, también en Windows.
+# Sin esto, Git en Windows (core.autocrlf=true) convierte a CRLF al hacer checkout y
+# Prettier (endOfLine: lf) marcaría todos los archivos como mal formateados.
+* text=auto eol=lf
+
+# Binarios: nunca se convierten.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.xlsx binary
+*.pdf binary

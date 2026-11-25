@@ -13,53 +13,53 @@ const env = process.env.NODE_ENV || 'development';
 const configPath = path.join(__dirname, '..', 'config', 'config.js');
 const config = require(configPath)[env];
 
+if (!config || !config.url) {
+    const variable = env === 'test' ? 'DATABASE_URL_TEST' : 'DATABASE_URL';
+    throw new Error(`Falta ${variable}: no hay a qué base conectarse (entorno "${env}").`);
+}
+
 const db = {};
 const sequelize = new Sequelize(config.url, config);
 
-fs
-  .readdirSync(__dirname)
-  .filter(file => {
-    return (
-      file.indexOf('.') !== 0 &&
-      file !== basename &&
-      file.slice(-3) === '.js' &&
-      file.indexOf('.test.js') === -1
-    );
-  })
-  .forEach(file => {
-    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
-    db[model.name] = model;
-  });
+fs.readdirSync(__dirname)
+    .filter((file) => {
+        return (
+            file.indexOf('.') !== 0 && file !== basename && file.slice(-3) === '.js' && file.indexOf('.test.js') === -1
+        );
+    })
+    .forEach((file) => {
+        const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
+        db[model.name] = model;
+    });
 
-Object.keys(db).forEach(modelName => {
-  if (db[modelName].associate) {
-    db[modelName].associate(db);
-  }
+Object.keys(db).forEach((modelName) => {
+    if (db[modelName].associate) {
+        db[modelName].associate(db);
+    }
 });
 
-db.Categoria.belongsToMany(db.Juego, { 
-  through: db.JuegoCategoria, 
-  foreignKey: 'categoria_id',
-  otherKey: 'juego_id',
-  
+db.Categoria.belongsToMany(db.Juego, {
+    through: db.JuegoCategoria,
+    foreignKey: 'categoria_id',
+    otherKey: 'juego_id'
 });
 
-db.Juego.belongsToMany(db.Categoria, { 
-  through: db.JuegoCategoria, 
-  foreignKey: 'juego_id',
-  otherKey: 'categoria_id'
+db.Juego.belongsToMany(db.Categoria, {
+    through: db.JuegoCategoria,
+    foreignKey: 'juego_id',
+    otherKey: 'categoria_id'
 });
 
-db.Categoria.belongsToMany(db.Producto, { 
-  through: db.ProductoCategoria, 
-  foreignKey: 'categoria_id',
-  otherKey: 'producto_id'
+db.Categoria.belongsToMany(db.Producto, {
+    through: db.ProductoCategoria,
+    foreignKey: 'categoria_id',
+    otherKey: 'producto_id'
 });
 
-db.Producto.belongsToMany(db.Categoria, { 
-  through: db.ProductoCategoria, 
-  foreignKey: 'producto_id',
-  otherKey: 'categoria_id'
+db.Producto.belongsToMany(db.Categoria, {
+    through: db.ProductoCategoria,
+    foreignKey: 'producto_id',
+    otherKey: 'categoria_id'
 });
 
 db.Piso.hasMany(db.Mesa, { foreignKey: 'piso_id' });
@@ -86,16 +86,16 @@ db.Reserva.belongsTo(db.Cliente, { foreignKey: 'cliente_id' });
 db.Mesa.hasMany(db.Reserva, { foreignKey: 'mesa_id' });
 db.Reserva.belongsTo(db.Mesa, { foreignKey: 'mesa_id' });
 
-db.Orden.belongsToMany(db.Descuento, { 
-  through: db.OrdenDescuento,
-  foreignKey: 'orden_id',
-  otherKey: 'descuento_id'
+db.Orden.belongsToMany(db.Descuento, {
+    through: db.OrdenDescuento,
+    foreignKey: 'orden_id',
+    otherKey: 'descuento_id'
 });
 
-db.Descuento.belongsToMany(db.Orden, { 
-  through: db.OrdenDescuento,
-  foreignKey: 'descuento_id',
-  otherKey: 'orden_id'
+db.Descuento.belongsToMany(db.Orden, {
+    through: db.OrdenDescuento,
+    foreignKey: 'descuento_id',
+    otherKey: 'orden_id'
 });
 
 db.Empleado.hasMany(db.Horario, { foreignKey: 'empleado_id' });
@@ -116,39 +116,38 @@ db.ContenedorTransaccion.belongsTo(db.Orden, { foreignKey: 'orden_id' });
 db.Cliente.hasMany(db.ContenedorTransaccion, { foreignKey: 'cliente_id' });
 db.ContenedorTransaccion.belongsTo(db.Cliente, { foreignKey: 'cliente_id' });
 
-db.Registro.belongsToMany(db.Orden, { 
-  through: db.RegistroOrden, 
-  foreignKey: 'registro_id',
-  otherKey: 'orden_id'
+db.Registro.belongsToMany(db.Orden, {
+    through: db.RegistroOrden,
+    foreignKey: 'registro_id',
+    otherKey: 'orden_id'
 });
-db.Orden.belongsToMany(db.Registro, { 
-  through: db.RegistroOrden, 
-  foreignKey: 'orden_id',
-  otherKey: 'registro_id'
-});
-
-db.Registro.belongsToMany(db.Reserva, { 
-  through: db.RegistroReserva, 
-  foreignKey: 'registro_id',
-  otherKey: 'reserva_id'
-});
-db.Reserva.belongsToMany(db.Registro, { 
-  through: db.RegistroReserva, 
-  foreignKey: 'reserva_id',
-  otherKey: 'registro_id'
+db.Orden.belongsToMany(db.Registro, {
+    through: db.RegistroOrden,
+    foreignKey: 'orden_id',
+    otherKey: 'registro_id'
 });
 
-db.Registro.belongsToMany(db.Asistencia, { 
-  through: db.RegistroAsistencia, 
-  foreignKey: 'registro_id',
-  otherKey: 'atraso_id' 
+db.Registro.belongsToMany(db.Reserva, {
+    through: db.RegistroReserva,
+    foreignKey: 'registro_id',
+    otherKey: 'reserva_id'
 });
-db.Asistencia.belongsToMany(db.Registro, { 
-  through: db.RegistroAsistencia, 
-  foreignKey: 'atraso_id',
-  otherKey: 'registro_id'
+db.Reserva.belongsToMany(db.Registro, {
+    through: db.RegistroReserva,
+    foreignKey: 'reserva_id',
+    otherKey: 'registro_id'
 });
 
+db.Registro.belongsToMany(db.Asistencia, {
+    through: db.RegistroAsistencia,
+    foreignKey: 'registro_id',
+    otherKey: 'atraso_id'
+});
+db.Asistencia.belongsToMany(db.Registro, {
+    through: db.RegistroAsistencia,
+    foreignKey: 'atraso_id',
+    otherKey: 'registro_id'
+});
 
 db.sequelize = sequelize;
 

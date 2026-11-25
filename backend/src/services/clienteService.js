@@ -4,20 +4,17 @@ const { Op } = require('sequelize');
 async function crearCliente(datos) {
     if (datos.ci) {
         const existe = await Cliente.findOne({ where: { ci: datos.ci } });
-        if (existe) throw new Error("Ya existe un cliente con ese CI.");
+        if (existe) throw new Error('Ya existe un cliente con ese CI.');
     }
     return await Cliente.create(datos);
 }
 
 async function listarClientes(busqueda = '') {
     const opciones = { order: [['nombre', 'ASC']] };
-    
+
     if (busqueda) {
         opciones.where = {
-            [Op.or]: [
-                { nombre: { [Op.iLike]: `%${busqueda}%` } },
-                { ci: { [Op.iLike]: `%${busqueda}%` } }
-            ]
+            [Op.or]: [{ nombre: { [Op.iLike]: `%${busqueda}%` } }, { ci: { [Op.iLike]: `%${busqueda}%` } }]
         };
     }
 

@@ -116,21 +116,40 @@ Las etiquetas y los milestones se crean con `.github/scripts/configurar-repo.sh`
 
 ## 6. Estilo de código
 
-Hasta que lleguen ESLint y Prettier (Etapa 3 de la ruta), se mantiene el estilo actual:
+El formato lo aplica **Prettier** y los errores comunes los detecta **ESLint**. Los dos se instalan en la **raíz** del repositorio (el `package.json` de la raíz solo tiene estas herramientas; la API sigue en `backend/`):
 
-- **Indentación de 4 espacios**, UTF-8 y finales de línea LF (ver `.editorconfig`).
-- Punto y coma al final de cada sentencia.
+```bash
+npm install              # en la raíz, una vez
+npm run lint             # ESLint en backend/ y frontend/
+npm run lint:fix         # corrige lo que ESLint puede corregir solo
+npm run format           # aplica Prettier a todo el JavaScript y el JSON
+npm run check            # lint + revisión de formato (lo mismo que corre el CI, #19)
+```
+
+**Antes de abrir un PR**, `npm run check` tiene que pasar sin errores. Con la extensión de Prettier y la de ESLint en el editor, el formato se aplica al guardar.
+
+Qué revisa cada uno:
+
+- **Prettier** (`.prettierrc.json`): 4 espacios (2 en JSON), punto y coma, comillas simples, líneas de hasta 120 caracteres, sin coma final y finales de línea LF. Solo formatea **JavaScript y JSON**; HTML y CSS quedan fuera hasta #71/#72, y el Markdown se escribe a mano (`.prettierignore`).
+- **ESLint** (`eslint.config.js`): las reglas recomendadas más `no-unused-vars`, `eqeqeq`, `no-var` y `prefer-const`. El backend se revisa como CommonJS para Node y el frontend como módulos ES para el navegador (`catalogoCliente.js` como script clásico). `eslint-config-prettier` apaga las reglas de formato para que no choquen con Prettier.
+- Si hace falta silenciar una regla, se hace en la línea concreta y con el motivo: `// eslint-disable-next-line no-unused-vars -- se usa en #46`.
+
+Además:
+
+- **Finales de línea LF** en todos los sistemas: lo fijan `.editorconfig` y `.gitattributes` (Git no convierte a CRLF en Windows).
 - **Backend:** CommonJS (`require` / `module.exports`), patrón **Route → Controller → Service → Model**. Los controladores no hablan directo con los modelos: pasan por el servicio.
 - **Frontend:** módulos ES6 (`import` / `export`) en `frontend/js/modules/`.
 - Nombres de variables, funciones, rutas y mensajes en **español**, en `camelCase` (`crearOrden`, `actualizarTotalOrden`). Las tablas y columnas de la base de datos en `snake_case` (`mesa_id`, `hora_entrada`).
 - Los errores del backend se pasan a `next(error)` para que los maneje `errorHandler`.
 - Nada de credenciales, `.env` ni datos reales de clientes o empleados en el repositorio.
+- Los cambios de solo formato van en un commit `style:` aparte y se agregan a `.git-blame-ignore-revs`, para que `git blame` siga mostrando al autor real de cada línea (en local: `git config blame.ignoreRevsFile .git-blame-ignore-revs`).
 
 ## 7. Definición de "terminado"
 
 Un PR está listo para merge cuando:
 
 - [ ] Cumple todos los criterios de aceptación de la issue.
-- [ ] Se probó de forma manual (y, cuando existan, pasan las pruebas automáticas y el CI).
+- [ ] Se probó de forma manual y pasan las pruebas automáticas (`cd backend && npm test`) y el CI.
+- [ ] Si corrige un bug que tenía una prueba `test.failing`, la prueba pasa a `test`. Si agrega o cambia comportamiento, agrega su prueba (ver `docs/05_pruebas/`).
 - [ ] La documentación afectada está actualizada (`README.md`, `docs/`).
 - [ ] No deja código comentado, `console.log` de depuración ni archivos sueltos.

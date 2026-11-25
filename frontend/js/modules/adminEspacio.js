@@ -14,24 +14,23 @@ export const initAdminEspacio = async () => {
 };
 
 const setupEventListeners = () => {
-    document.querySelectorAll('.js-type .filter-opt').forEach(opt => {
+    document.querySelectorAll('.js-type .filter-opt').forEach((opt) => {
         opt.onclick = () => {
-            document.querySelectorAll('.js-type .filter-opt').forEach(o => o.classList.remove('active'));
+            document.querySelectorAll('.js-type .filter-opt').forEach((o) => o.classList.remove('active'));
             opt.classList.add('active');
             currentTypeFilter = opt.dataset.type;
             renderGrilla();
         };
     });
 
-    document.querySelectorAll('.js-stats .filter-opt').forEach(opt => {
+    document.querySelectorAll('.js-stats .filter-opt').forEach((opt) => {
         opt.onclick = () => {
-            document.querySelectorAll('.js-stats .filter-opt').forEach(o => o.classList.remove('active'));
+            document.querySelectorAll('.js-stats .filter-opt').forEach((o) => o.classList.remove('active'));
             opt.classList.add('active');
             currentStatusFilter = opt.dataset.status;
             renderGrilla();
         };
     });
-
 
     const searchInput = document.getElementById('admin-search-input');
     if (searchInput) {
@@ -44,8 +43,15 @@ const setupEventListeners = () => {
     document.getElementById('btn-nuevo-piso').onclick = () => openPisoModal();
     document.getElementById('btn-nueva-mesa').onclick = () => openMesaModal();
 
-    const closeEls = ['close-piso-modal', 'btn-cancelar-piso', 'close-mesa-modal', 'btn-cancelar-mesa', 'close-status-modal', 'modal-overlay'];
-    closeEls.forEach(id => {
+    const closeEls = [
+        'close-piso-modal',
+        'btn-cancelar-piso',
+        'close-mesa-modal',
+        'btn-cancelar-mesa',
+        'close-status-modal',
+        'modal-overlay'
+    ];
+    closeEls.forEach((id) => {
         const el = document.getElementById(id);
         if (el) el.onclick = closeAllModals;
     });
@@ -57,16 +63,15 @@ const setupEventListeners = () => {
 
 const loadData = async () => {
     try {
-        const [resPisos, resMesas] = await Promise.all([
-            authFetch('/pisos'),
-            authFetch('/mesas')
-        ]);
+        const [resPisos, resMesas] = await Promise.all([authFetch('/pisos'), authFetch('/mesas')]);
 
         if (resPisos.ok) allPisos = await resPisos.json();
         if (resMesas.ok) allMesas = await resMesas.json();
-        
+
         renderGrilla();
-    } catch (e) { console.error("Error cargando espacios:", e); }
+    } catch (e) {
+        console.error('Error cargando espacios:', e);
+    }
 };
 
 const renderGrilla = () => {
@@ -78,13 +83,15 @@ const renderGrilla = () => {
     const templateId = currentTypeFilter === 'piso' ? 'template-piso-card' : 'template-mesa-card';
     const template = document.getElementById(templateId);
 
-    const filtered = listToRender.filter(item => {
-        const matchStatus = currentStatusFilter === 'all' || 
-                            (currentStatusFilter === 'active' ? (item.activo !== false) : (item.activo === false));
-        const textoBusqueda = currentTypeFilter === 'piso' 
-            ? item.nombre.toLowerCase() 
-            : `${item.nombre} ${item.Piso ? item.Piso.nombre : ''}`.toLowerCase();
-        
+    const filtered = listToRender.filter((item) => {
+        const matchStatus =
+            currentStatusFilter === 'all' ||
+            (currentStatusFilter === 'active' ? item.activo !== false : item.activo === false);
+        const textoBusqueda =
+            currentTypeFilter === 'piso'
+                ? item.nombre.toLowerCase()
+                : `${item.nombre} ${item.Piso ? item.Piso.nombre : ''}`.toLowerCase();
+
         const matchSearch = textoBusqueda.includes(searchStr);
         return matchStatus && matchSearch;
     });
@@ -94,20 +101,21 @@ const renderGrilla = () => {
         return;
     }
 
-    filtered.forEach(item => {
+    filtered.forEach((item) => {
         const clon = template.content.cloneNode(true);
         const card = clon.querySelector('.contenedor-producto');
-        
-        const isActivo = item.activo !== false; 
+
+        const isActivo = item.activo !== false;
         card.classList.add(isActivo ? 'activo' : 'inactivo');
-        
+
         clon.querySelector('.prod-name').textContent = item.nombre;
-        
+
         if (currentTypeFilter === 'piso') {
             clon.querySelector('.espacio-extra-text').textContent = `Nivel: ${item.numero}`;
         } else {
             clon.querySelector('.prod-cat').textContent = item.Piso ? item.Piso.nombre.toUpperCase() : 'SIN PISO';
-            clon.querySelector('.espacio-extra-text').textContent = `Capacidad: ${item.cantidadMinima}-${item.cantidadMaxima} pers. | N° ${item.numero}`;
+            clon.querySelector('.espacio-extra-text').textContent =
+                `Capacidad: ${item.cantidadMinima}-${item.cantidadMaxima} pers. | N° ${item.numero}`;
         }
 
         const btnToggle = clon.querySelector('.btn-toggle-status');
@@ -129,14 +137,13 @@ const renderGrilla = () => {
     });
 };
 
-
 const openPisoModal = (piso = null) => {
     EDIT_ID = piso ? piso.id : null;
-    
-    document.getElementById('form-piso-title').textContent = piso ? "Editar Piso" : "Nuevo Piso";
-    document.getElementById('piso-nombre').value = piso ? piso.nombre : "";
-    document.getElementById('piso-numero').value = piso ? piso.numero : "";
-    document.getElementById('piso-activo').value = piso && piso.activo === false ? "false" : "true";
+
+    document.getElementById('form-piso-title').textContent = piso ? 'Editar Piso' : 'Nuevo Piso';
+    document.getElementById('piso-nombre').value = piso ? piso.nombre : '';
+    document.getElementById('piso-numero').value = piso ? piso.numero : '';
+    document.getElementById('piso-activo').value = piso && piso.activo === false ? 'false' : 'true';
     document.getElementById('form-piso-error-msg').className = 'error-text-hidden';
 
     document.getElementById('modal-overlay').className = 'modal-overlay-visible';
@@ -151,7 +158,7 @@ const handleSavePiso = async () => {
     const numero = document.getElementById('piso-numero').value;
 
     if (!nombre || !numero) {
-        errorEl.textContent = "Nombre y número son obligatorios.";
+        errorEl.textContent = 'Nombre y número son obligatorios.';
         errorEl.className = 'error-text-visible';
         return;
     }
@@ -176,38 +183,38 @@ const handleSavePiso = async () => {
             errorEl.className = 'error-text-visible';
         }
     } catch (e) {
-        errorEl.textContent = "Error de conexión.";
+        errorEl.textContent = 'Error de conexión.';
         errorEl.className = 'error-text-visible';
     }
 };
 
 const openMesaModal = (mesa = null) => {
     if (allPisos.length === 0) {
-        alert("⚠️ No puedes crear una mesa porque no hay pisos registrados. Crea un piso primero.");
+        alert('⚠️ No puedes crear una mesa porque no hay pisos registrados. Crea un piso primero.');
         return;
     }
 
     EDIT_ID = mesa ? mesa.id : null;
-    
-    document.getElementById('form-mesa-title').textContent = mesa ? "Editar Mesa" : "Nueva Mesa";
-    document.getElementById('mesa-nombre').value = mesa ? mesa.nombre : "";
-    document.getElementById('mesa-numero').value = mesa ? mesa.numero : "";
-    document.getElementById('mesa-cap-min').value = mesa ? mesa.cantidadMinima : "1";
-    document.getElementById('mesa-cap-max').value = mesa ? mesa.cantidadMaxima : "4";
-    document.getElementById('mesa-activo').value = mesa && mesa.activo === false ? "false" : "true";
+
+    document.getElementById('form-mesa-title').textContent = mesa ? 'Editar Mesa' : 'Nueva Mesa';
+    document.getElementById('mesa-nombre').value = mesa ? mesa.nombre : '';
+    document.getElementById('mesa-numero').value = mesa ? mesa.numero : '';
+    document.getElementById('mesa-cap-min').value = mesa ? mesa.cantidadMinima : '1';
+    document.getElementById('mesa-cap-max').value = mesa ? mesa.cantidadMaxima : '4';
+    document.getElementById('mesa-activo').value = mesa && mesa.activo === false ? 'false' : 'true';
     document.getElementById('form-mesa-error-msg').className = 'error-text-hidden';
 
     const selectPiso = document.getElementById('mesa-piso-id');
     selectPiso.innerHTML = '<option value="" disabled>Seleccione un piso...</option>';
-    allPisos.forEach(p => {
+    allPisos.forEach((p) => {
         const opt = new Option(p.nombre, p.id);
         selectPiso.add(opt);
     });
-    
+
     if (mesa && mesa.piso_id) {
         selectPiso.value = mesa.piso_id;
     } else {
-        selectPiso.selectedIndex = 1; 
+        selectPiso.selectedIndex = 1;
     }
 
     document.getElementById('modal-overlay').className = 'modal-overlay-visible';
@@ -225,13 +232,13 @@ const handleSaveMesa = async () => {
     const piso_id = document.getElementById('mesa-piso-id').value;
 
     if (!nombre || !numero || !piso_id) {
-        errorEl.textContent = "Nombre, número y piso son obligatorios.";
+        errorEl.textContent = 'Nombre, número y piso son obligatorios.';
         errorEl.className = 'error-text-visible';
         return;
     }
 
     if (min > max) {
-        errorEl.textContent = "La capacidad mínima no puede ser mayor a la máxima.";
+        errorEl.textContent = 'La capacidad mínima no puede ser mayor a la máxima.';
         errorEl.className = 'error-text-visible';
         return;
     }
@@ -259,7 +266,7 @@ const handleSaveMesa = async () => {
             errorEl.className = 'error-text-visible';
         }
     } catch (e) {
-        errorEl.textContent = "Error de conexión.";
+        errorEl.textContent = 'Error de conexión.';
         errorEl.className = 'error-text-visible';
     }
 };
@@ -282,8 +289,9 @@ const openStatusModal = (item, type) => {
 const handleConfirmToggle = async () => {
     if (!ITEM_PARA_TOGGLE) return;
 
-    const endpoint = ITEM_PARA_TOGGLE.type === 'piso' ? `/pisos/${ITEM_PARA_TOGGLE.id}` : `/mesas/${ITEM_PARA_TOGGLE.id}`;
-    
+    const endpoint =
+        ITEM_PARA_TOGGLE.type === 'piso' ? `/pisos/${ITEM_PARA_TOGGLE.id}` : `/mesas/${ITEM_PARA_TOGGLE.id}`;
+
     try {
         const res = await authFetch(endpoint, {
             method: 'PUT',
@@ -293,7 +301,9 @@ const handleConfirmToggle = async () => {
             closeAllModals();
             await loadData();
         }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+        console.error(e);
+    }
 };
 
 const closeAllModals = () => {

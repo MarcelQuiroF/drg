@@ -1,4 +1,3 @@
-
 module.exports = {
     OK: { code: 200, message: 'Solicitud exitosa.' },
     CREATED: { code: 201, message: 'Recurso creado exitosamente.' },
@@ -9,7 +8,7 @@ module.exports = {
     FORBIDDEN: { code: 403, message: 'Acceso prohibido. El usuario no tiene permisos.' },
     NOT_FOUND: { code: 404, message: 'El recurso solicitado no fue encontrado.' },
     CONFLICT: { code: 409, message: 'Conflicto con el estado actual del recurso (ej. registro duplicado).' },
-    
+
     INTERNAL_SERVER_ERROR: { code: 500, message: 'Error interno del servidor.' },
-    SERVICE_UNAVAILABLE: { code: 503, message: 'El servicio no está disponible temporalmente.' },
+    SERVICE_UNAVAILABLE: { code: 503, message: 'El servicio no está disponible temporalmente.' }
 };

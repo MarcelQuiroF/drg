@@ -1,0 +1,12 @@
+# Prettier solo formatea JavaScript y JSON (decisión de #17).
+# HTML y CSS los ordenan #71 y #72; el Markdown es documentación escrita a mano.
+*.html
+*.css
+*.md
+*.yml
+*.yaml
+
+# Generados o de terceros
+package-lock.json
+node_modules/
+coverage/

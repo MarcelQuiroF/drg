@@ -9,10 +9,7 @@ if (cierreGuardado === fechaHoy) {
     window.location.href = 'cerrado.html';
 }
 
-
-
-
-if(loginForm){
+if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -30,9 +27,9 @@ if(loginForm){
 
             if (response.ok) {
                 localStorage.setItem('token_drg', data.token);
-                const rolUsuario = data.empleado.rol; 
+                const rolUsuario = data.empleado.rol;
                 localStorage.setItem('usuario_rol', rolUsuario);
-                
+
                 if (rolUsuario === 'ADMIN') {
                     window.location.href = '/html/indexAdmin.html';
                 } else {

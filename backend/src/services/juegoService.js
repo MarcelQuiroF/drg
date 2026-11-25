@@ -1,7 +1,6 @@
 const { Juego, Categoria } = require('../models');
 
 async function crearJuego(datos, idsCategorias = []) {
-
     const nuevoJuego = await Juego.create(datos);
 
     if (idsCategorias && idsCategorias.length > 0) {
@@ -18,10 +17,9 @@ async function listarJuegos(categoriaId = null) {
         through: { attributes: [] }
     };
 
-
     if (categoriaId) {
         includeOption.where = { id: categoriaId };
-        includeOption.required = true; 
+        includeOption.required = true;
     }
 
     return await Juego.findAll({
@@ -32,11 +30,13 @@ async function listarJuegos(categoriaId = null) {
 
 async function obtenerJuegoPorId(id) {
     return await Juego.findByPk(id, {
-        include: [{
-            model: Categoria,
-            attributes: ['id', 'nombre'],
-            through: { attributes: [] }
-        }]
+        include: [
+            {
+                model: Categoria,
+                attributes: ['id', 'nombre'],
+                through: { attributes: [] }
+            }
+        ]
     });
 }
 

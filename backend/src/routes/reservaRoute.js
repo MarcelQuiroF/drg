@@ -8,7 +8,7 @@ router.use(authenticate);
 router.get('/', reservaController.listar);
 router.post('/', reservaController.crear);
 router.delete('/:id', reservaController.eliminar);
-router.get('/:id', reservaController.obtenerPorId); 
-router.put('/:id', reservaController.actualizar); 
+router.get('/:id', reservaController.obtenerPorId);
+router.put('/:id', reservaController.actualizar);
 
 module.exports = router;

@@ -1,8 +1,8 @@
 import { authFetch } from '../api.js';
 
 let allInventory = [];
-let allCategories = [];  
-let selectedCategories = []; 
+let allCategories = [];
+let selectedCategories = [];
 let currentCategory = 'all';
 let currentStatus = 'active';
 let searchStr = '';
@@ -10,24 +10,24 @@ let EDIT_ID = null;
 let ITEM_PARA_TOGGLE = null;
 
 export const initAdminProductos = async () => {
-    await loadCategories(); 
+    await loadCategories();
     await loadInventory();
     setupEventListeners();
 };
 
 const setupEventListeners = () => {
-    document.querySelectorAll('.js-cats .filter-opt').forEach(opt => {
+    document.querySelectorAll('.js-cats .filter-opt').forEach((opt) => {
         opt.onclick = () => {
-            document.querySelectorAll('.js-cats .filter-opt').forEach(o => o.classList.remove('active'));
+            document.querySelectorAll('.js-cats .filter-opt').forEach((o) => o.classList.remove('active'));
             opt.classList.add('active');
             currentCategory = opt.dataset.filter;
             renderInventory();
         };
     });
 
-    document.querySelectorAll('.js-stats .filter-opt').forEach(opt => {
+    document.querySelectorAll('.js-stats .filter-opt').forEach((opt) => {
         opt.onclick = () => {
-            document.querySelectorAll('.js-stats .filter-opt').forEach(o => o.classList.remove('active'));
+            document.querySelectorAll('.js-stats .filter-opt').forEach((o) => o.classList.remove('active'));
             opt.classList.add('active');
             currentStatus = opt.dataset.status;
             renderInventory();
@@ -102,56 +102,61 @@ const loadInventory = async () => {
 
         if (resP.ok) {
             const data = await resP.json();
-            combined = combined.concat(data.map(p => ({ ...p, type: 'producto', category: p.zona })));
+            combined = combined.concat(data.map((p) => ({ ...p, type: 'producto', category: p.zona })));
         }
         if (resJ.ok) {
             const data = await resJ.json();
-            combined = combined.concat(data.map(j => ({ ...j, type: 'juego', category: 'JUEGO' })));
+            combined = combined.concat(data.map((j) => ({ ...j, type: 'juego', category: 'JUEGO' })));
         }
 
         allInventory = combined;
         renderInventory();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+        console.error(e);
+    }
 };
 
 const loadCategories = async () => {
     try {
         const res = await authFetch('/categorias');
         if (res.ok) allCategories = await res.json();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+        console.error(e);
+    }
 };
 
 const renderInventory = () => {
     const container = document.getElementById('admin-products-container');
     const template = document.getElementById('template-admin-card');
     if (!container || !template) return;
-    
+
     container.innerHTML = '';
 
-    const filtered = allInventory.filter(item => {
+    const filtered = allInventory.filter((item) => {
         const matchCat = currentCategory === 'all' || item.category === currentCategory;
         const matchStatus = currentStatus === 'all' || (currentStatus === 'active' ? item.activado : !item.activado);
         const matchSearch = item.nombre.toLowerCase().includes(searchStr);
         return matchCat && matchStatus && matchSearch;
     });
 
-    filtered.forEach(item => {
+    filtered.forEach((item) => {
         const clon = template.content.cloneNode(true);
         const card = clon.querySelector('.contenedor-producto');
         const img = clon.querySelector('.prod-img');
-        
+
         card.classList.add(item.activado ? 'activo' : 'inactivo');
         clon.querySelector('.prod-name').textContent = item.nombre;
         clon.querySelector('.val-price').textContent = `Bs ${item.precio}`;
-        
+
         const categoriaVisual = item.type === 'juego' ? 'Juego de Mesa' : item.zona;
         clon.querySelector('.prod-cat').textContent = categoriaVisual;
-        
-        const imgDefault = {
-            'COCINA': '../assets/productos/default-burger.png',
-            'CAFETERIA': '../assets/productos/default-drink.png',
-            'JUEGO': '../assets/productos/default-game.png'
-        }[item.category] || '../assets/productos/default-burger.png';
+
+        const imgDefault =
+            {
+                COCINA: '../assets/productos/default-burger.png',
+                CAFETERIA: '../assets/productos/default-drink.png',
+                JUEGO: '../assets/productos/default-game.png'
+            }[item.category] || '../assets/productos/default-burger.png';
 
         // MODIFICADO: Resolución inteligente del path para nombres de archivos puros
         if (item.imagen) {
@@ -164,12 +169,14 @@ const renderInventory = () => {
             img.src = imgDefault;
         }
 
-        img.onerror = () => { img.src = imgDefault; };
+        img.onerror = () => {
+            img.src = imgDefault;
+        };
 
         const btnToggle = clon.querySelector('.btn-toggle-status');
         if (btnToggle) {
             btnToggle.textContent = item.activado ? 'Anular' : 'Activar';
-            
+
             btnToggle.onclick = (e) => {
                 e.stopPropagation();
                 toggleStatus(item);
@@ -193,16 +200,21 @@ const renderCategoryResults = (term) => {
         return;
     }
 
-    const filtered = allCategories.filter(c => 
-        c.nombre.toLowerCase().includes(term) && 
-        !selectedCategories.find(sel => sel.id === c.id)
+    const filtered = allCategories.filter(
+        (c) => c.nombre.toLowerCase().includes(term) && !selectedCategories.find((sel) => sel.id === c.id)
     );
 
-    resultsDiv.innerHTML = filtered.length === 0 
-        ? '<div class="category-option">No hay resultados</div>'
-        : filtered.map(c => `<div class="category-option" data-id="${c.id}" data-nombre="${c.nombre}">${c.nombre}</div>`).join('');
-    
-    resultsDiv.querySelectorAll('.category-option').forEach(opt => {
+    resultsDiv.innerHTML =
+        filtered.length === 0
+            ? '<div class="category-option">No hay resultados</div>'
+            : filtered
+                  .map(
+                      (c) =>
+                          `<div class="category-option" data-id="${c.id}" data-nombre="${c.nombre}">${c.nombre}</div>`
+                  )
+                  .join('');
+
+    resultsDiv.querySelectorAll('.category-option').forEach((opt) => {
         opt.onclick = () => addCategoryTag(opt.dataset.id, opt.dataset.nombre);
     });
     resultsDiv.classList.remove('hidden');
@@ -217,23 +229,27 @@ const addCategoryTag = (id, nombre) => {
 };
 
 window.removeCategoryTag = (id) => {
-    selectedCategories = selectedCategories.filter(c => c.id !== id);
+    selectedCategories = selectedCategories.filter((c) => c.id !== id);
     renderTags();
 };
 
 const renderTags = () => {
     const container = document.getElementById('category-tags');
     if (container) {
-        container.innerHTML = selectedCategories.map(c => `
+        container.innerHTML = selectedCategories
+            .map(
+                (c) => `
             <span class="tag">${c.nombre}<i class='bx bx-x' onclick="removeCategoryTag(${c.id})"></i></span>
-        `).join('');
+        `
+            )
+            .join('');
     }
 };
 
 const openModal = (item = null) => {
     EDIT_ID = item ? item.id : null;
-    selectedCategories = item ? (item.Categorias || []) : [];
-    
+    selectedCategories = item ? item.Categorias || [] : [];
+
     const setVal = (id, val) => {
         const el = document.getElementById(id);
         if (el) el.value = val;
@@ -246,12 +262,12 @@ const openModal = (item = null) => {
     }
 
     const formTitle = document.getElementById('form-title');
-    if (formTitle) formTitle.textContent = item ? "Editar Producto" : "Nuevo Producto";
+    if (formTitle) formTitle.textContent = item ? 'Editar Producto' : 'Nuevo Producto';
 
-    setVal('prod-nombre', item ? item.nombre : "");
-    setVal('prod-precio', item ? item.precio : "");
-    setVal('prod-activado', item ? item.activado.toString() : "true");
-    
+    setVal('prod-nombre', item ? item.nombre : '');
+    setVal('prod-precio', item ? item.precio : '');
+    setVal('prod-activado', item ? item.activado.toString() : 'true');
+
     const previewImg = document.getElementById('preview-img');
     if (previewImg) {
         // MODIFICADO: Ajuste de path para previsualización correcta en el modal
@@ -262,22 +278,22 @@ const openModal = (item = null) => {
                 previewImg.src = `../assets/imagenes/${item.imagen}`;
             }
         } else {
-            previewImg.src = "../assets/productos/default-burger.png";
+            previewImg.src = '../assets/productos/default-burger.png';
         }
     }
 
     const selectZona = document.getElementById('prod-zona');
     if (selectZona) {
         const options = selectZona.options;
-        for (let opt of options) opt.disabled = false;
+        for (const opt of options) opt.disabled = false;
         selectZona.disabled = false;
 
         if (item) {
             if (item.type === 'juego') {
                 selectZona.value = 'JUEGO';
-                selectZona.disabled = true; 
+                selectZona.disabled = true;
             } else {
-                for (let opt of options) if (opt.value === 'JUEGO') opt.disabled = true;
+                for (const opt of options) if (opt.value === 'JUEGO') opt.disabled = true;
                 selectZona.value = item.zona;
             }
         } else {
@@ -306,7 +322,7 @@ const handleSave = async () => {
 
     if (!nombre || isNaN(precio)) {
         if (errorEl) {
-            errorEl.textContent = "Nombre y precio son obligatorios.";
+            errorEl.textContent = 'Nombre y precio son obligatorios.';
             errorEl.className = 'error-text-visible';
         }
         return;
@@ -316,8 +332,10 @@ const handleSave = async () => {
         nombre,
         precio,
         activado: document.getElementById('prod-activado')?.value === 'true',
-        categorias: selectedCategories.map(c => c.id),
-        imagen: previewImg.src.includes('data:image') ? previewImg.src : (EDIT_ID && allInventory.find(i => i.id === EDIT_ID)?.imagen || null) 
+        categorias: selectedCategories.map((c) => c.id),
+        imagen: previewImg.src.includes('data:image')
+            ? previewImg.src
+            : (EDIT_ID && allInventory.find((i) => i.id === EDIT_ID)?.imagen) || null
     };
 
     if (zona === 'JUEGO') {
@@ -331,9 +349,9 @@ const handleSave = async () => {
     const url = EDIT_ID ? `${endpoint}/${EDIT_ID}` : endpoint;
 
     try {
-        const res = await authFetch(url, { 
-            method: EDIT_ID ? 'PUT' : 'POST', 
-            body: JSON.stringify(data) 
+        const res = await authFetch(url, {
+            method: EDIT_ID ? 'PUT' : 'POST',
+            body: JSON.stringify(data)
         });
 
         if (res.ok) {
@@ -348,7 +366,7 @@ const handleSave = async () => {
         }
     } catch (e) {
         if (errorEl) {
-            errorEl.textContent = "Error de conexión con el servidor.";
+            errorEl.textContent = 'Error de conexión con el servidor.';
             errorEl.className = 'error-text-visible';
         }
     }
@@ -361,7 +379,7 @@ const closeAllModals = () => {
     EDIT_ID = null;
     ITEM_PARA_TOGGLE = null;
     selectedCategories = [];
-    
+
     const fileInput = document.getElementById('file-input');
     if (fileInput) fileInput.value = '';
 };
@@ -372,7 +390,8 @@ const toggleStatus = (item) => {
     const msg = document.getElementById('status-modal-message');
     const btnConfirm = document.getElementById('btn-status-confirm');
 
-    if (msg) msg.innerHTML = `¿Deseas ${nextStatus ? '<strong>activar</strong>' : '<strong>desactivar</strong>'} <br> "<strong>${item.nombre}</strong>"?`;
+    if (msg)
+        msg.innerHTML = `¿Deseas ${nextStatus ? '<strong>activar</strong>' : '<strong>desactivar</strong>'} <br> "<strong>${item.nombre}</strong>"?`;
 
     if (btnConfirm) {
         btnConfirm.className = 'btn-primary ' + (nextStatus ? 'confirm-activar' : 'confirm-desactivar');
@@ -385,7 +404,8 @@ const toggleStatus = (item) => {
 
 const handleConfirmToggle = async () => {
     if (!ITEM_PARA_TOGGLE) return;
-    const endpoint = ITEM_PARA_TOGGLE.type === 'producto' ? `/productos/${ITEM_PARA_TOGGLE.id}` : `/juegos/${ITEM_PARA_TOGGLE.id}`;
+    const endpoint =
+        ITEM_PARA_TOGGLE.type === 'producto' ? `/productos/${ITEM_PARA_TOGGLE.id}` : `/juegos/${ITEM_PARA_TOGGLE.id}`;
 
     try {
         const res = await authFetch(endpoint, {
@@ -396,5 +416,7 @@ const handleConfirmToggle = async () => {
             closeAllModals();
             await loadInventory();
         }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+        console.error(e);
+    }
 };

@@ -13,8 +13,8 @@ const cargarCategoriasReferencia = async () => {
             const categorias = await res.json();
             const ul = document.getElementById('lista-categorias-ref');
             ul.innerHTML = '';
-            
-            categorias.forEach(cat => {
+
+            categorias.forEach((cat) => {
                 ul.innerHTML += `
                     <li style="padding: 8px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
                         <span style="color: var(--color-text-primary); font-weight: bold;">${cat.nombre}</span>
@@ -24,7 +24,7 @@ const cargarCategoriasReferencia = async () => {
             });
         }
     } catch (e) {
-        console.error("Error cargando categorías:", e);
+        console.error('Error cargando categorías:', e);
     }
 };
 
@@ -41,24 +41,18 @@ const configurarFormularios = () => {
 
     // CORREGIDO: Quitamos el '/api/v1' manual para que lo maneje authFetch
     document.getElementById('btn-plantilla-prod').addEventListener('click', () => {
-        descargarArchivoExcel(
-            '/importacion/plantillas/productos',
-            'Plantilla_Productos.xlsx'
-        );
+        descargarArchivoExcel('/importacion/plantillas/productos', 'Plantilla_Productos.xlsx');
     });
 
     document.getElementById('btn-plantilla-juegos').addEventListener('click', () => {
-        descargarArchivoExcel(
-            '/importacion/plantillas/juegos',
-            'Plantilla_Juegos.xlsx'
-        );
+        descargarArchivoExcel('/importacion/plantillas/juegos', 'Plantilla_Juegos.xlsx');
     });
 };
 
 const subirExcel = async (inputId, endpoint, btnId) => {
     const input = document.getElementById(inputId);
     const btn = document.getElementById(btnId);
-    
+
     if (input.files.length === 0) return;
 
     const file = input.files[0];
@@ -66,7 +60,7 @@ const subirExcel = async (inputId, endpoint, btnId) => {
     formData.append('archivoExcel', file);
 
     const textoOriginal = btn.textContent;
-    btn.textContent = "Procesando...";
+    btn.textContent = 'Procesando...';
     btn.disabled = true;
 
     try {
@@ -77,7 +71,7 @@ const subirExcel = async (inputId, endpoint, btnId) => {
         const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
             body: formData
         });
@@ -85,18 +79,13 @@ const subirExcel = async (inputId, endpoint, btnId) => {
         const result = await response.json();
 
         if (response.ok) {
-            mostrarNotificacion("¡Éxito!", result.message, false);
-            input.value = "";
+            mostrarNotificacion('¡Éxito!', result.message, false);
+            input.value = '';
         } else {
-            mostrarNotificacion("Error en la importación", result.message, true);
+            mostrarNotificacion('Error en la importación', result.message, true);
         }
-
     } catch (error) {
-        mostrarNotificacion(
-            "Error",
-            "No se pudo conectar con el servidor.",
-            true
-        );
+        mostrarNotificacion('Error', 'No se pudo conectar con el servidor.', true);
     } finally {
         btn.textContent = textoOriginal;
         btn.disabled = false;
@@ -127,18 +116,10 @@ const descargarArchivoExcel = async (endpoint, nombreArchivo) => {
             // Liberamos memoria
             window.URL.revokeObjectURL(url);
         } else {
-            mostrarNotificacion(
-                "Error",
-                "No se pudo generar la plantilla.",
-                true
-            );
+            mostrarNotificacion('Error', 'No se pudo generar la plantilla.', true);
         }
     } catch (error) {
-        mostrarNotificacion(
-            "Error",
-            "Fallo de conexión al descargar.",
-            true
-        );
+        mostrarNotificacion('Error', 'Fallo de conexión al descargar.', true);
         console.error(error);
     }
 };

@@ -15,7 +15,7 @@ async function obtenerCategoriaPorId(id) {
 async function actualizarCategoria(id, datos) {
     const categoria = await Categoria.findByPk(id);
     if (!categoria) return null;
-    
+
     return await categoria.update(datos);
 }
 

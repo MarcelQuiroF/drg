@@ -2,11 +2,7 @@ const express = require('express');
 const router = express.Router();
 const juegoController = require('../controllers/juegoController');
 const { authenticate } = require('../middlewares/authMiddleware');
-const { authorize } = require('../middlewares/roleMiddleware'); 
-
-
-
-
+const { authorize } = require('../middlewares/roleMiddleware');
 
 router.get('/', juegoController.listar);
 

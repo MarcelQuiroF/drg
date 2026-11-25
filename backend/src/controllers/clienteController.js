@@ -3,8 +3,8 @@ const httpCodes = require('../utils/httpCodes');
 
 async function crear(req, res, next) {
     try {
-        const { nombre, ci } = req.body;
-        if (!nombre) return res.status(httpCodes.BAD_REQUEST.code).json({ message: "Nombre es obligatorio." });
+        const { nombre } = req.body;
+        if (!nombre) return res.status(httpCodes.BAD_REQUEST.code).json({ message: 'Nombre es obligatorio.' });
 
         const nuevo = await clienteService.crearCliente(req.body);
         res.status(httpCodes.CREATED.code).json(nuevo);
@@ -26,7 +26,7 @@ async function listar(req, res, next) {
 async function actualizar(req, res, next) {
     try {
         const actualizado = await clienteService.actualizarCliente(req.params.id, req.body);
-        if (!actualizado) return res.status(httpCodes.NOT_FOUND.code).json({ message: "Cliente no encontrado." });
+        if (!actualizado) return res.status(httpCodes.NOT_FOUND.code).json({ message: 'Cliente no encontrado.' });
         res.status(httpCodes.OK.code).json(actualizado);
     } catch (error) {
         next(error);
@@ -36,8 +36,8 @@ async function actualizar(req, res, next) {
 async function eliminar(req, res, next) {
     try {
         const exito = await clienteService.eliminarCliente(req.params.id);
-        if (!exito) return res.status(httpCodes.NOT_FOUND.code).json({ message: "Cliente no encontrado." });
-        res.status(httpCodes.OK.code).json({ message: "Cliente eliminado." });
+        if (!exito) return res.status(httpCodes.NOT_FOUND.code).json({ message: 'Cliente no encontrado.' });
+        res.status(httpCodes.OK.code).json({ message: 'Cliente eliminado.' });
     } catch (error) {
         next(error);
     }
