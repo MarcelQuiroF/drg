@@ -4,6 +4,9 @@ import { cargarHTML, activarMenu, mostrarNotificacion, cerrarNotificacion } from
 import { initMesas } from './mesas.js';
 
 let ORDEN_ACTUAL_ID = null;
+// Promesa de la apertura en curso: mientras se abre la orden, los demás clics esperan a la
+// misma petición en lugar de mandar otro POST /ordenes (#45)
+let APERTURA_EN_CURSO = null;
 let ITEM_PARA_COMENTAR = null;
 let ITEM_PARA_ELIMINAR = null;
 
@@ -24,6 +27,7 @@ export const cargarProductosPage = async (mesaId) => {
         if (tituloMesa) tituloMesa.textContent = `Mesa (ID: ${mesaId})`;
 
         ORDEN_ACTUAL_ID = null;
+        APERTURA_EN_CURSO = null;
         await verificarOrdenActiva(mesaId);
         cargarProductos('comida');
         inicializarEventosProductos();
@@ -166,17 +170,36 @@ const renderizarCatalogo = (contenedor, items, esJuego) => {
     });
 };
 
-const agregarItemAOrden = async (item, esJuego) => {
-    try {
-        if (!ORDEN_ACTUAL_ID) {
-            const mesaId = sessionStorage.getItem('mesaSeleccionada');
+// Abre la orden de la mesa una sola vez aunque haya varios clics seguidos. Devuelve el id
+// de la orden, o null si el servidor la rechazó (mesa ocupada, desactivada…).
+const abrirOrdenUnaVez = (mesaId) => {
+    if (!APERTURA_EN_CURSO) {
+        APERTURA_EN_CURSO = (async () => {
             const resOrden = await authFetch('/ordenes', {
                 method: 'POST',
                 body: JSON.stringify({ mesa_id: mesaId })
             });
-            if (!resOrden.ok) return mostrarNotificacion('Error', 'No se pudo abrir la mesa.');
-            const dataOrden = await resOrden.json();
+            if (!resOrden) return null;
+            const dataOrden = await resOrden.json().catch(() => ({}));
+            if (!resOrden.ok) {
+                mostrarNotificacion('Error', dataOrden.message || 'No se pudo abrir la mesa.');
+                return null;
+            }
             ORDEN_ACTUAL_ID = dataOrden.orden.id;
+            return ORDEN_ACTUAL_ID;
+        })().finally(() => {
+            APERTURA_EN_CURSO = null;
+        });
+    }
+    return APERTURA_EN_CURSO;
+};
+
+const agregarItemAOrden = async (item, esJuego) => {
+    try {
+        if (!ORDEN_ACTUAL_ID) {
+            const mesaId = sessionStorage.getItem('mesaSeleccionada');
+            const ordenId = await abrirOrdenUnaVez(mesaId);
+            if (!ordenId) return;
         }
 
         const endpoint = esJuego ? '/ordenes-juegos' : '/ordenes-productos';
