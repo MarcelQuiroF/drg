@@ -1,4 +1,5 @@
 import { authFetch } from '../api.js';
+import { escaparHTML } from '../utils.js';
 
 let allPisos = [];
 let allMesas = [];
@@ -97,7 +98,7 @@ const renderGrilla = () => {
     });
 
     if (filtered.length === 0) {
-        container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 20px;">No se encontraron ${currentTypeFilter}s.</p>`;
+        container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #888; padding: 20px;">No se encontraron ${escaparHTML(currentTypeFilter)}s.</p>`;
         return;
     }
 
@@ -277,7 +278,7 @@ const openStatusModal = (item, type) => {
     const msg = document.getElementById('status-modal-message');
     const btnConfirm = document.getElementById('btn-status-confirm');
 
-    msg.innerHTML = `¿Deseas ${nextStatus ? '<strong>activar</strong>' : '<strong>desactivar</strong>'} el ${type} <br> "<strong>${item.nombre}</strong>"?`;
+    msg.innerHTML = `¿Deseas <strong>${escaparHTML(nextStatus ? 'activar' : 'desactivar')}</strong> el ${escaparHTML(type)} <br> "<strong>${escaparHTML(item.nombre)}</strong>"?`;
 
     btnConfirm.className = 'btn-primary ' + (nextStatus ? 'confirm-activar' : 'confirm-desactivar');
     btnConfirm.textContent = nextStatus ? `Activar ${type}` : `Desactivar ${type}`;

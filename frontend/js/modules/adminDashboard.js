@@ -1,5 +1,5 @@
 import { authFetch } from '../api.js';
-import { mostrarNotificacion } from '../utils.js';
+import { mostrarNotificacion, escaparHTML } from '../utils.js';
 
 let chartIngresosInst = null;
 let chartDistribucionInst = null;
@@ -140,7 +140,7 @@ const actualizarRankings = (rankings) => {
         const ul = document.getElementById(id);
         ul.innerHTML = arr.length === 0 ? '<li>Sin datos</li>' : '';
         arr.forEach((item) => {
-            ul.innerHTML += `<li><span>${item[0]}</span> <span class="ranking-qty">${item[1]} ${labelUnidad}</span></li>`;
+            ul.innerHTML += `<li><span>${escaparHTML(item[0])}</span> <span class="ranking-qty">${escaparHTML(item[1])} ${escaparHTML(labelUnidad)}</span></li>`;
         });
     };
 

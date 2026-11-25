@@ -1,5 +1,5 @@
 import { authFetch } from '../api.js';
-import { mostrarNotificacion } from '../utils.js';
+import { mostrarNotificacion, escaparHTML } from '../utils.js';
 
 export const initAdminImportacion = async () => {
     await cargarCategoriasReferencia();
@@ -17,8 +17,8 @@ const cargarCategoriasReferencia = async () => {
             categorias.forEach((cat) => {
                 ul.innerHTML += `
                     <li style="padding: 8px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
-                        <span style="color: var(--color-text-primary); font-weight: bold;">${cat.nombre}</span>
-                        <span style="background: #e2e8f0; color: #333; padding: 2px 8px; border-radius: 12px; font-size: 0.8em;">ID: ${cat.id}</span>
+                        <span style="color: var(--color-text-primary); font-weight: bold;">${escaparHTML(cat.nombre)}</span>
+                        <span style="background: #e2e8f0; color: #333; padding: 2px 8px; border-radius: 12px; font-size: 0.8em;">ID: ${Number(cat.id)}</span>
                     </li>
                 `;
             });

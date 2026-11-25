@@ -1,5 +1,5 @@
 import { authFetch } from '../api.js';
-import { mostrarNotificacion } from '../utils.js';
+import { mostrarNotificacion, escaparHTML } from '../utils.js';
 
 let allEmployees = [];
 let localSchedules = [];
@@ -172,7 +172,7 @@ const renderScheduleTags = () => {
         .map(
             (h) => `
         <span class="tag">
-            <span><strong>${h.dia}</strong> a las ${h.hora_entrada}</span>
+            <span><strong>${escaparHTML(h.dia)}</strong> a las ${escaparHTML(h.hora_entrada)}</span>
         </span>
     `
         )
@@ -282,7 +282,7 @@ const openStatusModal = (emp) => {
     const btnConfirm = document.getElementById('btn-status-confirm');
 
     if (msg)
-        msg.innerHTML = `¿Deseas ${nextStatus ? '<strong>activar</strong>' : '<strong>anular</strong>'} al empleado <br> "<strong>${emp.nombre}</strong>"?`;
+        msg.innerHTML = `¿Deseas <strong>${escaparHTML(nextStatus ? 'activar' : 'anular')}</strong> al empleado <br> "<strong>${escaparHTML(emp.nombre)}</strong>"?`;
 
     if (btnConfirm) {
         btnConfirm.className = 'btn-primary ' + (nextStatus ? 'confirm-activar' : 'confirm-desactivar');

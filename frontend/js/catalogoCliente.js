@@ -1,3 +1,5 @@
+import { urlSegura } from './utils.js';
+
 // Ruta relativa: funciona en cualquier servidor y puerto, igual que js/api.js.
 const API_URL = '/api/v1';
 
@@ -92,8 +94,10 @@ function renderizarJuegos(juegos) {
 
         card.style.cursor = 'pointer';
         card.addEventListener('click', () => {
-            if (juego.enlace && juego.enlace.trim() !== '') {
-                window.open(juego.enlace, '_blank');
+            // Solo se abren enlaces http(s): un enlace "javascript:…" correría en el catálogo (#23)
+            const enlace = urlSegura(juego.enlace);
+            if (enlace) {
+                window.open(enlace, '_blank', 'noopener');
             } else {
                 alert(`¡${juego.nombre} está disponible! Pídelo a tu mesero.`);
             }
