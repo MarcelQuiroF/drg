@@ -1,8 +1,7 @@
 # Guía de instalación
 
-> Versión 0.1 · 25/11/2026 · Issue #20 · RNF-10
-> **Probada en Linux** desde un clon limpio, siguiendo esta guía al pie de la letra (detalle en el PR de #20).
-> **La sección de Windows está pendiente de probar en Windows.**
+> Versión 0.2 · 25/11/2026 · Issues #20 y #113 · RNF-10
+> **Probada en Linux y en Windows** desde un clon limpio, siguiendo esta guía al pie de la letra (detalle en los PRs de #20 y #113).
 
 Esta guía deja el sistema funcionando **en una computadora de desarrollo**, con PostgreSQL y Node.js instalados directamente (instalación nativa). La instalación en la PC del local con Docker Compose llega en la Etapa 7 (ADR-003).
 
@@ -172,7 +171,7 @@ npm run db:preparar
 
 ## 7. Windows
 
-> ⚠ **Pendiente de probar en Windows.** Esta sección se escribió sin una máquina Windows: los pasos de las secciones 3 a 6 son los mismos, y aquí solo van las diferencias. Al probarla, marcar en el PR o en una issue qué funcionó tal cual y qué hubo que cambiar, y quitar este aviso.
+> ✅ **Probada en Windows** el 25/11/2026 (Marcelo), desde un clon nuevo: todo funcionó tal cual, sin cambios. Los pasos de las secciones 3 a 6 son los mismos; aquí solo van las diferencias.
 
 **Instalar los programas**
 
@@ -192,7 +191,7 @@ Después de instalar, **abrir una terminal nueva** (para que tome el `PATH`) y c
 
 El resto (`node -e …`, `npm install`, `npm run db:preparar`, `npm start`, `npm test`) se escribe igual.
 
-**Posibles problemas en Windows (sin confirmar)**
+**Si algo falla en Windows** (ninguno de estos problemas apareció en la prueba; quedan como ayuda)
 
 - **`npm : No se puede cargar el archivo …\npm.ps1 porque la ejecución de scripts está deshabilitada`:** es la política de ejecución de PowerShell. Usar la terminal *Símbolo del sistema* (cmd), o permitir scripts locales solo para el usuario: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
 - **El servicio de PostgreSQL no está iniciado:** *Servicios* (`services.msc`) → `postgresql-x64-16` → *Iniciar*.
