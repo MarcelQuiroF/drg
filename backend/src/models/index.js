@@ -13,6 +13,11 @@ const env = process.env.NODE_ENV || 'development';
 const configPath = path.join(__dirname, '..', 'config', 'config.js');
 const config = require(configPath)[env];
 
+if (!config || !config.url) {
+    const variable = env === 'test' ? 'DATABASE_URL_TEST' : 'DATABASE_URL';
+    throw new Error(`Falta ${variable}: no hay a qué base conectarse (entorno "${env}").`);
+}
+
 const db = {};
 const sequelize = new Sequelize(config.url, config);
 

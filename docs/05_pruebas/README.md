@@ -2,8 +2,11 @@
 
 Cómo se verifica que el sistema funciona.
 
-Qué va aquí:
+| Documento | Contenido |
+|-----------|-----------|
+| [`plan-de-pruebas.md`](plan-de-pruebas.md) | Qué se prueba, con qué herramientas, cómo correr las pruebas y las decisiones (base aparte, limpieza, `test.failing`, ejecución en serie) |
+| [`casos.md`](casos.md) | Cada caso con su código (S1, T6, F2…), categoría, resultado esperado, issue y estado |
 
-- **Plan de pruebas:** qué se prueba, con qué herramientas (pruebas automáticas y manuales) y con qué datos.
-- **Casos de prueba:** cada caso con su código, pasos, resultado esperado y el requisito (`RF-xx`) o bug (`#n`) que cubre.
+Más adelante:
+
 - **Resultados** de las pruebas manuales importantes (por ejemplo, la prueba piloto en el local).

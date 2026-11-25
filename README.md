@@ -98,7 +98,11 @@ Estas credenciales son **solo para desarrollo** y son públicas (están en este 
 
 El seed corre dentro de una transacción: si algo falla, no deja datos a medias. `npx sequelize-cli db:seed:undo:all` borra solo lo que insertó el seed.
 
-### 6. Herramientas de desarrollo
+### 6. Pruebas automáticas
+
+Necesitan una base PostgreSQL **aparte** (`DATABASE_URL_TEST` en `backend/.env`, con un nombre que termine en `_test`; si no existe, se crea sola). Después: `cd backend && npm test`. Detalle en el [plan de pruebas](docs/05_pruebas/plan-de-pruebas.md).
+
+### 7. Herramientas de desarrollo
 
 ESLint y Prettier se instalan en la raíz del repositorio (`npm install` en `drg/`). Antes de abrir un PR: `npm run check`. Detalle en [`CONTRIBUTING.md`](CONTRIBUTING.md#6-estilo-de-código).
 
