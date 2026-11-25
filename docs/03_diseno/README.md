@@ -7,7 +7,7 @@ Cómo está construido el sistema y por qué.
 | [`endpoints.md`](endpoints.md) | Referencia de la API REST (`/api/v1`) |
 | [`arquitectura.md`](arquitectura.md) | Capas, componentes y cómo se comunican *(por completar)* |
 | [`modelo-datos.md`](modelo-datos.md) | Tablas, relaciones y diagrama entidad-relación *(por completar)* |
-| [`adr/`](adr/README.md) | Registro de decisiones de arquitectura (ADR), con su índice |
+| [`adr/`](adr/) | Registro de decisiones de arquitectura (ADR) |
 
 Más adelante también va aquí la referencia de la app Android anterior (capturas y recorrido de pantallas), en `referencia-app-android/`.
 
