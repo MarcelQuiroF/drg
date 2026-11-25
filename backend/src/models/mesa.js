@@ -1,10 +1,25 @@
 'use strict';
+const { largoMaximo } = require('../utils/largoMaximo');
+
 module.exports = (sequelize, DataTypes) => {
     return sequelize.define(
         'Mesa',
         {
-            nombre: DataTypes.STRING,
-            numero: DataTypes.INTEGER,
+            // NOT NULL en la base: sin nombre, crear una mesa daba 500 (T4, #28)
+            nombre: {
+                type: DataTypes.STRING(100),
+                allowNull: false,
+                validate: {
+                    notNull: { msg: 'El nombre de la mesa es obligatorio.' },
+                    notEmpty: { msg: 'El nombre de la mesa es obligatorio.' },
+                    ...largoMaximo(100, 'El nombre')
+                }
+            },
+            numero: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                validate: { notNull: { msg: 'El número de la mesa es obligatorio.' } }
+            },
             estado: { type: DataTypes.INTEGER, defaultValue: 0 },
             piso_id: DataTypes.INTEGER,
             cantidadMinima: {

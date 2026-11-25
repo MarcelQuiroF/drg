@@ -3,8 +3,8 @@ module.exports = (sequelize, DataTypes) => {
     return sequelize.define(
         'Horario',
         {
-            dia: DataTypes.STRING,
-            hora_entrada: DataTypes.TIME,
+            dia: { type: DataTypes.STRING(20), allowNull: false },
+            hora_entrada: { type: DataTypes.TIME, allowNull: false },
             hora_salida: DataTypes.TIME,
 
             empleado_id: {

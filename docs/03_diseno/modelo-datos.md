@@ -1,6 +1,6 @@
 # Modelo de datos de DRG – Mesa Dragón
 
-> **25/11/2026 · Versión 0.1** · Issue #11.
+> **25/11/2026 · Versión 0.3** · Issues #11, #22 y #28.
 > Describe la base **tal como la dejan las migraciones de `main`** (36 migraciones, de noviembre de 2025 a junio de 2026). No sale de los modelos de Sequelize porque en varios puntos no coinciden con la base real (ver la sección 5).
 
 ## Cómo se obtuvo
@@ -239,7 +239,7 @@ erDiagram
 |-------|----------|-------|
 | `categoria` | Categorías de productos y de juegos | Una sola tabla para los dos |
 | `producto` | Comida y bebida | `zona` es texto libre (`COCINA`, `CAFETERIA`, `Barra`…: #32). Tiene **dos** booleanos, `activado` y `estado`, sin un propósito claro (#53) |
-| `juego` | Juegos de mesa | `precio` propio por juego (pasa a tamaños: ADR-007), jugadores mínimo y máximo, `tiempo_partida` en minutos, `enlace` a las reglas |
+| `juego` | Juegos de mesa | `precio` propio por juego (pasa a tamaños: ADR-007), jugadores mínimo y máximo, `tiempo_partida` en minutos (obligatorio, #28), `enlace` a las reglas |
 | `producto_categoria`, `juego_categoria` | Relación N a N con `categoria` | Clave primaria compuesta y **sin** borrado lógico: quitar una categoría borra la fila, así que se puede volver a asignar (#78) |
 
 ### Órdenes y pagos
@@ -266,7 +266,7 @@ erDiagram
 |-------|----------|-------|
 | `empleado` | Usuarios del sistema | `ci` único (pero admite nulos), `contrasenia` con hash bcrypt, `rol` como texto (`ADMIN`, `CAJERO`, `MESERO`), `activo`, `direccion` y `correo` |
 | `horario` | Horario de cada empleado por día | `dia` como texto, `hora_entrada` obligatoria, `hora_salida` opcional (hoy se descarta: #61) |
-| `asistencia` | Llegada de un empleado | `fecha_hora_llegada`, `estado` (`PRESENTE`, `FALTA`, `PERMISO`, validado solo en el modelo), `aprobado`, `horario_id` obligatorio y `descuento_id` opcional |
+| `asistencia` | Llegada de un empleado | `fecha_hora_llegada`, `estado` (`PRESENTE`, `FALTA`, `PERMISO`, validado solo en el modelo), `aprobado` (por defecto `false` desde #28), `horario_id` obligatorio (sin horario, 400) y `descuento_id` opcional |
 | `descuento_atraso` | Tabla de descuentos por atraso | `cantidad_tiempo` (tipo `time`), `descuento` y `descuento_porcentual`. El seed carga la tabla RN-01: desde `00:10:00` −10 %, desde `00:20:00` −20 % y desde `00:25:01` −100 % (`cantidad_tiempo` es el atraso mínimo, inclusive). El cálculo en el servidor llega con #29 |
 
 ### Configuración y bitácora
@@ -278,32 +278,39 @@ erDiagram
 
 ## 4. Reglas de borrado de las claves foráneas
 
-Hoy casi todo usa borrado lógico, así que estas reglas casi no se activan. Importan si alguna vez se borra algo **físicamente** (por ejemplo, hoy `DELETE /asistencias/:id` hace un borrado físico, #30).
+Hoy casi todo usa borrado lógico, así que estas reglas casi no se activan. Importan si alguna vez se borra algo **físicamente** (por ejemplo, hoy `DELETE /asistencias/:id` hace un borrado físico, #30, o un `DELETE` a mano en la base).
+
+Desde la migración `20261125160000-alinear-base-con-modelos` (#28), lo que es **historial** (asistencias, ventas, reservas) ya no se borra en cascada: la base **rechaza** el borrado (`RESTRICT`) mientras haya filas que dependan. Solo se borra en cascada lo que es parte de la misma cosa: los ítems de una orden y las relaciones con categorías.
 
 | Al borrar… | Pasa con… | Regla |
 |------------|-----------|-------|
 | `piso` | `mesa.piso_id` | `SET NULL` |
 | `mesa` | `orden.mesa_id` | `SET NULL` |
-| `mesa` | sus `reserva` | `CASCADE` (se borran) |
+| `mesa` | sus `reserva` | `RESTRICT` (antes `CASCADE`, #28) |
 | `orden` | `contenedor_transaccion.orden_id` | `SET NULL` (el pago queda sin orden) |
-| `orden` | `contenedor_producto`, `contenedor_juego`, `orden_descuento` | `CASCADE` |
-| `cliente` | sus `reserva` | `CASCADE` |
+| `orden` | `contenedor_producto`, `contenedor_juego`, `orden_descuento` | `CASCADE` (son parte de la orden) |
+| `cliente` | sus `reserva` | `RESTRICT` (antes `CASCADE`, #28) |
 | `cliente` | `contenedor_transaccion.cliente_id` | `SET NULL` |
-| `empleado` | sus `horario` y `asistencia` | `CASCADE` |
-| `horario` o `descuento_atraso` | las `asistencia` que los usan | `CASCADE`: borrar físicamente una fila de la tabla de atrasos borraría todas las asistencias con ese descuento (#28) |
-| `producto`, `juego`, `categoria` | sus ítems de orden y sus relaciones | `CASCADE` |
+| `empleado` | sus `horario` | `CASCADE`; pero si el horario tiene asistencias, el borrado se rechaza |
+| `empleado`, `horario` o `descuento_atraso` | las `asistencia` que los usan | `RESTRICT` (antes `CASCADE`: borrar una fila de la tabla de atrasos borraba todas las asistencias con ese descuento, #28) |
+| `producto` o `juego` | sus ítems de orden (`contenedor_producto`, `contenedor_juego`) | `RESTRICT` (antes `CASCADE`: se borraban sus ventas, #28) |
+| `producto`, `juego`, `categoria` | sus relaciones en `producto_categoria` y `juego_categoria` | `CASCADE` |
 
 ## 5. Diferencias entre la base y los modelos de Sequelize
 
-| Dónde | En la base | En el modelo | Consecuencia | Issue |
-|-------|-----------|--------------|--------------|-------|
-| `mesa.nombre` | NOT NULL | opcional | Crear una mesa sin nombre da 500 | #28 |
-| `asistencia.horario_id` | NOT NULL | opcional | Registrar una llegada sin horario ese día da 500 | #28 |
-| `empleado.direccion` | existe | no existe | La dirección se descarta sin aviso | #28 |
-| `orden.finalizado` | por defecto `true` | por defecto `false` | La app siempre manda `false`, pero un `INSERT` directo en SQL crearía órdenes ya cerradas | #28 |
-| `asistencia.aprobado` | por defecto `true` | por defecto `false` | Igual: un `INSERT` directo crearía asistencias aprobadas | #28 |
-| `asistencia.estado` | texto libre | lista de valores (`PRESENTE`, `FALTA`, `PERMISO`) | Solo la app valida los valores | #28 |
-| `contenedor_transaccion.tipo`, `producto.zona`, `empleado.rol` | texto libre | sin lista de valores | Ni la base ni la app limitan los valores: por ejemplo, conviven zonas `COCINA` y `Barra` | #28, #32 |
+Las diferencias encontradas en #11 y en las pruebas (T4, T11, C2, C3) se resolvieron en **#28**, cada una donde estaba la regla correcta:
+
+| Dónde | Diferencia | Se resolvió en | Cómo |
+|-------|------------|----------------|------|
+| `mesa.nombre`, `mesa.numero` | NOT NULL en la base, opcionales en el modelo: 500 (T4) | el modelo | Obligatorios: 400 con un mensaje claro |
+| `juego.tiempo_partida` | NOT NULL en la base; el modelo y el formulario del panel no lo pedían: crear un juego desde el panel daba 500 (C2) | el modelo y el frontend | Obligatorio, entero ≥ 1 (minutos); campo *Tiempo de partida* en el formulario (decisión de Marcelo) |
+| `asistencia.horario_id` | NOT NULL en la base, `null` desde el controlador: 500 (T11) | el modelo y el controlador | Una llegada sin horario se rechaza con 400 (decisión de Marcelo: sin horario no se calcula el atraso); el horario tiene que ser del empleado |
+| `empleado.direccion` | En la base, no en el modelo: se descartaba (C3) | el modelo | Campo agregado |
+| `varchar(n)` (`cliente.telefono` y `ci` 20, nombres 100, `empleado.rol` 50, `producto.zona` 50…) | El modelo decía `STRING` (255): un texto más largo daba 500 | el modelo | `STRING(n)` con el largo de la base y validación de largo: 400 |
+| `orden.finalizado`, `asistencia.aprobado` | Por defecto `true` en la base y `false` en el modelo | la base (migración) | `DEFAULT false` |
+| Claves foráneas de `asistencia`, de los ítems de venta y de `reserva` | `ON DELETE CASCADE` | la base (migración) | `RESTRICT` (sección 4) |
+
+Siguen sin lista de valores en la base `asistencia.estado`, `contenedor_transaccion.tipo`, `producto.zona` y `empleado.rol` (texto libre). La app valida `estado`, `tipo` (#21) y `rol` (#109); la zona se cierra en #32.
 
 ## 6. Próximos cambios previstos
 
@@ -323,3 +330,4 @@ Hoy casi todo usa borrado lógico, así que estas reglas casi no se activan. Imp
 |---------|-------|--------|
 | 0.1 | 25/11/2026 | Primera versión, a partir de las migraciones de `main` (issue #11) |
 | 0.2 | 25/11/2026 | `precio_unitario` en `contenedor_producto` y `contenedor_juego` (#22) |
+| 0.3 | 25/11/2026 | #28: `DEFAULT false` en `orden.finalizado` y `asistencia.aprobado`; claves foráneas de historial con `RESTRICT`; sección 5 con cómo se resolvió cada diferencia |

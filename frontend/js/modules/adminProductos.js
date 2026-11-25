@@ -305,6 +305,7 @@ const openModal = (item = null) => {
 
     setVal('prod-jug-min', item?.jugadores_min || 1);
     setVal('prod-jug-max', item?.jugadores_max || 4);
+    setVal('prod-tiempo', item?.tiempo_partida || 30);
 
     renderTags();
 
@@ -342,6 +343,8 @@ const handleSave = async () => {
     if (zona === 'JUEGO') {
         data.jugadores_min = parseInt(document.getElementById('prod-jug-min')?.value);
         data.jugadores_max = parseInt(document.getElementById('prod-jug-max')?.value);
+        // Obligatorio en la base: sin él, crear un juego desde aquí daba 500 (#28)
+        data.tiempo_partida = parseInt(document.getElementById('prod-tiempo')?.value);
     } else {
         data.zona = zona;
     }

@@ -13,9 +13,23 @@ async function registrarAsistencia(req, res, next) {
             });
         }
 
+        // Una llegada sin horario se rechaza (decisión de Marcelo, #28): sin la hora de entrada
+        // no se puede calcular el atraso (RN-01, #29). Antes llegaba null y la base respondía 500.
+        if (!horario_id) {
+            return res.status(httpCodes.BAD_REQUEST.code).json({
+                message: 'El empleado no tiene un horario para hoy: no se puede registrar la llegada.'
+            });
+        }
+        const horario = await Horario.findOne({ where: { id: horario_id, empleado_id } });
+        if (!horario) {
+            return res.status(httpCodes.BAD_REQUEST.code).json({
+                message: 'El horario indicado no existe o no es de ese empleado.'
+            });
+        }
+
         const nuevaAsistencia = await Asistencia.create({
             empleado_id,
-            horario_id: horario_id || null,
+            horario_id,
             estado,
             descuento_id: descuento_id || null,
             aprobado: false

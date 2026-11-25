@@ -91,7 +91,7 @@ Las pruebas leen `ventana_bloqueo`, `ventana_llegada` y `minutos_tolerancia` de 
 | A5 | Guardar un horario con hora de salida | 🐞 | Se guardan entrada y salida (hoy solo la entrada) | #61 | ✔ |
 | A5b | Editar los horarios de un empleado con asistencias anteriores | 🐞 | El horario usado por las asistencias sigue existiendo (hoy se borra: `destroy` + `bulkCreate`) | #61 | ✔ |
 | A6 | El navegador envía un descuento por atraso que no corresponde | 🐞 | Un empleado puntual que manda el −100 % queda sin descuento (hoy guarda el enviado). Los bordes de RN-01 (9:59, 10:00… 25:01) se prueban en el PR de #29 | #29 | ✔ |
-| T11 | Registrar la llegada de un empleado sin horario ese día | 🐞 | 400 con un mensaje claro (hoy 500) | #28 | ✔ |
+| T11 | Registrar la llegada de un empleado sin horario ese día | ✅ | 400 con un mensaje claro (corregido en #28; antes 500). Decisión de Marcelo: sin horario se rechaza. También un horario de otro empleado → 400 | #28 | ✔ |
 
 ## Catálogo y espacio (`tests/catalogo/`)
 
@@ -99,9 +99,10 @@ Las pruebas leen `ventana_bloqueo`, `ventana_llegada` y `minutos_tolerancia` de 
 |--------|------|:----:|--------------------|-------|:------:|
 | F2 | Crear o editar un juego con categorías | ✅ | 201/200 y las categorías guardadas (corregido en #24; antes 500 `setCategorias is not a function` y, al crear, el juego quedaba sin categorías). También: quitar, volver a asignar y repetir un id (F2b); una categoría que no existe → 400 sin cambiar nada, al crear y al editar (F2c, F2d) | #24 | ✔ |
 | C1 | Editar un producto conservando una de sus categorías | ✅ | 200 y el producto conserva sus categorías (corregido en #78; antes 400 y quedaba sin ninguna). También: agregar, quitar y volver a asignar (C1b); una categoría que no existe → 400 sin cambiar nada, al crear y al editar (C1c, C1d); `juego_categoria` admite volver a asignar una categoría quitada (el servicio de juegos, en F2) | #78 | ✔ |
-| T4 | Crear una mesa sin nombre | 🐞 | 400 (hoy 500) | #28 | ✔ |
-| C2 | Crear un juego sin `tiempo_partida` | 🐞 | 400 (hoy 500) | #28 | ✔ |
-| C3 | Crear un empleado con dirección | 🐞 | La dirección se guarda (hoy se descarta) | #28 | ✔ |
+| T4 | Crear una mesa sin nombre | ✅ | 400 (corregido en #28; antes 500). También con el nombre vacío | #28 | ✔ |
+| C2 | Crear un juego sin `tiempo_partida` | ✅ | 400 (corregido en #28; antes 500), también con 0, un texto o `null`. El formulario del panel no mandaba el campo: crear un juego desde el panel daba 500. **Probado en Chrome (#28):** con `main`, 500; con el arreglo, 201 | #28 | ✔ |
+| C3 | Crear un empleado con dirección | ✅ | La dirección se guarda (corregido en #28; antes se descartaba) | #28 | ✔ |
+| M28 | Modelos frente a la base (`tests/infraestructura/modelosYBase.test.js`) | ✅ | Textos más largos que su `varchar` (teléfono de cliente, nombre de producto, CI de empleado) → 400, no 500; un `INSERT` sin `finalizado`/`aprobado` queda en `false`; un borrado físico de descuento de atraso, horario, empleado, producto, juego, cliente o mesa con historial se rechaza (`RESTRICT`) y no se lleva asistencias, ventas ni reservas; borrar una orden sí borra sus ítems | #28 | ✔ |
 | T12 | Crear un producto o un juego con precio 0 | ⏳ | Hoy 400. Si el precio 0 es válido lo confirma el dueño (⚠ en #52); la prueba se escribe en el PR de #52 con la regla confirmada | #52 | — |
 | P1 | Crear un producto con una zona que no es `COCINA` ni `CAFETERIA` | 🐞 | 400 (hoy 201 con cualquier texto) | #32 | ✔ |
 | T16 | Catálogo de juegos sin sesión | ✅ / ⏳ | 200 sin token, con los juegos del seed (catálogo por QR). Si se muestran los juegos desactivados lo decide el dueño (P-18) | #58 | ✔ |
