@@ -46,7 +46,7 @@ Se propone la **opción 4: React Native con Expo y TypeScript**, en la carpeta *
   - Con un solo desarrollador, mantener **un solo lenguaje** en todo el sistema (TypeScript en el backend, la web y la app) reduce el trabajo y los errores.
   - Los tipos de la API y los esquemas Zod de la Etapa 5 se pueden **compartir** con la app, así que si la API cambia, la app no compila hasta que se adapte.
   - Cubre Android e iPhone mientras no se sepa qué celulares usan los meseros (P-13).
-  - En una entrevista se puede mostrar un sistema completo *full-stack* en TypeScript, con un contrato de API compartido entre tres clientes y servidor.
+  - En una entrevista se puede mostrar un sistema completo *full-stack* en TypeScript, con un contrato de API compartido entre el servidor y sus dos clientes.
 - **Por qué en `mobile/`:** el backlog, la API y la app evolucionan juntos, y se muestra un solo repo.
 - **Si Marcelo prefiere Kotlin + Jetpack Compose** (por ejemplo, para orientarse a puestos de Android nativo), la opción 3 es válida: se cambia esta sección antes de aceptar el ADR y el resto (alcance, red, carpeta) se mantiene.
 - **Detalles que acompañan la decisión:**
