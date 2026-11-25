@@ -1,3 +1,4 @@
+const variableSinUsar = 'error de lint a proposito (PR de prueba de #19, no mergear)';
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
