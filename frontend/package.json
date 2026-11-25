@@ -1,0 +1,5 @@
+{
+  "private": true,
+  "description": "Frontend de DRG (sin dependencias de npm). Este archivo solo le dice a Node que los .js de esta carpeta son módulos ES, para las pruebas de frontend/tests (#23).",
+  "type": "module"
+}
