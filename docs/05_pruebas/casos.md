@@ -1,6 +1,6 @@
 # Casos de prueba
 
-> Versión 0.1 · 25/11/2026 · Issue #18. Cómo se escriben y por qué: [`plan-de-pruebas.md`](plan-de-pruebas.md).
+> Versión 0.2 · 25/11/2026 · Issue #18. Cómo se escriben y por qué: [`plan-de-pruebas.md`](plan-de-pruebas.md).
 > Los códigos (S1, T6, F2…) vienen del análisis técnico del 12/11/2026 (secciones 10 a 12). Cada prueba automática lleva su código en el nombre.
 
 ## Categorías
@@ -42,23 +42,27 @@ Archivos: `login.test.js` y `matrizPermisos.test.js`. La matriz se lee de `docs/
 
 | Código | Caso | Cat. | Resultado esperado | Issue | Estado |
 |--------|------|:----:|--------------------|-------|:------:|
-| T5 | Orden con 2 Cappuccino (18) + 1 Catan (25) | ✅ | Total 61.00 | — | 🔜 |
-| T6 | Finalizar con QR 30 + EFECTIVO 31 | 🐞 | Dos transacciones: QR 30.00 y EFECTIVO 31.00 (hoy una EFECTIVO 61.00) | #21 | 🔜 |
-| T14 / F4 | Dashboard después de T6 | 🐞 | QR 30, efectivo 31 (hoy QR 0) | #21 | 🔜 |
-| F3 | Dashboard con una orden cobrada (61) y otra abierta | 🐞 | Ingresos 61, gráfica 61, órdenes 1, promedio 61 / 7 | #31 | 🔜 |
-| T7 | Comandas de una orden ya cobrada | 🐞 | El ítem no aparece (hoy sí) | #33 | 🔜 |
-| T10 | Orden con Sandwich (35); se borra el Sandwich; se agrega un Cappuccino (18) | 🐞 | Total 53.00 (hoy 18.00) | #22 | 🔜 |
-| T13 | Editar las notas de una orden cobrada | 🐞 | 409 (hoy 200) | #41 | 🔜 |
-| P2 | Cambiar la cantidad o el comentario de un juego de la orden | 🐞 | Se actualiza (hoy 404: la ruta no existe) | #42 | 🔜 |
-| P3 | MESERO aplica un descuento del 100 % | 🔄 RN-06 | 200 y total 0.00: sin tope ni autorización | #39 | 🔜 |
-| P4 | Descuento de monto mayor al total (9999) | 🔄 RN-06 | 200 y el total queda en 0.00, nunca negativo. El aviso es parte de #39 (⏳) | #39 | 🔜 |
+| T5 | Orden con 2 Cappuccino (18) + 1 Catan (25) | ✅ | Total 61.00 | — | ✔ |
+| T6 | Finalizar con QR 30 + EFECTIVO 31 | 🐞 | Dos transacciones: QR 30.00 y EFECTIVO 31.00 (hoy una EFECTIVO 61.00) | #21 | ✔ |
+| T14 / F4 | Dashboard después de T6 | 🐞 | QR 30, efectivo 31 (hoy QR 0). Aparte, ✅: con transacciones QR y EFECTIVO bien registradas el dashboard ya las separa; el fallo está en el cobro | #21 | ✔ |
+| F3 | Dashboard con una orden cobrada (61) y otra abierta | 🐞 | Ingresos 61 (✅ pasa hoy), gráfica 61 (hoy 122), órdenes 1 (hoy 2), promedio 61 / 7 (hoy 61 / 8). Una prueba por métrica | #31 | ✔ |
+| F3b | Ranking de juegos con un juego pedido 3 veces | 🐞 | Suma la cantidad (3), como el de comida (hoy cuenta 1 fila) | #31 | ✔ |
+| T7 | Comandas de una orden ya cobrada o borrada | 🐞 | El ítem no aparece (hoy sí, en los dos casos) | #33 | ✔ |
+| T10 | Orden con Sandwich (35); se borra el Sandwich; se agrega un Cappuccino (18) | 🐞 | Total 53.00 (hoy 18.00) | #22 | ✔ |
+| T13 | Editar las notas de una orden cobrada | 🐞 | 409 (hoy 200) | #41 | ✔ |
+| P2 | Cambiar la cantidad o el comentario de un juego de la orden | 🐞 | Se actualiza (hoy 404: la ruta no existe) | #42 | ✔ |
+| P3 | MESERO aplica un descuento del 100 % | 🔄 RN-06 | 200 y total 0.00: sin tope ni autorización | #39 | ✔ |
+| P4 | Descuento de monto mayor al total (9999) | 🔄 RN-06 | 200 y el total queda en 0.00, nunca negativo. El aviso es parte de #39 (⏳) | #39 | ✔ |
 | P5 | Finalizar una orden con total 0 | ⏳ | Un solo flujo de pago (#36) define si se registra una transacción de 0 | #36 | — |
 | P6 | Pago con QR mayor al total | ⏳ | RN-14: el QR de más no se registra; el detalle lo define #36 | #36 | — |
-| P7 | Reducir la cantidad de un producto ya enviado a cocina | 🐞 | La comanda muestra la cantidad nueva (hoy la vieja) | #43 | 🔜 |
+| P7 | Reducir la cantidad de un producto ya enviado a cocina | 🐞 | La comanda muestra la cantidad nueva (hoy la vieja) | #43 | ✔ |
 | P8 | Quitar el último ítem de una orden | ⏳ | ⚠ Regla por definir: dejarla vacía o cancelarla con motivo | #44 | — |
-| P9 | Dos pedidos simultáneos para abrir la misma mesa | 🐞 | Una orden 201 y la otra **409** "mesa ocupada" (hoy 500) | #45 | 🔜 |
-| P9b | Abrir una orden en una mesa desactivada | 🐞 | Se rechaza (hoy se abre) | #45 | 🔜 |
+| P9 | Abrir una orden en una mesa ocupada | 🐞 | **409** "mesa ocupada" (hoy 500) | #45 | ✔ |
+| P9c | Dos pedidos **simultáneos** para abrir la misma mesa | 🐞 | Una sola orden abierta: 201 y 409. Hoy se abren **dos órdenes** en la misma mesa (`crearOrden` lee `mesa.estado` sin bloquear la fila) | #45 | ✔ |
+| P9b | Abrir una orden en una mesa desactivada | 🐞 | Se rechaza (hoy se abre) | #45 | ✔ |
 | P10 | El total a cobrar se lee del texto de la pantalla | 🖥 | El frontend usa el total de la API | #36 | 📋 |
+
+Además de los casos del análisis, `tests/ordenes/` fija lo que ya funciona (✅): abrir una orden ocupa la mesa, quitar un ítem descuenta su importe, un descuento del 10 % se aplica y se quita, cobrar sin detalle registra EFECTIVO por el total y libera la mesa, una orden cobrada no se cobra dos veces, el filtro de comandas por zona y el avance recibido → preparando → terminado → enviado.
 
 ## Reservas (`tests/reservas/`)
 
