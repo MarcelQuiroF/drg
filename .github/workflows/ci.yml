@@ -1,0 +1,83 @@
+# Integración continua (#19): cada PR hacia main y cada push a main se verifican solos.
+# Dos jobs en paralelo, para que el rojo diga enseguida qué falló:
+#   - "Lint y formato": npm run check en la raíz (ESLint + Prettier, #17).
+#   - "Pruebas": npm test en backend/ contra un PostgreSQL de servicio (#18).
+# Plan de pruebas: docs/05_pruebas/plan-de-pruebas.md
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# El workflow solo lee el código: no necesita permisos de escritura.
+permissions:
+  contents: read
+
+# Si se suben commits nuevos a un PR mientras el CI corre, se cancela la corrida vieja.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  calidad:
+    name: Lint y formato
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      # La versión de Node sale de .nvmrc (la misma que piden "engines" y la guía de instalación).
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - run: npm ci
+      - run: npm run check
+
+  pruebas:
+    name: Pruebas
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # La misma versión mayor de PostgreSQL que el ADR-003. Solo existe mientras dura el job.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    # Valores solo para el CI. No son secretos: la base se borra al terminar el job.
+    env:
+      # La guardia de las pruebas exige una base que termine en _test y distinta de DATABASE_URL.
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/drg_ci
+      DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/drg_ci_test
+      JWT_SECRET_TEST: solo-para-el-ci-no-es-un-secreto
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - run: npm ci
+      - run: npm test

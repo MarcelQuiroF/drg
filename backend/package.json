@@ -13,6 +13,9 @@
   "author": "",
   "license": "ISC",
   "description": "API de DRG – Mesa Dragón: gestión de un café con juegos de mesa",
+  "engines": {
+    "node": "26.x"
+  },
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
