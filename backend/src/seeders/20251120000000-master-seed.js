@@ -64,7 +64,7 @@ const DESCUENTOS_ATRASO = [
 
 const CONFIGURACION = [
     { clave: 'minutos_tolerancia', valor: 30, descripcion: 'Minutos de espera antes de liberar una mesa reservada (RN-02)' },
-    { clave: 'ventana_llegada', valor: 60, descripcion: 'Minutos antes de la reserva en que la mesa pasa a reservada (RN-12, valor de prueba)' },
+    { clave: 'ventana_llegada', valor: 30, descripcion: 'Minutos antes de la reserva en que la mesa pasa a reservada (RN-12)' },
     { clave: 'ventana_bloqueo', valor: 120, descripcion: 'Separación mínima en minutos entre dos reservas de la misma mesa (RN-12, valor de prueba)' }
 ];
 

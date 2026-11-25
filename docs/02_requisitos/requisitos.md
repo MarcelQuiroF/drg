@@ -146,7 +146,7 @@
 | RN-09 | Empleados, productos, juegos y mesas no se borran: se desactivan y quedan en la base de datos | CU 2.2, CU 2.3, CU 2.5 | pendiente |
 | RN-10 | La llegada de un empleado la confirma otro usuario con su propio login. Valor de prueba: **el cajero** (y el administrador) | CU 1.8, M1 | prueba (P-07). El sistema ya permite ADMIN y CAJERO |
 | RN-11 | Los descuentos por atraso se acumulan por mes; al empezar un mes se reinician y el anterior queda en el historial | CU 2.6 | prueba (P-08) |
-| RN-12 | Una mesa reservada no se da a otros clientes desde **1 hora antes** de la reserva, y dos reservas de la misma mesa tienen que estar separadas al menos **2 horas** (un grupo se queda entre 1 y 2 horas) | TW, M1 | prueba (P-05). Hoy el sistema bloquea ±120 min |
+| RN-12 | Una mesa reservada no se da a otros clientes desde **1 hora antes** de la reserva, y dos reservas de la misma mesa tienen que estar separadas al menos **2 horas** (un grupo se queda entre 1 y 2 horas) | TW, M1 | prueba (P-05). Hoy el sistema bloquea ±120 min. La mesa pasa a "reservada" **30 min** antes (`ventana_llegada`, Marcelo 25/11, #98) |
 | RN-13 | El catálogo de juegos para clientes muestra **todos** los juegos registrados, activos o no | CU 3.1 | ⚠ Raro para un cliente (¿ver juegos que no se pueden pedir?). Ver P-18 |
 | RN-14 | El personal no registra en el sistema un pago QR mayor al total: devuelve la diferencia y registra solo el monto que corresponde | M1 | Marcelo 25/11 |
 | RN-15 | La mesa de destino de una orden movida tiene que estar libre y no tener una reserva próxima (RN-12) | M1 | Marcelo 25/11 |
