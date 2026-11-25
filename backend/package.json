@@ -7,7 +7,8 @@
     "test:watch": "jest --watch",
     "test:cobertura": "jest --coverage",
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "db:preparar": "node scripts/prepararBase.js"
   },
   "keywords": [],
   "author": "",

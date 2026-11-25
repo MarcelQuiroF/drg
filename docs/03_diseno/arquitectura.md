@@ -35,7 +35,7 @@ flowchart LR
 | Acceso a datos | Sequelize 6 + `pg`; migraciones y seed con `sequelize-cli` | `backend/src/models/`, `migrations/`, `seeders/` |
 | Base de datos | PostgreSQL | variable `DATABASE_URL` |
 | Frontend | HTML, CSS y JavaScript vanilla con módulos ES6, sin compilación | `frontend/` |
-| Despliegue | Todavía no hay: `backend/docker-compose.yml` solo tiene un comentario (se completa en #20); la configuración de Nginx llega en la Etapa 7 | ver ADR-003 |
+| Despliegue | Todavía no hay: `backend/docker-compose.yml` solo tiene un comentario (se completa en la Etapa 7; la instalación de desarrollo es nativa: [`instalacion.md`](../04_implementacion/instalacion.md)); la configuración de Nginx llega en la Etapa 7 | ver ADR-003 |
 
 ## 2. Backend
 
