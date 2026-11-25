@@ -124,8 +124,9 @@
 
 | Código | Requisito | Fuente | Prioridad | Validado |
 |--------|-----------|--------|:---------:|----------|
-| RF-52 | Cada usuario entra con CI y contraseña, y el **servidor** solo le permite las acciones de su rol (matriz de permisos en [`permisos.md`](../03_diseno/permisos.md)) | E2, IR | I | pendiente |
+| RF-52 | Cada usuario entra con CI y contraseña, y el **servidor** solo le permite las acciones que su rol tiene como permisos (matriz y catálogo de permisos en [`permisos.md`](../03_diseno/permisos.md), ADR-008) | E2, IR, M1 | I | pendiente |
 | RF-53 | El sistema guarda una bitácora de quién cambió qué: precios y productos, órdenes, descuentos y asistencia (P-19) | E2 | D | pendiente |
+| RF-58 | El administrador activa o desactiva los **permisos** del cajero y del mesero desde el panel de administración, sin cambiar el código. Los cambios quedan registrados (RN-17) | M1 | D | pendiente (P-22) |
 | RF-54 | La base de datos se respalda de forma automática; el administrador ve la fecha del último respaldo y puede lanzar uno a mano (P-14) | E2 (admin 11) | I | pendiente |
 
 ---
@@ -150,6 +151,7 @@
 | RN-14 | El personal no registra en el sistema un pago QR mayor al total: devuelve la diferencia y registra solo el monto que corresponde | M1 | Marcelo 25/11 |
 | RN-15 | La mesa de destino de una orden movida tiene que estar libre y no tener una reserva próxima (RN-12) | M1 | Marcelo 25/11 |
 | RN-16 | **El mesero y el cajero tienen casi los mismos permisos:** cualquiera de los dos tiene que poder abrir el sistema, cobrar y cambiar los tiempos de reserva si el otro se atrasa. Las diferencias son pocas y están listadas en la [matriz de permisos](../03_diseno/permisos.md) | M1 | Marcelo 25/11 |
+| RN-17 | **El administrador tiene siempre todos los permisos** y no se le puede quitar ninguno, ni siquiera él mismo. Un permiso nuevo lo tiene automáticamente | M1 | Marcelo 25/11 |
 
 ---
 
@@ -186,4 +188,4 @@
 |---------|-------|--------|
 | 0.1 | 24/11/2026 | Primera versión reconstruida desde los documentos del equipo (issue #4) |
 | 0.2 | 25/11/2026 | Respuestas de Marcelo (fuente M1): nueva tabla de atrasos (RN-01), tamaños de juego (RF-57), mover órdenes (RF-55), reabrir el día (RF-56), descuentos sin tope (RN-06); descartados RF-04, RF-05 y RF-16 |
-| 0.3 | 25/11/2026 | Matriz de permisos (issue #9): nueva RN-16 (mesero y cajero con casi los mismos permisos); RF-17 y RF-22 incluyen al mesero |
+| 0.3 | 25/11/2026 | Matriz de permisos (issue #9): nuevas RN-16 (mesero y cajero con casi los mismos permisos) y RN-17 (el administrador tiene todos los permisos); RF-17 y RF-22 incluyen al mesero; nuevo RF-58 (editar permisos desde el panel, pendiente de P-22) |
