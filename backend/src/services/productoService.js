@@ -1,26 +1,33 @@
-const { Producto, Categoria, ProductoCategoria } = require('../models');
+const { Producto, Categoria, ProductoCategoria, sequelize } = require('../models');
 
-async function crearProducto(datos, idsCategorias = []) {
-    const nuevoProducto = await Producto.create(datos);
+// Ids de categoría sin repetir (un id repetido chocaría con la clave primaria de producto_categoria)
+const idsUnicos = (ids) => [...new Set(ids.map(Number))];
 
-    if (idsCategorias && idsCategorias.length > 0) {
-        const relaciones = idsCategorias.map((categoriaId) => ({
-            producto_id: nuevoProducto.id,
-            categoria_id: categoriaId
-        }));
-
-        await ProductoCategoria.bulkCreate(relaciones);
+async function guardarCategorias(productoId, idsCategorias, transaction) {
+    const ids = idsUnicos(idsCategorias);
+    const existentes = await Categoria.count({ where: { id: ids }, transaction });
+    if (existentes !== ids.length) {
+        const error = new Error('Alguna de las categorías no existe.');
+        error.status = 400;
+        throw error;
     }
 
-    return await Producto.findByPk(nuevoProducto.id, {
-        include: [
-            {
-                model: Categoria,
-                attributes: ['id', 'nombre'],
-                through: { attributes: [] }
-            }
-        ]
+    const relaciones = ids.map((categoriaId) => ({
+        producto_id: productoId,
+        categoria_id: categoriaId
+    }));
+    if (relaciones.length > 0) await ProductoCategoria.bulkCreate(relaciones, { transaction });
+}
+
+// Producto y categorías se guardan juntos: si algo falla no queda un producto a medias (#78)
+async function crearProducto(datos, idsCategorias = []) {
+    const nuevoProducto = await sequelize.transaction(async (t) => {
+        const producto = await Producto.create(datos, { transaction: t });
+        if (idsCategorias) await guardarCategorias(producto.id, idsCategorias, t);
+        return producto;
     });
+
+    return await obtenerProductoPorId(nuevoProducto.id);
 }
 
 async function listarProductos(categoriaId = null) {
@@ -53,26 +60,23 @@ async function obtenerProductoPorId(id) {
     });
 }
 
+// Si llegan categorías, reemplazan a las anteriores: se borran las relaciones (borrado físico,
+// la tabla no es paranoid) y se crean las nuevas, todo en la misma transacción (#78).
 async function actualizarProducto(id, datos, idsCategorias) {
-    const producto = await Producto.findByPk(id);
-    if (!producto) return null;
+    const actualizado = await sequelize.transaction(async (t) => {
+        const producto = await Producto.findByPk(id, { transaction: t });
+        if (!producto) return null;
 
-    await producto.update(datos);
+        await producto.update(datos, { transaction: t });
 
-    if (idsCategorias) {
-        await ProductoCategoria.destroy({
-            where: { producto_id: id }
-        });
-
-        if (idsCategorias.length > 0) {
-            const relaciones = idsCategorias.map((categoriaId) => ({
-                producto_id: id,
-                categoria_id: categoriaId
-            }));
-            await ProductoCategoria.bulkCreate(relaciones);
+        if (idsCategorias) {
+            await ProductoCategoria.destroy({ where: { producto_id: id }, transaction: t });
+            await guardarCategorias(id, idsCategorias, t);
         }
-    }
+        return producto;
+    });
 
+    if (!actualizado) return null;
     return await obtenerProductoPorId(id);
 }
 
