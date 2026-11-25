@@ -31,7 +31,7 @@ Archivos: `login.test.js` y `matrizPermisos.test.js`. La matriz se lee de `docs/
 |--------|------|:----:|--------------------|-------|:------:|
 | — | Login: correcto, contraseña o CI incorrectos, datos faltantes, empleado desactivado | ✅ | 200 con token (sin contraseña en la respuesta) / 401 / 400 / 401 | — | ✔ |
 | — | Ruta protegida sin token / con el token del login | ✅ | 401 / 200 | — | ✔ |
-| T1 | Token inválido o vencido | 🐞 | 401 (hoy 403) | #26 | ✔ |
+| T1 | Token inválido o vencido | ✅ | 401 con `WWW-Authenticate` y un mensaje que dice si venció (corregido en #26; antes 403). También un texto que no es token y una cabecera sin `Bearer`; un rol sin permiso sigue en 403 | #26 | ✔ |
 | T2 | MESERO cambia la configuración de reservas | 🔄 RN-16 | 200: el mesero puede (antes figuraba como bug) | #25 | ✔ |
 | T2b | Configuración con un valor negativo | 🐞 | 400 y no se guarda (hoy 200 y se guarda) | #25 | ✔ |
 | T17 | MESERO o CAJERO descargan una plantilla de importación | 🐞 | 403 (hoy 200). Lo cubre MATRIZ | #25 | ✔ |
@@ -85,7 +85,7 @@ Las pruebas leen `ventana_bloqueo`, `ventana_llegada` y `minutos_tolerancia` de 
 | Código | Caso | Cat. | Resultado esperado | Issue | Estado |
 |--------|------|:----:|--------------------|-------|:------:|
 | A1 | Registrar dos veces la llegada del mismo empleado el mismo día | 🐞 | La segunda responde 409 (hoy 201) | #30 | ✔ |
-| A2 | Aprobar con contraseña incorrecta o con la firma de un MESERO | ✅ | 401 y la asistencia sigue sin aprobar | — | ✔ |
+| A2 | Aprobar con contraseña incorrecta o con la firma de un MESERO | ✅ | **403** y la asistencia sigue sin aprobar (era 401, que el frontend toma como sesión vencida y cerraba la sesión del cajero, #26) | #26 | ✔ |
 | A3 | Aprobar con la firma del ADMIN o del CAJERO | ✅ | 200 y queda aprobada | — | ✔ |
 | A4 | Borrar una asistencia aprobada sin firma | 🐞 | Se rechaza y no se borra (hoy 200 y borrado físico). Quitar una asistencia **sin aprobar** sí funciona (✅) | #30 | ✔ |
 | A5 | Guardar un horario con hora de salida | 🐞 | Se guardan entrada y salida (hoy solo la entrada) | #61 | ✔ |
@@ -127,3 +127,4 @@ Las pruebas leen `ventana_bloqueo`, `ventana_llegada` y `minutos_tolerancia` de 
 | P10 | Cobrar una orden de más de 1000 Bs | El monto a cobrar es el total de la API | #36 |
 | R1 | Abrir *Nueva reserva* después de las 20:00 | La fecha por defecto es la de hoy | #27 |
 | T15 | Cerrar el día y entrar desde otro navegador | El día figura cerrado (hoy solo en el navegador que lo cerró) | #34 ⏳ |
+| T1 (UI) | Con un token vencido o con otra firma, abrir cualquier pantalla. Con la sesión del MESERO, pedir una ruta de ADMIN. Aprobar una asistencia con la contraseña del supervisor mal escrita | Vuelve al login con *"La sesión venció…"* o *"Token inválido…"*; el 403 muestra *Sin permiso* y no cierra la sesión; la firma incorrecta tampoco la cierra (probado en Chrome el 25/11) | #26 |
