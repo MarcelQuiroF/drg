@@ -201,7 +201,7 @@ Lista corta para la presentación del MVP al dueño, en orden de importancia:
 4. **P-22** · ¿Quiere cambiar él mismo los permisos del cajero y del mesero desde el panel? ¿El mesero también puede aprobar asistencias y anular pagos?
 5. **P-23** · ¿Algún juego tiene un precio distinto al de su etiqueta de color? (Mientras tanto: no; el precio sale solo del tamaño.)
 6. **P-05** · ¿Cuánto tiempo antes de una reserva se deja de dar la mesa? (Prueba: 1 h.)
-7. **P-07** · ¿Quién confirma la llegada de un empleado? (Prueba: el cajero.)
+7. **P-07** · ¿Quién confirma la llegada de un empleado? (Prueba: el cajero.) ¿Una llegada marcada como FALTA o PERMISO lleva descuento por atraso? (Mientras tanto: no; el descuento solo se calcula para PRESENTE, #29.)
 8. **P-08** · ¿El sistema solo reporta atrasos, o también calcula sueldos? (Prueba: solo atrasos.)
 9. **P-10** · Impresoras (cuántas, tipo, marca y modelo). ¿El mesero tiene que ver al instante cuándo está listo un pedido?
 10. **P-12** · ¿Las zonas son solo Cocina y Cafetería? ¿Quién marca un producto como agotado?

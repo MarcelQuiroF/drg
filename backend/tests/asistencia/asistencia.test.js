@@ -78,12 +78,12 @@ describe('Registrar la llegada', () => {
         expect(res.body.message).toMatch(/horario/i);
     });
 
-    test.failing('A6 · el servidor ignora el descuento por atraso que manda el navegador (#29)', async () => {
+    test('A6 · el servidor ignora el descuento por atraso que manda el navegador (#29)', async () => {
         const { empleado: e, horario } = await empleadoConHorarioHoy(); // llega a la hora de entrada
         const descuento = await DescuentoAtraso.findOne({ where: { descuento_porcentual: 100 }, rejectOnEmpty: true });
         const res = await registrarLlegada({ empleado_id: e.id, horario_id: horario.id, descuento_id: descuento.id });
         expect(res.status).toBe(201);
-        // RN-01: con menos de 10 min de atraso no hay descuento. Hoy guarda el −100 % enviado.
+        // RN-01: con menos de 10 min de atraso no hay descuento. Antes de #29 guardaba el −100 % enviado.
         expect(res.body.data.descuento_id).toBeNull();
     });
 });

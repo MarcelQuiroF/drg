@@ -4,7 +4,6 @@ import { mostrarNotificacion, escaparHTML } from '../utils.js';
 let relojInterval = null;
 let empleadosHoy = [];
 let asistenciasHoy = [];
-let descuentosDB = [];
 let empleadoSeleccionado = null;
 let horarioSeleccionado = null;
 let asistenciaAAprobarId = null;
@@ -14,7 +13,6 @@ const DIAS_SEMANA = ['DOMINGO', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERN
 
 export const cargarAsistenciaPage = async () => {
     iniciarReloj();
-    await cargarDescuentos();
     await recargarDatos();
     configurarEventosModales();
     configurarBotonEliminarGlobal();
@@ -40,15 +38,6 @@ const iniciarReloj = () => {
     };
     actualizarReloj();
     relojInterval = setInterval(actualizarReloj, 1000);
-};
-
-const cargarDescuentos = async () => {
-    try {
-        const res = await authFetch('/configuracion/descuentos-atraso');
-        if (res.ok) descuentosDB = await res.json();
-    } catch (e) {
-        console.error('Error cargando descuentos:', e);
-    }
 };
 
 const cargarTurnosHoy = async () => {
@@ -84,7 +73,6 @@ const renderizarTablas = () => {
     tbodyRegistros.innerHTML = '';
 
     const diaActual = DIAS_SEMANA[new Date().getDay()];
-    const ahora = new Date();
     let contadorTurnos = 0;
 
     empleadosHoy.forEach((emp) => {
@@ -96,15 +84,8 @@ const renderizarTablas = () => {
 
         contadorTurnos++;
         const tr = document.createElement('tr');
-        const [horaE, minE] = horarioHoy.hora_entrada.split(':').map(Number);
-        const fechaEsperada = new Date();
-        fechaEsperada.setHours(horaE, minE, 0, 0);
-
-        const diferenciaMinutos = Math.floor((ahora - fechaEsperada) / 60000);
-        const estadoHTML =
-            diferenciaMinutos <= 0
-                ? '<span class="status-badge status-ontime">A tiempo</span>'
-                : `<span class="status-badge status-late">Atrasado (${Number(diferenciaMinutos)} min)</span>`;
+        // El atraso lo calcula el servidor al registrar la llegada (RN-01, #29), no el navegador
+        const estadoHTML = '<span class="status-badge status-ontime">Pendiente</span>';
 
         tr.innerHTML = `
             <td><strong>${escaparHTML(emp.nombre)}</strong></td>
@@ -133,7 +114,8 @@ const renderizarTablas = () => {
             if (asist.estado === 'FALTA') colorEstado = '#dc2626';
             if (asist.estado === 'PERMISO') colorEstado = '#d97706';
 
-            const estadoHTML = `<span style="font-weight: bold; color: ${escaparHTML(colorEstado)}">${escaparHTML(asist.estado)}</span>`;
+            const descuentoAtrasoHTML = etiquetaDescuento(asist.DescuentoAtraso);
+            const estadoHTML = `<span style="font-weight: bold; color: ${escaparHTML(colorEstado)}">${escaparHTML(asist.estado)}</span>${descuentoAtrasoHTML}`;
 
             const checkIconHTML = asist.aprobado
                 ? '<i class="fa-solid fa-circle-check status-aprobado" title="Aprobado"></i>'
@@ -167,6 +149,20 @@ const renderizarTablas = () => {
     }
 };
 
+// Lo que calculó el servidor (RN-01, #29): el navegador solo lo muestra
+export const textoAtraso = (atraso) => {
+    if (!atraso || !atraso.segundos) return 'Llegada registrada a tiempo.';
+    const minutos = `${Number(atraso.minutos)} min de atraso`;
+    return atraso.descuento_porcentual
+        ? `Llegada registrada con ${minutos}: descuento de ${Number(atraso.descuento_porcentual)} % del pago del día.`
+        : `Llegada registrada con ${minutos}, sin descuento.`;
+};
+
+const etiquetaDescuento = (descuento) =>
+    descuento && descuento.descuento_porcentual
+        ? ` <span class="status-badge status-late">−${Number(descuento.descuento_porcentual)} %</span>`
+        : '';
+
 const abrirModalAsistencia = (empleado, horario) => {
     empleadoSeleccionado = empleado;
     horarioSeleccionado = horario;
@@ -175,35 +171,6 @@ const abrirModalAsistencia = (empleado, horario) => {
     document.getElementById('modal-emp-nombre').textContent = empleado.nombre;
     document.getElementById('modal-emp-esperada').textContent = horario.hora_entrada.substring(0, 5);
     document.getElementById('modal-emp-llegada').textContent = ahora.toLocaleTimeString('es-ES', { hour12: false });
-
-    const [horaE, minE] = horario.hora_entrada.split(':').map(Number);
-    const fechaEsperada = new Date();
-    fechaEsperada.setHours(horaE, minE, 0, 0);
-    const diferenciaMinutos = Math.floor((ahora - fechaEsperada) / 60000);
-
-    const alertaAtraso = document.getElementById('alerta-atraso');
-    const grupoDescuento = document.getElementById('grupo-descuento');
-    const selectDescuento = document.getElementById('asistencia-descuento');
-
-    if (selectDescuento) selectDescuento.innerHTML = '<option value="">Ninguno (Perdonar atraso)</option>';
-
-    if (diferenciaMinutos > 0) {
-        document.getElementById('minutos-atraso').textContent = diferenciaMinutos;
-        if (alertaAtraso) alertaAtraso.style.display = 'block';
-        if (grupoDescuento) grupoDescuento.style.display = 'block';
-
-        if (selectDescuento) {
-            descuentosDB.forEach((desc) => {
-                const opt = document.createElement('option');
-                opt.value = desc.id;
-                opt.textContent = `Descuento: ${desc.descuento_porcentual ? desc.descuento_porcentual + '%' : desc.descuento + ' Bs'}`;
-                selectDescuento.appendChild(opt);
-            });
-        }
-    } else {
-        if (alertaAtraso) alertaAtraso.style.display = 'none';
-        if (grupoDescuento) grupoDescuento.style.display = 'none';
-    }
 
     abrirCerrarModal('modal-asistencia', true);
 };
@@ -280,14 +247,14 @@ const configurarEventosModales = () => {
         const payload = {
             empleado_id: empleadoSeleccionado.id,
             horario_id: horarioSeleccionado ? horarioSeleccionado.id : null,
-            estado: document.getElementById('asistencia-estado').value,
-            descuento_id: document.getElementById('asistencia-descuento')?.value || null
+            estado: document.getElementById('asistencia-estado').value
         };
 
         try {
             const res = await authFetch('/asistencias', { method: 'POST', body: JSON.stringify(payload) });
             if (res.ok) {
-                mostrarNotificacion('Éxito', 'Asistencia registrada correctamente.', false);
+                const { atraso } = await res.json();
+                mostrarNotificacion('Éxito', textoAtraso(atraso), false);
                 abrirCerrarModal('modal-asistencia', false);
                 await recargarDatos();
             } else {
