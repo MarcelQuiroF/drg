@@ -1,5 +1,5 @@
 import { authFetch } from '../api.js';
-import { mostrarNotificacion, cargarHTML, iniciarAutoRefresco } from '../utils.js';
+import { mostrarNotificacion, cargarHTML, iniciarAutoRefresco, escaparHTML } from '../utils.js';
 
 let RESERVA_ID_PARA_ELIMINAR = null;
 let ID_RESERVA_EDICION = null;
@@ -24,9 +24,9 @@ const filtrarClientes = (termino) => {
         resultsContainer.innerHTML = filtrados
             .map(
                 (c) => `
-            <div class="search-option-item" data-id="${c.id}" data-nombre="${c.nombre}" data-telf="${c.telefono || ''}">
-                ${c.nombre}
-                <span>(${c.telefono || 'Sin teléfono'})</span>
+            <div class="search-option-item" data-id="${Number(c.id)}" data-nombre="${escaparHTML(c.nombre)}" data-telf="${escaparHTML(c.telefono || '')}">
+                ${escaparHTML(c.nombre)}
+                <span>(${escaparHTML(c.telefono || 'Sin teléfono')})</span>
             </div>
         `
             )
@@ -429,17 +429,17 @@ const renderizarReservas = async (tbody, reservas) => {
         tr.innerHTML = `
             <td>
                 <div class="client-info-cell">
-                    <span class="client-name">${reserva.Cliente ? reserva.Cliente.nombre : 'Sin Nombre'}</span>
-                    <span class="client-phone">(${reserva.Cliente ? reserva.Cliente.telefono : 'N/A'})</span>
+                    <span class="client-name">${escaparHTML(reserva.Cliente ? reserva.Cliente.nombre : 'Sin Nombre')}</span>
+                    <span class="client-phone">(${escaparHTML(reserva.Cliente ? reserva.Cliente.telefono : 'N/A')})</span>
                 </div>
             </td>
-            <td><span class="date-tag">${fechaStr}</span></td>
-            <td><span class="hour-tag ${timeClass}">${horaStr}</span></td>
+            <td><span class="date-tag">${escaparHTML(fechaStr)}</span></td>
+            <td><span class="hour-tag ${escaparHTML(timeClass)}">${escaparHTML(horaStr)}</span></td>
             <td>
                 <div style="font-weight: 500;">
-                    ${reserva.Mesa ? 'Mesa ' + reserva.Mesa.numero : 'No asignada'}
+                    ${escaparHTML(reserva.Mesa ? 'Mesa ' + reserva.Mesa.numero : 'No asignada')}
                 </div>
-                <small style="color: var(--color-text-secondary)">${reserva.Mesa?.nombre || ''}</small>
+                <small style="color: var(--color-text-secondary)">${escaparHTML(reserva.Mesa?.nombre || '')}</small>
             </td>
             <td>
                 <div class="action-buttons">
@@ -507,7 +507,8 @@ async function manejarGuardarSettings() {
 const prepararEliminacionReserva = (id, nombre) => {
     RESERVA_ID_PARA_ELIMINAR = id;
     const modal = document.getElementById('delete-modal');
-    document.getElementById('delete-modal-message').innerHTML = `¿Eliminar reserva de <strong>${nombre}</strong>?`;
+    document.getElementById('delete-modal-message').innerHTML =
+        `¿Eliminar reserva de <strong>${escaparHTML(nombre)}</strong>?`;
     modal.classList.replace('custom-modal-hidden', 'custom-modal-visible');
     document.getElementById('modal-overlay').classList.replace('modal-overlay-hidden', 'modal-overlay-visible');
 };

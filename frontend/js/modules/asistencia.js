@@ -1,5 +1,5 @@
 import { authFetch } from '../api.js';
-import { mostrarNotificacion } from '../utils.js';
+import { mostrarNotificacion, escaparHTML } from '../utils.js';
 
 let relojInterval = null;
 let empleadosHoy = [];
@@ -104,12 +104,12 @@ const renderizarTablas = () => {
         const estadoHTML =
             diferenciaMinutos <= 0
                 ? '<span class="status-badge status-ontime">A tiempo</span>'
-                : `<span class="status-badge status-late">Atrasado (${diferenciaMinutos} min)</span>`;
+                : `<span class="status-badge status-late">Atrasado (${Number(diferenciaMinutos)} min)</span>`;
 
         tr.innerHTML = `
-            <td><strong>${emp.nombre}</strong></td>
-            <td>${emp.rol}</td>
-            <td>${horarioHoy.hora_entrada.substring(0, 5)}</td>
+            <td><strong>${escaparHTML(emp.nombre)}</strong></td>
+            <td>${escaparHTML(emp.rol)}</td>
+            <td>${escaparHTML(horarioHoy.hora_entrada.substring(0, 5))}</td>
             <td>${estadoHTML}</td>
             <td><button class="btn-primary btn-registrar-llegada">Registrar</button></td>
         `;
@@ -133,25 +133,25 @@ const renderizarTablas = () => {
             if (asist.estado === 'FALTA') colorEstado = '#dc2626';
             if (asist.estado === 'PERMISO') colorEstado = '#d97706';
 
-            const estadoSpan = `<span style="font-weight: bold; color: ${colorEstado}">${asist.estado}</span>`;
+            const estadoHTML = `<span style="font-weight: bold; color: ${escaparHTML(colorEstado)}">${escaparHTML(asist.estado)}</span>`;
 
-            const checkIcon = asist.aprobado
+            const checkIconHTML = asist.aprobado
                 ? '<i class="fa-solid fa-circle-check status-aprobado" title="Aprobado"></i>'
                 : '<i class="fa-solid fa-clock status-pendiente" title="Pendiente de aprobación"></i>';
 
             const btnAprobarHTML = asist.aprobado
                 ? `<span style="color: #16a34a; font-size: 0.9em; margin-right: 5px;">Aprobado</span>`
-                : `<button class="btn-aprobar" data-id="${asist.id}">Aprobar</button>`;
+                : `<button class="btn-aprobar" data-id="${Number(asist.id)}">Aprobar</button>`;
 
             tr.innerHTML = `
-                <td><strong>${asist.Empleado?.nombre || 'Desconocido'}</strong></td>
-                <td>${asist.Empleado?.rol || '-'}</td>
-                <td>${asist.Horario ? asist.Horario.hora_entrada.substring(0, 5) : '-'}</td>
-                <td>${estadoSpan}</td>
-                <td style="text-align:center;">${checkIcon}</td>
+                <td><strong>${escaparHTML(asist.Empleado?.nombre || 'Desconocido')}</strong></td>
+                <td>${escaparHTML(asist.Empleado?.rol || '-')}</td>
+                <td>${escaparHTML(asist.Horario ? asist.Horario.hora_entrada.substring(0, 5) : '-')}</td>
+                <td>${estadoHTML}</td>
+                <td style="text-align:center;">${checkIconHTML}</td>
                 <td>
                     ${btnAprobarHTML}
-                    <button class="btn-eliminar" data-id="${asist.id}" title="Eliminar registro"><i class="fa-solid fa-xmark"></i></button>
+                    <button class="btn-eliminar" data-id="${Number(asist.id)}" title="Eliminar registro"><i class="fa-solid fa-xmark"></i></button>
                 </td>
             `;
 
@@ -222,7 +222,7 @@ const prepararEliminacion = (id, nombre) => {
     const overlay = document.getElementById('modal-overlay');
 
     document.getElementById('delete-modal-message').innerHTML =
-        `¿Eliminar el registro de asistencia de <strong>${nombre}</strong>?<br><small>El empleado regresará a la lista de turnos pendientes.</small>`;
+        `¿Eliminar el registro de asistencia de <strong>${escaparHTML(nombre)}</strong>?<br><small>El empleado regresará a la lista de turnos pendientes.</small>`;
 
     if (modal && overlay) {
         overlay.classList.remove('modal-overlay-hidden');

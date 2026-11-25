@@ -1,5 +1,5 @@
 import { authFetch } from '../api.js';
-import { activarMenu, cargarHTML, iniciarAutoRefresco } from '../utils.js';
+import { activarMenu, cargarHTML, iniciarAutoRefresco, escaparHTML } from '../utils.js';
 import { cargarProductosPage } from './productos.js';
 
 const mapEstadoBackendAFrontend = (estado) => {
@@ -146,7 +146,7 @@ const renderizarMesas = (mesas) => {
                 .join('\n');
 
             relojHTML = `
-                <div class="mesa-reloj-container" data-tooltip="Próximas Reservas:\n${listaHoras}">
+                <div class="mesa-reloj-container" data-tooltip="Próximas Reservas:\n${escaparHTML(listaHoras)}">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                 </div>
             `;
@@ -154,17 +154,17 @@ const renderizarMesas = (mesas) => {
 
         mesaDiv.innerHTML = `
             <div class="mesa-header">
-                <span>${obtenerEstadoTexto(estadoVisual)}</span>
+                <span>${escaparHTML(obtenerEstadoTexto(estadoVisual))}</span>
                 ${relojHTML}
             </div>
             <div class="mesa-cuerpo">
-                <img src="${obtenerImagenPorEstado(estadoVisual)}" alt="Mesa ${mesa.id}" class="mesa-icono">
+                <img src="${escaparHTML(obtenerImagenPorEstado(estadoVisual))}" alt="Mesa ${Number(mesa.id)}" class="mesa-icono">
             </div>
             <div class="mesa-footer">
-                <p class="mesa-nombre">Mesa ${mesa.numero}</p>
+                <p class="mesa-nombre">Mesa ${escaparHTML(mesa.numero)}</p>
                 <div class="mesa-capacidad">
                     <img src="../assets/iconos/iconoUsuario.png" alt="Capacidad" class="icono-persona">
-                    <span class="capacidad-texto">${mesa.cantidadMaxima}</span>
+                    <span class="capacidad-texto">${escaparHTML(mesa.cantidadMaxima)}</span>
                 </div>
             </div>
         `;

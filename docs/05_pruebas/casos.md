@@ -119,7 +119,7 @@ Las pruebas leen `ventana_bloqueo`, `ventana_llegada` y `minutos_tolerancia` de 
 
 | Código | Caso | Resultado esperado | Issue |
 |--------|------|--------------------|-------|
-| T8 / F1 | Cliente con nombre `<img src=x onerror=…>` y buscarlo en *Nueva reserva* | El nombre se ve como texto; no se ejecuta nada. (La API guarda el texto tal cual y lo devuelve en JSON: eso es correcto; el problema es cómo lo inserta el frontend) | #23 |
+| T8 / F1 | Cliente con nombre `<img src=x onerror=…>` y buscarlo en *Nueva reserva*. Lo mismo con productos, categorías, empleados, mesas, el comentario de un ítem y un juego con enlace `javascript:`, recorriendo las pantallas como MESERO, CAJERO, ADMIN y cliente | El texto se ve tal cual; no se ejecuta nada. (La API guarda el texto tal cual y lo devuelve en JSON: eso es correcto; el problema era cómo lo insertaba el frontend). **Probado en Chrome el 25/11 (#23):** con `main` el código se ejecutó 15 veces en 13 pantallas; con el arreglo, 0. `escaparHTML` y `urlSegura` tienen pruebas unitarias (`npm run test:frontend`) | #23 ✅ |
 | F5 (UI) | El MESERO entra a *Asistencia* | Si el servidor responde 403, la pantalla muestra un error de permisos, no "No hay turnos pendientes" | #63 |
 | F6 | Pantalla de mesas en 390 px de ancho | El menú se colapsa y las tarjetas no se cortan | #73 |
 | F7 | Consola del navegador al recorrer las pantallas | Sin errores 404 ni 403 propios | #63, #96 |

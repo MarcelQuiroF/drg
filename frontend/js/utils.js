@@ -1,3 +1,23 @@
+// Escapa un dato para insertarlo en HTML (contenido o atributo entre comillas). Todo texto que
+// venga de la API (nombres, comentarios, teléfonos…) pasa por aquí antes de ir a innerHTML: si
+// no, un nombre como <img src=x onerror=…> se ejecuta en la sesión de otro usuario (XSS, #23).
+// La regla de ESLint de eslint.config.js obliga a usarla en las plantillas de innerHTML.
+const ENTIDADES_HTML = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+
+export const escaparHTML = (valor) => String(valor ?? '').replace(/[&<>"']/g, (c) => ENTIDADES_HTML[c]);
+
+// Devuelve la URL si es http o https, o null. Evita abrir un enlace guardado como
+// "javascript:…", que correría código en la página que lo abre (#23).
+export const urlSegura = (valor) => {
+    if (typeof valor !== 'string' || valor.trim() === '') return null;
+    try {
+        const url = new URL(valor.trim());
+        return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : null;
+    } catch {
+        return null;
+    }
+};
+
 let intervaloGlobal = null;
 
 export const iniciarAutoRefresco = (callback, segundos = 30) => {

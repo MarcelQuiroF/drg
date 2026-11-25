@@ -1,6 +1,6 @@
 import { authFetch } from '../api.js';
 import { cargarImpresionPage } from './impresion.js';
-import { cargarHTML, activarMenu, mostrarNotificacion, cerrarNotificacion } from '../utils.js';
+import { cargarHTML, activarMenu, mostrarNotificacion, cerrarNotificacion, escaparHTML } from '../utils.js';
 import { initMesas } from './mesas.js';
 
 let ORDEN_ACTUAL_ID = null;
@@ -457,7 +457,7 @@ const abrirModalEliminar = (nombreProducto, esUltimoItem = false) => {
             <div style="color: #d9534f; font-weight: bold; margin-bottom: 10px;">
                 <i class="fa-solid fa-triangle-exclamation"></i> ¡Atención!
             </div>
-            <strong>"${nombreProducto}"</strong> es el único item en la orden. 
+            <strong>"${escaparHTML(nombreProducto)}"</strong> es el único item en la orden. 
             Al eliminarlo, la orden se cerrará
         `;
     } else {

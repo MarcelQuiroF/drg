@@ -1,4 +1,5 @@
 import { authFetch } from '../api.js';
+import { escaparHTML } from '../utils.js';
 
 let allInventory = [];
 let allCategories = [];
@@ -210,7 +211,7 @@ const renderCategoryResults = (term) => {
             : filtered
                   .map(
                       (c) =>
-                          `<div class="category-option" data-id="${c.id}" data-nombre="${c.nombre}">${c.nombre}</div>`
+                          `<div class="category-option" data-id="${Number(c.id)}" data-nombre="${escaparHTML(c.nombre)}">${escaparHTML(c.nombre)}</div>`
                   )
                   .join('');
 
@@ -239,7 +240,7 @@ const renderTags = () => {
         container.innerHTML = selectedCategories
             .map(
                 (c) => `
-            <span class="tag">${c.nombre}<i class='bx bx-x' onclick="removeCategoryTag(${c.id})"></i></span>
+            <span class="tag">${escaparHTML(c.nombre)}<i class='bx bx-x' onclick="removeCategoryTag(${Number(c.id)})"></i></span>
         `
             )
             .join('');
@@ -391,7 +392,7 @@ const toggleStatus = (item) => {
     const btnConfirm = document.getElementById('btn-status-confirm');
 
     if (msg)
-        msg.innerHTML = `¿Deseas ${nextStatus ? '<strong>activar</strong>' : '<strong>desactivar</strong>'} <br> "<strong>${item.nombre}</strong>"?`;
+        msg.innerHTML = `¿Deseas <strong>${escaparHTML(nextStatus ? 'activar' : 'desactivar')}</strong> <br> "<strong>${escaparHTML(item.nombre)}</strong>"?`;
 
     if (btnConfirm) {
         btnConfirm.className = 'btn-primary ' + (nextStatus ? 'confirm-activar' : 'confirm-desactivar');

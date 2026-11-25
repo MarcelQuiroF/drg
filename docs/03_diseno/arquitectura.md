@@ -132,13 +132,13 @@ sequenceDiagram
 | `html/login.html` | Todos | `js/login.js`: guarda el token y redirige según el rol |
 | `html/index.html` | MESERO y CAJERO | `js/main.js` + vistas de mesas, toma de pedidos, impresión de comandas, reservas, clientes y asistencia |
 | `html/indexAdmin.html` | ADMIN | `js/main.js` + vistas de administración y dashboard (Chart.js) |
-| `html/catalogo.html` | Clientes (por QR), sin sesión | `js/catalogoCliente.js`, que llama a la API con la URL fija `http://localhost:3000` (#14) |
+| `html/catalogo.html` | Clientes (por QR), sin sesión | `js/catalogoCliente.js` (módulo ES desde #23), que llama a la API con una URL relativa (#14) |
 | `html/cerrado.html` | Todos | Pantalla de "día cerrado" |
 
 ### 3.2 SPA casera
 
 - `cargarHTML(ruta, callback)` (`js/utils.js`) detiene el auto-refresco, trae una de las **21 vistas parciales** de `html/` (los otros 5 archivos son las páginas de la tabla anterior) con `fetch`, la inserta con `innerHTML` en `#cuerpo` y llama a la función `init…()` del módulo.
-- Los **12 módulos** de `js/modules/` (mesas, productos, órdenes, reservas, clientes, asistencia, impresión, admin…) arman la interfaz con plantillas de texto e `innerHTML` (unas 60 veces, con datos sin escapar: #23).
+- Los **12 módulos** de `js/modules/` (mesas, productos, órdenes, reservas, clientes, asistencia, impresión, admin…) arman la interfaz con plantillas de texto e `innerHTML`. Desde #23 todo dato de la API pasa por `escaparHTML()` (`js/utils.js`) y una regla de ESLint lo exige; el catálogo solo abre enlaces `http(s)` (`urlSegura()`).
 - `js/api.js` tiene `authFetch()`, que agrega el token y vuelve al login ante un 401.
 - `iniciarAutoRefresco()` vuelve a pedir los datos de la vista cada 30 segundos y se detiene al cambiar de vista.
 - El estado compartido vive en variables de los módulos (por ejemplo `ORDEN_ACTUAL_ID`) y en `sessionStorage` (`mesaSeleccionada`).

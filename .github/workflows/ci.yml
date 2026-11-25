@@ -81,3 +81,7 @@ jobs:
 
       - run: npm ci
       - run: npm test
+
+      # Pruebas del frontend (#23): test runner de Node, sin dependencias ni base de datos.
+      - run: npm run test:frontend
+        working-directory: .

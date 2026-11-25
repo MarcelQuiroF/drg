@@ -1,5 +1,5 @@
 import { authFetch } from '../api.js';
-import { cargarHTML } from '../utils.js';
+import { cargarHTML, escaparHTML } from '../utils.js';
 import { cargarProductosPage } from './productos.js';
 
 let MESA_ID_ORIGEN = null;
@@ -51,13 +51,14 @@ const llenarTickets = (items, orden) => {
     items.forEach((item) => {
         const li = document.createElement('li');
 
-        const comentarioHtml = item.comentario ? `<br><small>(${item.comentario})</small>` : '';
+        // El comentario lo escribe el mesero (texto libre): es el dato más expuesto (#23)
+        const comentarioHTML = item.comentario ? `<br><small>(${escaparHTML(item.comentario)})</small>` : '';
 
         li.innerHTML = `
             <div>
-                <span class="ticket-cant">${item.cantidad} x</span>
-                <span>${item.Producto.nombre}</span>
-                ${comentarioHtml}
+                <span class="ticket-cant">${Number(item.cantidad)} x</span>
+                <span>${escaparHTML(item.Producto.nombre)}</span>
+                ${comentarioHTML}
             </div>
         `;
 
