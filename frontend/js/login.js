@@ -2,6 +2,15 @@ import { API_URL } from './api.js';
 
 const loginForm = document.getElementById('loginForm');
 
+// Motivo por el que se volvió al login (sesión vencida o token inválido, #26), puesto por api.js
+const avisoLogin = sessionStorage.getItem('aviso_login');
+const avisoEl = document.getElementById('aviso-login');
+if (avisoLogin && avisoEl) {
+    avisoEl.textContent = avisoLogin;
+    avisoEl.hidden = false;
+}
+sessionStorage.removeItem('aviso_login');
+
 const fechaHoy = new Date().toISOString().split('T')[0];
 const cierreGuardado = localStorage.getItem('dia_cerrado');
 

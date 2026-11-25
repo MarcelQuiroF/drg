@@ -176,3 +176,14 @@ input[type="text"]:focus, input[type="password"]:focus {
     height: auto;
     max-width: 350px;
 }
+
+/* Motivo por el que se volvió al login, por ejemplo una sesión vencida (#26) */
+.aviso-login {
+    margin: 0 0 16px;
+    padding: 10px 14px;
+    border-left: 4px solid #cc0000;
+    border-radius: 6px;
+    background-color: #fdecec;
+    color: #7a0000;
+    font-size: 0.95rem;
+}

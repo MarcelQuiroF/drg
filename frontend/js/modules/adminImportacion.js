@@ -1,4 +1,4 @@
-import { authFetch } from '../api.js';
+import { authFetch, manejarSesion } from '../api.js';
 import { mostrarNotificacion } from '../utils.js';
 
 export const initAdminImportacion = async () => {
@@ -68,13 +68,15 @@ const subirExcel = async (inputId, endpoint, btnId) => {
 
         // Utilizamos fetch nativo para omitir el Content-Type
         // y permitir que el navegador gestione el FormData
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
-            body: formData
-        });
+        const response = await manejarSesion(
+            await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+                body: formData
+            })
+        );
 
         const result = await response.json();
 
