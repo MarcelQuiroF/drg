@@ -22,7 +22,7 @@ ORDER BY table_name, ordinal_position;
 
 - **Nombres de tabla** en `snake_case` y en singular (`orden`, `contenedor_producto`). Las columnas también, salvo `mesa.cantidadMinima` y `mesa.cantidadMaxima` (en `camelCase`) y las marcas de tiempo.
 - **Marcas de tiempo:** todas las tablas tienen `createdAt` y `updatedAt` (`timestamptz`, en `camelCase`). No se muestran en el diagrama.
-- **Borrado lógico:** todas las tablas menos `configuracion` tienen `deletedAt` (Sequelize `paranoid`): borrar pone la fecha y la fila sigue en la base. Tampoco se muestra en el diagrama.
+- **Borrado lógico:** todas las tablas menos `configuracion`, `producto_categoria` y `juego_categoria` (desde #78) tienen `deletedAt` (Sequelize `paranoid`): borrar pone la fecha y la fila sigue en la base. Tampoco se muestra en el diagrama.
 - **Claves:** `id` entero autoincremental (`SERIAL`) en las tablas principales; clave primaria **compuesta** en las tablas intermedias (`juego_categoria`, `producto_categoria`, `orden_descuento` y las `registro_*`).
 - **Dinero** en `numeric` sin precisión fija (`orden.total`, `producto.precio`, `juego.precio`, `descuento.monto`, `contenedor_transaccion.cantidad`).
 
@@ -238,7 +238,7 @@ erDiagram
 | `categoria` | Categorías de productos y de juegos | Una sola tabla para los dos |
 | `producto` | Comida y bebida | `zona` es texto libre (`COCINA`, `CAFETERIA`, `Barra`…: #32). Tiene **dos** booleanos, `activado` y `estado`, sin un propósito claro (#53) |
 | `juego` | Juegos de mesa | `precio` propio por juego (pasa a tamaños: ADR-007), jugadores mínimo y máximo, `tiempo_partida` en minutos, `enlace` a las reglas |
-| `producto_categoria`, `juego_categoria` | Relación N a N con `categoria` | Clave primaria compuesta **y** borrado lógico: volver a asignar una categoría que se quitó choca con la fila borrada (#78) |
+| `producto_categoria`, `juego_categoria` | Relación N a N con `categoria` | Clave primaria compuesta y **sin** borrado lógico: quitar una categoría borra la fila, así que se puede volver a asignar (#78) |
 
 ### Órdenes y pagos
 
@@ -302,7 +302,6 @@ Hoy casi todo usa borrado lógico, así que estas reglas casi no se activan. Imp
 | `asistencia.aprobado` | por defecto `true` | por defecto `false` | Igual: un `INSERT` directo crearía asistencias aprobadas | #28 |
 | `asistencia.estado` | texto libre | lista de valores (`PRESENTE`, `FALTA`, `PERMISO`) | Solo la app valida los valores | #28 |
 | `contenedor_transaccion.tipo`, `producto.zona`, `empleado.rol` | texto libre | sin lista de valores | Ni la base ni la app limitan los valores: por ejemplo, conviven zonas `COCINA` y `Barra` | #28, #32 |
-| Tablas intermedias de categorías | PK compuesta | `paranoid: true` | Reasignar categorías falla y deja el producto sin categorías | #78 |
 
 ## 6. Próximos cambios previstos
 

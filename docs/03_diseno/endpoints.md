@@ -314,10 +314,13 @@ Gestión del catálogo de comidas, bebidas y consumibles del establecimiento. Re
   "nombre": "Papas Fritas Medianas",
   "zona": "Cocina",
   "precio": 15.00,
-  "imagen": "papas_medianas.png"
+  "imagen": "papas_medianas.png",
+  "categorias": [1, 3]
 }
 
 ```
+
+* `categorias` (opcional): ids de categorías. El producto y sus categorías se guardan en una sola transacción: si una categoría no existe responde **400** y no se crea el producto (#78). Un id repetido se guarda una sola vez.
 
 
 * **Respuesta Exitosa (201 Created):**
@@ -345,10 +348,14 @@ Gestión del catálogo de comidas, bebidas y consumibles del establecimiento. Re
 ```json
 {
   "precio": 18.00,
-  "activado": false
+  "activado": false,
+  "categorias": [3]
 }
 
 ```
+
+* `categorias` (opcional): si viene, **reemplaza** las categorías del producto por exactamente las de la lista (`[]` las quita todas); si no viene, no se tocan. Se puede conservar, agregar, quitar y volver a asignar una categoría (#78).
+* Todo se guarda en una transacción: si una categoría no existe responde **400** y el producto queda como estaba (datos y categorías).
 
 
 * **Respuesta Exitosa (200 OK):**
