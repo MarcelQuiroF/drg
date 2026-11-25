@@ -11,5 +11,6 @@ Qué es un ADR y cómo se escribe: ver [`../README.md`](../README.md#adr-archite
 | [005](005-cliente-movil.md) | Cliente móvil para meseros (React Native + Expo, propuesto) | Propuesto (PR #82) |
 | [006](006-impresion-comandas.md) | Impresión de comandas desde el servidor local | Propuesto (PR #83) |
 | [007](007-precios-juegos-por-tamano.md) | Precios de juegos por tamaño y precio cobrado en la orden | Propuesto (PR #84) |
+| [008](008-rbac-permisos-por-accion.md) | Control de acceso por roles con permisos por acción (RBAC) | Propuesto (PR #88) |
 
-Los ADR se escriben en la issue #10, uno por PR. Los enlaces a los ADR 002 a 007 funcionan cuando se mergea cada PR; la columna *Estado* se actualiza al aceptarlos. Un ADR entra como **Propuesto**. Cuando Marcelo lo aprueba en la revisión del PR, el estado se cambia a **Aceptado** (en el ADR y en esta tabla) antes del merge.
+Los ADR se escriben en la issue #10, uno por PR. Los enlaces a los ADR 002 a 008 funcionan cuando se mergea cada PR; la columna *Estado* se actualiza al aceptarlos. Un ADR entra como **Propuesto**. Cuando Marcelo lo aprueba en la revisión del PR, el estado se cambia a **Aceptado** (en el ADR y en esta tabla) antes del merge.
