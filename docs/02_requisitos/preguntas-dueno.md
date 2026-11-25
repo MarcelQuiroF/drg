@@ -71,6 +71,11 @@ Mostrarle la lista de requisitos marcados como **I** (imprescindibles) y pedirle
 - ¿Quién marca un producto como agotado: el cajero, la cocina, usted?
 *Por qué:* RF-32, RF-14 (hoy hay zonas mezcladas que esconden productos) y RF-33.
 
+**P-21 · ¿Quién puede borrar una orden?** *(agregada el 25/11/2026, al armar la matriz de permisos)*
+- Si una orden se abrió por error o tiene ítems ya enviados a cocina, ¿quién la puede borrar o cancelar? ¿Hace falta un motivo?
+*Por qué:* hoy cualquier rol borra una orden, incluso con ítems enviados a cocina, y no queda registro (#44). La [matriz de permisos](../03_diseno/permisos.md) lo deja abierto a los 3 roles hasta tener la respuesta.
+*Propuesta:* cualquier rol, con motivo obligatorio y registro de quién lo hizo.
+
 ## C. Personal
 
 **P-07 · Atrasos**
@@ -141,6 +146,12 @@ Mostrarle la lista de requisitos marcados como **I** (imprescindibles) y pedirle
 - Al terminar, ¿estaría dispuesto a firmar un acta de entrega y una constancia del trabajo realizado?
 *Por qué:* Etapa 7.
 
+**P-22 · ¿Quiere cambiar él mismo los permisos del cajero y del mesero?** *(agregada el 25/11/2026)*
+- Si algún día quiere que el mesero pueda (o no pueda) hacer algo, ¿prefiere cambiarlo él desde el panel de administración, o pedírselo al desarrollador?
+- Confirmar las dos acciones que hoy solo hace el cajero: **aprobar o anular asistencias** y **anular un pago**. ¿El mesero también tiene que poder?
+*Por qué:* RF-58 y RN-16. El administrador siempre tiene todos los permisos (RN-17). La pantalla para editar permisos es la issue #87; el sistema ya va a trabajar con permisos por acción (ADR-008), así que el cambio es posible.
+*Propuesta:* sí, con los tres roles fijos y solo para cajero y mesero.
+
 ---
 
 ## Respuestas
@@ -169,6 +180,8 @@ Mostrarle la lista de requisitos marcados como **I** (imprescindibles) y pedirle
 | P-18 Catálogo por QR | Pendiente | — | — |
 | P-19 Bitácora | Pendiente | — | — |
 | P-20 Piloto y entrega | Pendiente | — | — |
+| P-21 Quién borra órdenes | Pendiente. Mientras tanto, los 3 roles (como hoy). Relacionado: Marcelo decidió que **el mesero también cobra** y que mesero y cajero tienen casi los mismos permisos | M (cobro) · resto pendiente | RF-17, RF-22, **RN-16 nueva**, RF-52 |
+| P-22 Editar permisos desde el panel | Pendiente | — | RF-58, RN-16, RN-17 |
 
 **Requisito nuevo sin pregunta:** mover una orden abierta a otra mesa (RF-55), para cuando un grupo chico ocupa una mesa grande y llega un grupo más grande. La mesa de destino tiene que estar libre y sin reserva próxima (RN-15).
 
@@ -178,12 +191,14 @@ Lista corta para la presentación del MVP al dueño, en orden de importancia:
 
 1. **P-01** · Qué es imprescindible para empezar a usar el sistema.
 2. **P-09** · ¿Se cuenta el dinero al abrir y al cerrar (arqueo)? ¿Qué debe mostrar el reporte de cierre? ¿Quién puede reabrir un día cerrado?
-3. **P-05** · ¿Cuánto tiempo antes de una reserva se deja de dar la mesa? (Prueba: 1 h.)
-4. **P-07** · ¿Quién confirma la llegada de un empleado? (Prueba: el cajero.)
-5. **P-08** · ¿El sistema solo reporta atrasos, o también calcula sueldos? (Prueba: solo atrasos.)
-6. **P-10** · Impresoras (cuántas, tipo, marca y modelo). ¿El mesero tiene que ver al instante cuándo está listo un pedido?
-7. **P-12** · ¿Las zonas son solo Cocina y Cafetería? ¿Quién marca un producto como agotado?
-8. **P-13 a P-15** · Equipos del local, respaldos y los Excel actuales.
-9. **P-16** · ¿Cuántos pisos y mesas hay hoy?
-10. **P-17 a P-20** · Clientes frecuentes, catálogo por QR, bitácora, piloto y entrega.
-11. **Confirmar con el dueño** las respuestas de Marcelo, sobre todo la tabla de atrasos (RN-01) y los descuentos sin tope (RN-06).
+3. **P-21** · ¿Quién puede borrar una orden con ítems ya enviados a cocina? ¿Con motivo? (Mientras tanto: cualquier rol.) Confirmar también que el mesero cobra y tiene casi los mismos permisos que el cajero (RN-16).
+4. **P-22** · ¿Quiere cambiar él mismo los permisos del cajero y del mesero desde el panel? ¿El mesero también puede aprobar asistencias y anular pagos?
+5. **P-05** · ¿Cuánto tiempo antes de una reserva se deja de dar la mesa? (Prueba: 1 h.)
+6. **P-07** · ¿Quién confirma la llegada de un empleado? (Prueba: el cajero.)
+7. **P-08** · ¿El sistema solo reporta atrasos, o también calcula sueldos? (Prueba: solo atrasos.)
+8. **P-10** · Impresoras (cuántas, tipo, marca y modelo). ¿El mesero tiene que ver al instante cuándo está listo un pedido?
+9. **P-12** · ¿Las zonas son solo Cocina y Cafetería? ¿Quién marca un producto como agotado?
+10. **P-13 a P-15** · Equipos del local, respaldos y los Excel actuales.
+11. **P-16** · ¿Cuántos pisos y mesas hay hoy?
+12. **P-17 a P-20** · Clientes frecuentes, catálogo por QR, bitácora, piloto y entrega.
+13. **Confirmar con el dueño** las respuestas de Marcelo, sobre todo la tabla de atrasos (RN-01) y los descuentos sin tope (RN-06).

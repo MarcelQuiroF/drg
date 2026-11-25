@@ -1,6 +1,6 @@
 # Matriz de brechas
 
-> **25/11/2026 · Versión 0.2** (con las respuestas de Marcelo). Compara cada requisito de [`requisitos.md`](requisitos.md) con el sistema tal como está en `main` (commit `cb210d6`).
+> **25/11/2026 · Versión 0.3** (con las respuestas de Marcelo y la matriz de permisos). Compara cada requisito de [`requisitos.md`](requisitos.md) con el sistema tal como está en `main` (commit `cb210d6`).
 > El estado sale del análisis técnico del proyecto (4 revisiones del código, con pruebas en ejecución, noviembre de 2026). Los códigos entre paréntesis (`T6`, `F2`, `§4.1`…) son las pruebas y secciones de ese análisis. Lo marcado **[verificar]** se dedujo del código, pero no se probó.
 > Esta matriz es la base del backlog de la **Etapa 2**: cada fila con ⚠, 🟡 o ❌ que el dueño confirme se convierte en una issue.
 
@@ -27,8 +27,8 @@
 | Juegos (RF-37 a 40, RF-57) | — | 2 | 1 | 2 | — |
 | Empleados y asistencia (RF-41 a 45) | — | 4 | — | 1 | — |
 | Reportes (RF-46 a 51) | 1 | 2 | — | 3 | — |
-| Seguridad y auditoría (RF-52 a 54) | — | 1 | — | 2 | — |
-| **Total (54 requisitos activos)** | **8** | **24** | **7** | **14** | **1** |
+| Seguridad y auditoría (RF-52 a 54, RF-58) | — | 1 | — | 3 | — |
+| **Total (55 requisitos activos)** | **8** | **24** | **7** | **15** | **1** |
 
 **Lectura rápida:** 39 de los 54 requisitos activos **ya existen** en el sistema, pero solo 8 funcionan sin errores; faltan 14. RF-04, RF-05 y RF-16 se descartaron el 25/11/2026 y no cuentan. Lo que más pesa para el negocio:
 
@@ -140,8 +140,9 @@
 
 | Req. | Estado | Situación actual | Acción |
 |------|:------:|------------------|--------|
-| RF-52 | ⚠ | Hay JWT y roles, pero varias rutas solo piden sesión: un MESERO cambia la configuración (T2); el token vencido da 403 y el frontend espera 401 (T1); no hay límite de intentos de login (§5) | Bug de seguridad, Etapa 4 |
+| RF-52 | ⚠ | Hay JWT y roles, pero algunas rutas no siguen la matriz de permisos (T17; T2 dejó de ser un bug por RN-16); el token vencido da 403 y el frontend espera 401 (T1); no hay límite de intentos de login (§5). Matriz de permisos: [`permisos.md`](../03_diseno/permisos.md) | Bug de seguridad, Etapa 4 (#25, #26, #69) |
 | RF-53 | ❌ | Las tablas `Registro*` existen, pero nada las llena (§3) | Preguntar (P-19) |
+| RF-58 | ❌ | Los permisos están escritos en cada ruta como listas de roles; no hay forma de cambiarlos sin tocar el código | Primero las rutas pasan a permisos por acción con el mapa en código (#25, ADR-008); la pantalla del admin es #87, bloqueada hasta P-22 |
 | RF-54 | ❌ | No hay respaldos | Etapa 7 (P-14) |
 
 ## Descartados
@@ -165,6 +166,8 @@
 | RN-09 No borrar, desactivar | Soft-delete (`paranoid`) en casi todo; la asistencia se borra físicamente (A4) | ⚠ |
 | RN-10 Confirma el cajero (valor de prueba) | ADMIN y CAJERO | ✅ Coincide con el valor de prueba |
 | RN-12 Bloqueo 1 h antes; reservas separadas 2 h | `ventana_bloqueo` = 120, igual antes y después | ⚠ El sistema usa una sola ventana; habría que separar "antes" y "después" |
+| RN-16 Mesero y cajero con casi los mismos permisos | El mesero ya cobra y cambia la configuración, pero no puede ver ni registrar asistencias (403, F5) | ⚠ Corregir en #25 según [`permisos.md`](../03_diseno/permisos.md) |
+| RN-17 El administrador tiene todos los permisos | Todas las listas de `authorize` incluyen a ADMIN, pero escritas a mano en cada ruta | ⚠ Con permisos por acción, el ADMIN pasa a tener todo por definición (#25, ADR-008) |
 | RN-13 Catálogo muestra todo | Muestra todo, incluso desactivados (T16) | ✅ Coincide con CU 3.1, aunque el análisis lo marcó como problema. Decide el dueño (P-18) |
 
 ## Lo que hay que corregir en la documentación del Drive
@@ -187,3 +190,4 @@ Los documentos del equipo se usan como fuente, pero tienen errores que no se deb
 |---------|-------|--------|
 | 0.1 | 24/11/2026 | Primera versión (issue #4) |
 | 0.2 | 25/11/2026 | Respuestas de Marcelo: se agregan RF-55, RF-56 y RF-57, se descartan RF-04, RF-05 y RF-16 y se actualizan las reglas |
+| 0.3 | 25/11/2026 | Matriz de permisos (issue #9): se agrega RF-58 y las reglas RN-16 y RN-17; RF-52 enlaza la matriz |
