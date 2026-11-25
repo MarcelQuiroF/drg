@@ -33,7 +33,7 @@ Closes #
 - [ ] La rama sigue el formato `tipo/numero-descripcion-corta`
 - [ ] Los commits siguen Conventional Commits (ver `CONTRIBUTING.md`)
 - [ ] Cumple los criterios de aceptación de la issue
-- [ ] Si cambió la API, se actualizó `docs/endpoints.md`
+- [ ] Si cambió la API, se actualizó `docs/03_diseno/endpoints.md`
 - [ ] Si hay migraciones nuevas, se probaron en una base limpia (`db:migrate` y `db:seed:all`)
 - [ ] No incluye credenciales, `.env` ni datos reales
 - [ ] No deja `console.log` de depuración ni código comentado
