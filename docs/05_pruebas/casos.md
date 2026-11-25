@@ -57,9 +57,9 @@ Archivos: `login.test.js` y `matrizPermisos.test.js`. La matriz se lee de `docs/
 | P6 | Pago con QR mayor al total | ⏳ | RN-14: el QR de más no se registra; el detalle lo define #36 | #36 | — |
 | P7 | Reducir la cantidad de un producto ya enviado a cocina | 🐞 | La comanda muestra la cantidad nueva (hoy la vieja) | #43 | ✔ |
 | P8 | Quitar el último ítem de una orden | ⏳ | ⚠ Regla por definir: dejarla vacía o cancelarla con motivo | #44 | — |
-| P9 | Abrir una orden en una mesa ocupada | 🐞 | **409** "mesa ocupada" (hoy 500) | #45 | ✔ |
-| P9c | Dos pedidos **simultáneos** para abrir la misma mesa | 🐞 | Una sola orden abierta: 201 y 409. Hoy se abren **dos órdenes** en la misma mesa (`crearOrden` lee `mesa.estado` sin bloquear la fila) | #45 | ✔ |
-| P9b | Abrir una orden en una mesa desactivada | 🐞 | Se rechaza (hoy se abre) | #45 | ✔ |
+| P9 | Abrir una orden en una mesa ocupada | ✅ | **409** "mesa ocupada" (corregido en #45; antes 500). Una mesa marcada libre pero con una orden abierta tampoco abre otra (P9e); una mesa que no existe → 404 | #45 | ✔ |
+| P9c | Dos pedidos **simultáneos** para abrir la misma mesa | ✅ | Una sola orden abierta: 201 y 409 (corregido en #45 con `SELECT … FOR UPDATE` sobre la mesa; antes se abrían **dos órdenes**). También con cinco pedidos de dos usuarios: más que las conexiones del pool | #45 | ✔ |
+| P9b | Abrir una orden en una mesa desactivada | ✅ | **409** y la mesa sigue libre (corregido en #45; antes se abría). Lo mismo con un piso desactivado (P9d) | #45 | ✔ |
 | P10 | El total a cobrar se lee del texto de la pantalla | 🖥 | El frontend usa el total de la API | #36 | 📋 |
 
 Además de los casos del análisis, `tests/ordenes/` fija lo que ya funciona (✅): abrir una orden ocupa la mesa, quitar un ítem descuenta su importe, un descuento del 10 % se aplica y se quita, cobrar sin detalle registra EFECTIVO por el total y libera la mesa, una orden cobrada no se cobra dos veces, el filtro de comandas por zona y el avance recibido → preparando → terminado → enviado.

@@ -1,6 +1,7 @@
 const {
     Orden,
     Mesa,
+    Piso,
     Descuento,
     OrdenDescuento,
     ContenedorTransaccion,
@@ -12,17 +13,35 @@ const {
 const { actualizarTotalOrden } = require('../utils/orderUtils');
 const { Op } = require('sequelize');
 
+function errorConEstado(status, mensaje) {
+    const error = new Error(mensaje);
+    error.status = status;
+    return error;
+}
+
+// Abre una orden en una mesa libre o reservada. La fila de la mesa se lee con bloqueo
+// (SELECT … FOR UPDATE): si llegan dos pedidos a la vez para la misma mesa (doble clic,
+// dos meseros), el segundo espera a que el primero termine y después ve la mesa ocupada.
+// Sin el bloqueo, con READ COMMITTED los dos leían la mesa libre y abrían dos órdenes (#45).
 // eslint-disable-next-line no-unused-vars -- usuarioId se guardará en la orden con #46 (RF-13)
 async function crearOrden(mesaId, usuarioId) {
     return await sequelize.transaction(async (t) => {
-        const mesa = await Mesa.findByPk(mesaId, { transaction: t });
-        if (!mesa) throw new Error('La mesa no existe.');
+        const mesa = await Mesa.findByPk(mesaId, { transaction: t, lock: t.LOCK.UPDATE });
+        if (!mesa) throw errorConEstado(404, 'La mesa no existe.');
+        if (!mesa.activo) throw errorConEstado(409, 'La mesa está desactivada.');
 
-        if (mesa.estado === 1) throw new Error('La mesa ya está ocupada y con orden abierta.');
+        const piso = await Piso.findByPk(mesa.piso_id, { transaction: t });
+        if (!piso || !piso.activo) throw errorConEstado(409, 'El piso de la mesa está desactivado.');
+
+        // `estado` es un resumen; lo que no se puede repetir es una orden abierta en la mesa
+        const abiertas = await Orden.count({ where: { mesa_id: mesa.id, finalizado: false }, transaction: t });
+        if (mesa.estado === 1 || abiertas > 0) {
+            throw errorConEstado(409, 'La mesa ya está ocupada y con orden abierta.');
+        }
 
         const nuevaOrden = await Orden.create(
             {
-                mesa_id: mesaId,
+                mesa_id: mesa.id,
                 total: 0,
                 finalizado: false
             },
@@ -31,7 +50,7 @@ async function crearOrden(mesaId, usuarioId) {
 
         await mesa.update({ estado: 1 }, { transaction: t });
 
-        await registrarLlegadaAutomatica(mesaId, t);
+        await registrarLlegadaAutomatica(mesa.id, t);
 
         return nuevaOrden;
     });
@@ -217,10 +236,13 @@ async function removerDescuento(ordenId, descuentoId) {
     });
 }
 
+// Todas las consultas usan la transacción de crearOrden: si una pidiera otra conexión al pool
+// mientras la mesa está bloqueada, con varios pedidos esperando el bloqueo el pool se agota
+// y la transacción que tiene el bloqueo no termina nunca (#45).
 async function registrarLlegadaAutomatica(mesaId, transaction) {
     const [configLlegada, configTolerancia] = await Promise.all([
-        Configuracion.findOne({ where: { clave: 'ventana_llegada' } }),
-        Configuracion.findOne({ where: { clave: 'minutos_tolerancia' } })
+        Configuracion.findOne({ where: { clave: 'ventana_llegada' }, transaction }),
+        Configuracion.findOne({ where: { clave: 'minutos_tolerancia' }, transaction })
     ]);
 
     const ventanaAnticipacionMins = configLlegada ? configLlegada.valor : 30;

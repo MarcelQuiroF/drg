@@ -679,23 +679,32 @@ Control operativo de consumos en mesa, procesamiento de cuentas y aplicación de
 * **Cuerpo de la Solicitud (JSON):**
 ```json
 {
-  "mesa_id": 3,
-  "notas": "Mesa de cumpleaños"
+  "mesa_id": 3
 }
 
 ```
 
+* La mesa tiene que estar libre o reservada (si tiene una reserva dentro de la ventana de llegada, la reserva pasa a `LLEGO`). Las notas se cargan después con `PUT /ordenes/:id`.
+* Una mesa tiene como máximo **una orden abierta**: si llegan dos pedidos a la vez para la misma mesa, se abre una sola orden y el otro recibe 409 (#45).
 
 * **Respuesta Exitosa (201 Created):**
   ```json
   {
-    "id": 46,
-    "total": "0.00",
-    "finalizado": false,
-    "mesa_id": 3,
-    "notas": "Mesa de cumpleaños",
-    "createdAt": "2026-05-27T14:18:00.000Z"
+    "message": "Orden abierta exitosamente.",
+    "orden": {
+      "id": 46,
+      "total": "0.00",
+      "finalizado": false,
+      "mesa_id": 3,
+      "createdAt": "2026-05-27T14:18:00.000Z"
+    }
   }
+  ```
+
+* **Errores:**
+  * `400`: falta `mesa_id`.
+  * `404`: la mesa no existe.
+  * `409`: la mesa ya tiene una orden abierta, la mesa está desactivada o su piso está desactivado (#45).
 
 ### Finalizar y Cerrar Cuenta de una Orden
 
