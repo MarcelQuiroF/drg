@@ -130,16 +130,17 @@ backend/
 
 ## 7. Integración continua
 
-El workflow [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) (#19) corre en cada PR hacia `main` y en cada push a `main`, con dos jobs en paralelo:
+El workflow [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) (#19) corre en cada PR hacia `main` y en cada push a `main`, con tres jobs en paralelo:
 
 | Job | Qué corre | Dónde |
 |-----|-----------|-------|
 | **Lint y formato** | `npm run check` (ESLint + Prettier) | Raíz del repositorio |
 | **Pruebas** | `npm test` contra un PostgreSQL 16 de servicio | `backend/` |
+| **Dependencias** | `npm audit --omit=dev --audit-level=critical`: falla con una vulnerabilidad crítica en lo que va a producción (#111, [guía](../04_implementacion/dependencias.md)) | `backend/` |
 
 - **Node:** la versión sale de `.nvmrc` (26), la misma que piden `engines` y la guía de instalación.
 - **Caché:** `actions/setup-node` guarda la caché de npm de cada `package-lock.json`; si el lock no cambia, `npm ci` no vuelve a descargar los paquetes.
 - **Sin secretos:** `DATABASE_URL`, `DATABASE_URL_TEST` (`drg_ci_test`) y `JWT_SECRET_TEST` se definen en el propio workflow con valores de prueba. La base vive solo mientras dura el job.
 - **Un error de lint, de formato o una prueba rota dejan el PR en rojo.** Se comprobó con un PR de prueba que se cerró sin mergear (ver el PR de #19).
-- **Protección de `main`:** los dos checks son obligatorios para mergear (configuración del repositorio, no del código).
+- **Protección de `main`:** *Lint y formato* y *Pruebas* son obligatorios para mergear (configuración del repositorio, no del código). *Dependencias* no lo es: lo decide Marcelo (ver la guía de dependencias).
 - Los `test.failing` (sección 4.5) no ponen el CI en rojo mientras el bug siga ahí.
