@@ -58,10 +58,11 @@ const obtenerRangoFechas = () => {
     const hoyStr = fechaLocalISO();
     fin = hoyStr;
 
+    // Hoy y los días anteriores: 7 días en total (antes -7, que eran 8) y 30 días (antes 31, #31)
     if (modo === 'semana') {
-        inicio = sumarDias(hoyStr, -7);
+        inicio = sumarDias(hoyStr, -6);
     } else if (modo === 'mes') {
-        inicio = sumarDias(hoyStr, -30);
+        inicio = sumarDias(hoyStr, -29);
     } else if (modo === 'custom') {
         inicio = document.getElementById('fecha-inicio').value;
         fin = document.getElementById('fecha-fin').value;

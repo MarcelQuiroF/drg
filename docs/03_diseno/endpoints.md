@@ -847,7 +847,9 @@ Procesamiento de datos estadísticos agregados para auditoría del negocio. Requ
 * **Acceso:** Exclusivo de **`ADMIN`**
 * **Parámetros Query (Opcionales para filtrado personalizado):** `?inicio=YYYY-MM-DD&fin=YYYY-MM-DD`
   * Son días **de Bolivia** (`America/La_Paz`): `inicio` desde las 00:00 y `fin` hasta las 23:59:59.999 de ese día. Antes se leían en UTC y una venta a las 21:00 caía en el día siguiente (#27). Las `etiquetas` de las gráficas también son días de Bolivia.
-  * Una fecha con otro formato responde `400`.
+  * Una fecha con otro formato responde `400`. También `400` si llega una sola de las dos fechas o si `inicio` es posterior a `fin` (#31). Sin ninguna, "Todo".
+* **Qué cuenta (una sola fuente, #31):** solo las órdenes **cobradas** (`finalizado`, no borradas) y sus pagos. Cada orden cuenta el **día de su cobro** (la fecha de su último pago), aunque se haya abierto el día anterior; una orden abierta no cuenta, aunque ya tenga pagos parciales. De ahí salen todos los números: `ingresos`, `efectivo` y `qr` (suma de pagos), `ordenes`, las `graficas` (por día de cobro) y los `rankings` (suman **cantidades**, también el de juegos). `distribucion` reparte lo pagado de cada orden en proporción a lo que valían sus productos y sus juegos (precio cobrado, #22), así que `comida + juegos = ingresos` aunque haya descuentos. Antes la gráfica y `ordenes` incluían las órdenes abiertas (`Orden.total`), y el ranking de juegos contaba filas.
+* **Promedios:** se dividen por `dias`, los días reales del rango **contando los dos extremos** (del 09 al 15, 7 días). Antes, con `Math.ceil` sobre un rango que termina a las 23:59:59, salía un día de más. Sin rango, `dias` va del primer al último día con cobros. Una orden con total 0 (cerrada sin pagos, #21) no tiene pagos y no cuenta.
 * **Respuesta Exitosa (200 OK):**
 ```json
 {
@@ -858,7 +860,8 @@ Procesamiento de datos estadísticos agregados para auditoría del negocio. Requ
     "ingresoPromedioDiario": 778.57,
     "ordenes": 84,
     "ordenesPromedioDiario": 12.0,
-    "reservas": 14
+    "reservas": 14,
+    "dias": 7
   },
   "distribucion": {
     "comida": 3850.00,
