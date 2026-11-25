@@ -22,7 +22,8 @@ async function loginHandler(req, res, next) {
         return res.status(httpCodes.OK.code).json({
             message: 'Login exitoso',
             token: result.token,
-            empleado: result.empleado
+            empleado: result.empleado,
+            permisos: result.permisos
         });
     } catch (error) {
         next(error);

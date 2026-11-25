@@ -67,7 +67,7 @@ flowchart LR
 | Capa | Qué hace | Observaciones |
 |------|----------|---------------|
 | Rutas (`routes/`, 18 archivos) | Definen método, URL y middlewares | No hay ruta de cierre del día: se hace en #34. `configuracionRoutes.js` usa plural, a diferencia del resto |
-| Middlewares (`middlewares/`) | `authenticate` (token JWT), `authorize([...])` (rol), `errorHandler`, `notFoundHandler` | No hay validación de entrada: llega en la Etapa 5, con Zod |
+| Middlewares (`middlewares/`) | `authenticate` (token JWT), `requierePermiso(...)` (permiso por acción, #25), `errorHandler`, `notFoundHandler` | No hay validación de entrada: llega en la Etapa 5, con Zod |
 | Controladores (`controllers/`, 18) | Leen `req`, llaman al servicio y arman la respuesta | **Seis usan los modelos directamente**, sin servicio: `asistencia`, `configuracion`, `empleado`, `importacion`, `reportes` y, en parte, `juego` (`listar` no usa el servicio, por eso ignora el filtro de categoría) |
 | Servicios (`services/`, 13) | Reglas del negocio y transacciones (crear orden, finalizar, pagos, descuentos, comandas, importación) | Asistencia no tiene servicio: el cálculo del atraso en el servidor llega con #29 |
 | Modelos (`models/`, 24) | Definición de tablas con `sequelize.define` | Todas las asociaciones están en `models/index.js`, no en `associate()` de cada modelo. Casi todos usan borrado lógico (`paranoid`) |
@@ -106,9 +106,9 @@ sequenceDiagram
 
 - Las contraseñas se guardan con **bcrypt**, en los *hooks* `beforeCreate` y `beforeUpdate` del modelo `Empleado`, y no se devuelven en las respuestas.
 - El token dura lo que diga `JWT_EXPIRATION` y se firma con `JWT_SECRET`. Si falta `JWT_SECRET`, el backend no arranca (#14).
-- `authenticate` responde **401** sin token o con un token inválido o vencido, y `authorize` **403** cuando el rol no tiene permiso (#26). En el frontend, `manejarSesion` (`js/api.js`) borra la sesión y vuelve al login ante un 401, con el motivo, y muestra un aviso ante un 403.
+- `authenticate` responde **401** sin token o con un token inválido o vencido, y `requierePermiso` **403** cuando el rol no tiene el permiso de la ruta (#26, #25). En el frontend, `manejarSesion` (`js/api.js`) borra la sesión y vuelve al login ante un 401, con el motivo, y muestra un aviso ante un 403.
 - `GET /empleados/perfil` devuelve el contenido del token, no los datos de la base: un empleado desactivado o con el rol cambiado sigue operando hasta que el token vence (#60).
-- Hay tres roles: `ADMIN`, `CAJERO` y `MESERO`. Hoy cada ruta lista a mano los roles que la pueden usar; pasa a permisos por acción en #25 (ADR-008). Qué puede hacer cada rol está en [`permisos.md`](permisos.md). `usuario_rol` en `localStorage` solo decide qué menú se muestra; la protección real es la del servidor.
+- Hay tres roles: `ADMIN`, `CAJERO` y `MESERO`. Cada ruta pide un **permiso por acción** con `requierePermiso('...')` (ADR-008, #25); el mapa rol → permisos está en un solo archivo, `backend/src/config/permisos.js`, y el ADMIN tiene siempre todos (RN-17). Qué puede hacer cada rol está en [`permisos.md`](permisos.md), y las pruebas comprueban que el código coincide. `usuario_rol` en `localStorage` solo decide qué menú se muestra; la protección real es la del servidor.
 
 ### 2.5 Errores
 

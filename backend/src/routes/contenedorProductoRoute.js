@@ -2,15 +2,16 @@ const express = require('express');
 const router = express.Router();
 const contenedorProductoController = require('../controllers/contenedorProductoController');
 const { authenticate } = require('../middlewares/authMiddleware');
+const { requierePermiso } = require('../middlewares/permisoMiddleware');
 
 router.use(authenticate);
 
-router.get('/', contenedorProductoController.listar);
+router.get('/', requierePermiso('ordenes.ver'), contenedorProductoController.listar);
 
-router.post('/', contenedorProductoController.agregar);
+router.post('/', requierePermiso('ordenes.tomar'), contenedorProductoController.agregar);
 
-router.put('/:id', contenedorProductoController.actualizar);
+router.put('/:id', requierePermiso('ordenes.tomar'), contenedorProductoController.actualizar);
 
-router.delete('/:id', contenedorProductoController.eliminar);
+router.delete('/:id', requierePermiso('ordenes.tomar'), contenedorProductoController.eliminar);
 
 module.exports = router;

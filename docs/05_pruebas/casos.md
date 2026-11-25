@@ -25,7 +25,7 @@
 
 ## Autenticación y permisos (`tests/auth/`)
 
-Archivos: `login.test.js` y `matrizPermisos.test.js`. La matriz se lee de `docs/03_diseno/permisos.md` en cada corrida: si se agrega una ruta o cambia un permiso en el documento, las pruebas cambian solas. Cuando #25 corrija las diferencias, basta con actualizar la columna *Hoy* para que las 7 pruebas 🐞 pasen a ✅.
+Archivos: `login.test.js`, `matrizPermisos.test.js` y `catalogoPermisos.test.js` (lectura del documento en `soporte/permisosDoc.js`). La matriz y el catálogo se leen de `docs/03_diseno/permisos.md` en cada corrida: si se agrega una ruta o cambia un permiso en el documento, las pruebas cambian solas, y fallan si el código (`config/permisos.js` y las rutas) no dice lo mismo (#25).
 
 | Código | Caso | Cat. | Resultado esperado | Issue | Estado |
 |--------|------|:----:|--------------------|-------|:------:|
@@ -33,10 +33,11 @@ Archivos: `login.test.js` y `matrizPermisos.test.js`. La matriz se lee de `docs/
 | — | Ruta protegida sin token / con el token del login | ✅ | 401 / 200 | — | ✔ |
 | T1 | Token inválido o vencido | ✅ | 401 con `WWW-Authenticate` y un mensaje que dice si venció (corregido en #26; antes 403). También un texto que no es token y una cabecera sin `Bearer`; un rol sin permiso sigue en 403 | #26 | ✔ |
 | T2 | MESERO cambia la configuración de reservas | 🔄 RN-16 | 200: el mesero puede (antes figuraba como bug) | #25 | ✔ |
-| T2b | Configuración con un valor negativo | 🐞 | 400 y no se guarda (hoy 200 y se guarda) | #25 | ✔ |
-| T17 | MESERO o CAJERO descargan una plantilla de importación | 🐞 | 403 (hoy 200). Lo cubre MATRIZ | #25 | ✔ |
-| F5 (API) | MESERO ve la asistencia del día, la lista de empleados y registra llegadas | 🐞 | 200 (hoy 403). Lo cubre MATRIZ | #25 | ✔ |
-| MATRIZ | Las 69 rutas de `permisos.md` × (sin sesión + 3 roles): 265 pruebas generadas desde el documento | ✅ / 🐞 | Sin sesión: 401 (o pasa, si es pública). Rol con permiso: no 401/403. Rol sin permiso: 403. Las **7** combinaciones donde la columna *Hoy* no coincide con la matriz van como 🐞 | #25 | ✔ |
+| T2b | Configuración con un valor negativo | ✅ | 400 y no se guarda (corregido en #25; antes 200 y se guardaba). También un decimal, un texto, vacío, `null`, un booleano, una clave que no existe y una lista vacía; el número como texto sí se acepta; si un valor falla no se guarda ninguno | #25 | ✔ |
+| T17 | MESERO o CAJERO descargan una plantilla de importación | ✅ | 403 (corregido en #25; antes 200). Lo cubre MATRIZ y la prueba de los pasos de #25 | #25 | ✔ |
+| F5 (API) | MESERO ve la asistencia del día, la lista de empleados y registra llegadas | ✅ | 200 (corregido en #25; antes 403). Lo cubre MATRIZ | #25 | ✔ |
+| MATRIZ | Las 69 rutas de `permisos.md` × (sin sesión + 3 roles): 265 pruebas generadas desde el documento | ✅ | Sin sesión: 401 (o pasa, si es pública). Rol con permiso: no 401/403. Rol sin permiso: 403 con el `permiso` que faltó. Desde #25 no queda ninguna diferencia (antes, 7 como 🐞) | #25 | ✔ |
+| PERM | Catálogo y rutas frente a `permisos.md` | ✅ | El catálogo (20) y las columnas CAJERO/MESERO son iguales a `config/permisos.js`; el ADMIN tiene todos (también un permiso nuevo, RN-17); un rol desconocido, ninguno; las 69 rutas montadas declaran **exactamente** el permiso de su fila; login y perfil devuelven `permisos` | #25 | ✔ |
 
 ## Órdenes, pagos, comandas y dashboard (`tests/ordenes/`)
 

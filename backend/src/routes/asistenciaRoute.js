@@ -2,20 +2,20 @@ const express = require('express');
 const router = express.Router();
 const asistenciaController = require('../controllers/asistenciaController');
 const { authenticate } = require('../middlewares/authMiddleware');
-const { authorize } = require('../middlewares/roleMiddleware');
+const { requierePermiso } = require('../middlewares/permisoMiddleware');
 
 router.use(authenticate);
 
 // Obtener las asistencias registradas hoy
-router.get('/hoy', authorize(['ADMIN', 'CAJERO']), asistenciaController.listarHoy);
+router.get('/hoy', requierePermiso('asistencia.registrar'), asistenciaController.listarHoy);
 
 // Registrar una nueva asistencia
-router.post('/', authorize(['ADMIN', 'CAJERO']), asistenciaController.registrarAsistencia);
+router.post('/', requierePermiso('asistencia.registrar'), asistenciaController.registrarAsistencia);
 
 // Aprobar una asistencia (requiere credenciales en el body)
-router.put('/:id/aprobar', authorize(['ADMIN', 'CAJERO']), asistenciaController.aprobarAsistencia);
+router.put('/:id/aprobar', requierePermiso('asistencia.aprobar'), asistenciaController.aprobarAsistencia);
 
 // Eliminar una asistencia (para devolver al empleado a la lista de turnos)
-router.delete('/:id', authorize(['ADMIN', 'CAJERO']), asistenciaController.eliminarAsistencia);
+router.delete('/:id', requierePermiso('asistencia.aprobar'), asistenciaController.eliminarAsistencia);
 
 module.exports = router;
