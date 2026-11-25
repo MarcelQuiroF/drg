@@ -71,11 +71,10 @@ Mostrarle la lista de requisitos marcados como **I** (imprescindibles) y pedirle
 - ¿Quién marca un producto como agotado: el cajero, la cocina, usted?
 *Por qué:* RF-32, RF-14 (hoy hay zonas mezcladas que esconden productos) y RF-33.
 
-**P-21 · ¿Quién cobra y quién puede borrar una orden?** *(agregada el 25/11/2026, al armar la matriz de permisos)*
-- ¿El mesero también cobra, o solo el cajero (y el administrador)?
-- Si una orden se abrió por error o con ítems ya enviados a cocina, ¿quién la puede borrar o cancelar?
-*Por qué:* RF-17 dice que cobra el cajero, pero hoy el sistema deja cobrar al mesero. La [matriz de permisos](../03_diseno/permisos.md) usa RF-17 hasta tener la respuesta.
-*Propuesta:* cobran el cajero y el administrador; borrar una orden con ítems enviados lo hacen el cajero o el administrador, con motivo.
+**P-21 · ¿Quién puede borrar una orden?** *(agregada el 25/11/2026, al armar la matriz de permisos)*
+- Si una orden se abrió por error o tiene ítems ya enviados a cocina, ¿quién la puede borrar o cancelar? ¿Hace falta un motivo?
+*Por qué:* hoy cualquier rol borra una orden, incluso con ítems enviados a cocina, y no queda registro (#44). La [matriz de permisos](../03_diseno/permisos.md) lo deja abierto a los 3 roles hasta tener la respuesta.
+*Propuesta:* cualquier rol, con motivo obligatorio y registro de quién lo hizo.
 
 ## C. Personal
 
@@ -175,7 +174,7 @@ Mostrarle la lista de requisitos marcados como **I** (imprescindibles) y pedirle
 | P-18 Catálogo por QR | Pendiente | — | — |
 | P-19 Bitácora | Pendiente | — | — |
 | P-20 Piloto y entrega | Pendiente | — | — |
-| P-21 Quién cobra y quién borra órdenes | Pendiente. Valor de prueba: cobran ADMIN y CAJERO (RF-17) | Prueba | RF-17, RF-52 |
+| P-21 Quién borra órdenes | Pendiente. Mientras tanto, los 3 roles (como hoy). Relacionado: Marcelo decidió que **el mesero también cobra** y que mesero y cajero tienen casi los mismos permisos | M (cobro) · resto pendiente | RF-17, RF-22, **RN-16 nueva**, RF-52 |
 
 **Requisito nuevo sin pregunta:** mover una orden abierta a otra mesa (RF-55), para cuando un grupo chico ocupa una mesa grande y llega un grupo más grande. La mesa de destino tiene que estar libre y sin reserva próxima (RN-15).
 
@@ -185,7 +184,7 @@ Lista corta para la presentación del MVP al dueño, en orden de importancia:
 
 1. **P-01** · Qué es imprescindible para empezar a usar el sistema.
 2. **P-09** · ¿Se cuenta el dinero al abrir y al cerrar (arqueo)? ¿Qué debe mostrar el reporte de cierre? ¿Quién puede reabrir un día cerrado?
-3. **P-21** · ¿El mesero también cobra? ¿Quién puede borrar una orden con ítems ya enviados a cocina? (Prueba: cobran el cajero y el administrador.)
+3. **P-21** · ¿Quién puede borrar una orden con ítems ya enviados a cocina? ¿Con motivo? (Mientras tanto: cualquier rol.) Confirmar también que el mesero cobra y tiene casi los mismos permisos que el cajero (RN-16).
 4. **P-05** · ¿Cuánto tiempo antes de una reserva se deja de dar la mesa? (Prueba: 1 h.)
 5. **P-07** · ¿Quién confirma la llegada de un empleado? (Prueba: el cajero.)
 6. **P-08** · ¿El sistema solo reporta atrasos, o también calcula sueldos? (Prueba: solo atrasos.)

@@ -1,6 +1,6 @@
 # Matriz de permisos por rol y endpoint
 
-> **25/11/2026 · Versión 0.1** · Issue #9 · Requisito RF-52.
+> **25/11/2026 · Versión 0.2** · Issue #9 · Requisitos RF-52 y RN-16.
 > Dice **qué puede hacer cada rol en cada endpoint** de la API (`/api/v1`) y lo compara con lo que hace hoy el código de `main`. La corrección en el código va en la issue #25.
 
 ## Roles
@@ -8,11 +8,13 @@
 | Rol | Quién es | Pantallas que usa hoy |
 |-----|----------|-----------------------|
 | `ADMIN` | El dueño o el encargado | `indexAdmin.html` (panel de administración) |
-| `CAJERO` | Cobra, abre y cierra la caja, confirma la asistencia | `index.html` (misma pantalla que el mesero) |
-| `MESERO` | Toma pedidos, maneja mesas y reservas | `index.html` |
+| `CAJERO` | Cobra, abre y cierra el día, confirma la asistencia | `index.html` (misma pantalla que el mesero) |
+| `MESERO` | Toma pedidos, maneja mesas y reservas, y también cobra y abre el día | `index.html` |
 | Público | Cliente del café, sin sesión | `catalogo.html` (catálogo de juegos por QR) |
 
 Cocina y cafetería **no usan el sistema**: solo reciben la comanda impresa (P-10). No hay rol para ellas.
+
+**Regla principal (RN-16, decisión de Marcelo del 25/11/2026):** el mesero y el cajero tienen **casi los mismos permisos**, porque cualquiera de los dos tiene que poder abrir el sistema y atender la caja si el otro se atrasa. Las únicas diferencias están en [*Diferencias entre CAJERO y MESERO*](#diferencias-entre-cajero-y-mesero).
 
 ## Cómo se protege hoy una ruta
 
@@ -41,7 +43,7 @@ La columna **Hoy** dice qué protección tiene la ruta en el código: `público`
 |--------|------|:-----:|:------:|:------:|-----|:----:|-------|
 | POST | `/auth/login` | 🌐 | 🌐 | 🌐 | público | | Falta límite de intentos (#69) |
 | GET | `/empleados/perfil` | ✅ | ✅ | ✅ | sesión | | Devuelve el contenido del token, no la BD (#60) |
-| GET | `/empleados` | ✅ | ✅ | ❌ | ADMIN, CAJERO | | El cajero la usa en la pantalla de asistencia |
+| GET | `/empleados` | ✅ | ✅ | ✅ | ADMIN, CAJERO | ≠ | La usa la pantalla de asistencia (RN-16) |
 | POST | `/empleados` | ✅ | ❌ | ❌ | ADMIN | | |
 | PUT | `/empleados/:id` | ✅ | ❌ | ❌ | ADMIN | | |
 
@@ -85,7 +87,7 @@ La columna **Hoy** dice qué protección tiene la ruta en el código: `público`
 | POST | `/ordenes` | ✅ | ✅ | ✅ | sesión | | Con el día cerrado responde 409 (#34) |
 | PUT | `/ordenes/:id` | ✅ | ✅ | ✅ | los 3 roles | | Notas. No si la orden está cobrada (#41) |
 | DELETE | `/ordenes/:id` | ✅ | ✅ | ✅ ⚠ | los 3 roles | | ⚠ Quién puede borrar o cancelar una orden con ítems ya enviados a cocina: pendiente (P-21, #44) |
-| POST | `/ordenes/:id/finalizar` | ✅ | ✅ | ❌ ⚠ | los 3 roles | ≠ | RF-17 dice que **cobra el cajero**. ⚠ Confirmar con el dueño el 10/12 si el mesero también cobra (P-21); hasta entonces, se aplica RF-17 |
+| POST | `/ordenes/:id/finalizar` | ✅ | ✅ | ✅ | los 3 roles | | RF-17 y RN-16: cobran el cajero y el mesero |
 | POST | `/ordenes/:id/descuento` | ✅ | ✅ | ✅ | los 3 roles | | RN-06: cajero y mesero, sin tope. Motivo obligatorio (#39) |
 | GET | `/ordenes/:id/descuentos` | ✅ | ✅ | ✅ | los 3 roles | | |
 | DELETE | `/ordenes/:ordenId/descuento/:descuentoId` | ✅ | ✅ | ✅ | los 3 roles | | |
@@ -102,9 +104,9 @@ La columna **Hoy** dice qué protección tiene la ruta en el código: `público`
 
 | Método | Ruta | ADMIN | CAJERO | MESERO | Hoy | Dif. | Notas |
 |--------|------|:-----:|:------:|:------:|-----|:----:|-------|
-| GET | `/pagos` | ✅ | ✅ | ❌ ⚠ | sesión | ≠ | Sigue la decisión de `finalizar` (RF-17) |
-| POST | `/pagos` | ✅ | ✅ | ❌ ⚠ | sesión | ≠ | Ídem. El frontend no usa esta ruta hoy; se unifica con `finalizar` en #36 |
-| DELETE | `/pagos/:id` | ✅ | ✅ | ❌ | sesión + chequeo a mano | ≠ | Anular un pago. Hoy el controlador rechaza al mesero a mano: pasar a `authorize` |
+| GET | `/pagos` | ✅ | ✅ | ✅ | sesión | | RF-17 y RN-16 |
+| POST | `/pagos` | ✅ | ✅ | ✅ | sesión | | El frontend no usa esta ruta hoy; se unifica con `finalizar` en #36 |
+| DELETE | `/pagos/:id` | ✅ | ✅ | ❌ ⚠ | sesión + chequeo a mano | ≠ | Anular un pago. Hoy el controlador rechaza al mesero a mano: pasar a `authorize`. ⚠ Diferencia que se mantiene por ahora; confirmar (ver abajo) |
 
 ### Clientes y reservas
 
@@ -131,8 +133,8 @@ La columna **Hoy** dice qué protección tiene la ruta en el código: `público`
 
 | Método | Ruta | ADMIN | CAJERO | MESERO | Hoy | Dif. | Notas |
 |--------|------|:-----:|:------:|:------:|-----|:----:|-------|
-| GET | `/asistencias/hoy` | ✅ | ✅ | ❌ | ADMIN, CAJERO | | El menú se le muestra igual al mesero (#63) |
-| POST | `/asistencias` | ✅ | ✅ | ❌ | ADMIN, CAJERO | | Se registra en la caja, pero con el CI y la contraseña **del propio empleado** (RF-43, #30) |
+| GET | `/asistencias/hoy` | ✅ | ✅ | ✅ | ADMIN, CAJERO | ≠ | RN-16: si el cajero se atrasa, el mesero abre y registra las llegadas (#63) |
+| POST | `/asistencias` | ✅ | ✅ | ✅ | ADMIN, CAJERO | ≠ | Se registra con el CI y la contraseña **del propio empleado** (RF-43, #30) |
 | PUT | `/asistencias/:id/aprobar` | ✅ | ✅ ⚠ | ❌ | ADMIN, CAJERO | | Además pide la firma (CI y contraseña) de un ADMIN o CAJERO. RN-10: el cajero confirma (valor de prueba) |
 | DELETE | `/asistencias/:id` | ✅ | ✅ ⚠ | ❌ | ADMIN, CAJERO | | Tiene que anular con firma, no borrar (#30) |
 
@@ -142,8 +144,8 @@ La columna **Hoy** dice qué protección tiene la ruta en el código: `público`
 |--------|------|:-----:|:------:|:------:|-----|:----:|-------|
 | GET | `/reportes/dashboard` | ✅ | ❌ | ❌ | ADMIN | | RF-51 |
 | GET | `/configuracion` | ✅ | ✅ | ✅ | sesión | | La pantalla de reservas lee las ventanas de tiempo |
-| GET | `/configuracion/descuentos-atraso` | ✅ | ✅ | ❌ | sesión | ≠ | Solo lo usa la pantalla de asistencia |
-| PUT | `/configuracion` | ✅ | ❌ | ❌ | sesión | ≠ | **T2:** hoy un mesero cambia las tolerancias. Ver *Efectos en el frontend* |
+| GET | `/configuracion/descuentos-atraso` | ✅ | ✅ | ✅ | sesión | | Lo usa la pantalla de asistencia |
+| PUT | `/configuracion` | ✅ | ✅ | ✅ | sesión | | RN-16: el cajero y el mesero ajustan los tiempos de reserva desde su pantalla. **T2 deja de ser un bug.** Falta validar los valores (por ejemplo, que no sean negativos) en #25 |
 | POST | `/importacion/productos` | ✅ | ❌ | ❌ | ADMIN | | |
 | POST | `/importacion/juegos` | ✅ | ❌ | ❌ | ADMIN | | |
 | GET | `/importacion/plantillas/productos` | ✅ | ❌ | ❌ | sesión | ≠ | T17 |
@@ -151,27 +153,34 @@ La columna **Hoy** dice qué protección tiene la ruta en el código: `público`
 
 `routes/reporteRoute.js` define `GET /reportes/cierre-dia` (ADMIN, CAJERO), pero **no está montada** en `app.js` (T15). El cierre del día se rehace en #34.
 
-## Resumen de diferencias (lo que corrige #25)
+## Diferencias entre CAJERO y MESERO
+
+Por RN-16 son pocas. Las dos quedan marcadas con ⚠ para confirmarlas con el dueño el 10/12:
+
+| Acción | CAJERO | MESERO | Motivo |
+|--------|:------:|:------:|--------|
+| Aprobar o anular una asistencia (`PUT /asistencias/:id/aprobar`, `DELETE /asistencias/:id`) | ✅ | ❌ | RN-10: la llegada la confirma otro usuario; valor de prueba, el cajero |
+| Anular un pago (`DELETE /pagos/:id`) | ✅ | ❌ | Ya es así hoy; corrige dinero cobrado |
+
+Lo que solo puede hacer el ADMIN (empleados, catálogo, mesas, dashboard, importación y reabrir el día) no cambia.
+
+## Resumen de diferencias con el código (lo que corrige #25)
 
 | # | Ruta | Hoy | Debería | Motivo |
 |---|------|-----|---------|--------|
-| 1 | `PUT /configuracion` | sesión | ADMIN | T2: cualquier rol cambia reglas del negocio |
-| 2 | `GET /configuracion/descuentos-atraso` | sesión | ADMIN, CAJERO | Solo la usa asistencia |
-| 3 | `GET /importacion/plantillas/*` (2 rutas) | sesión | ADMIN | T17 |
-| 4 | `POST /ordenes/:id/finalizar` | los 3 roles | ADMIN, CAJERO ⚠ | RF-17 (P-21, confirmar el 10/12) |
-| 5 | `GET` y `POST /pagos` | sesión | ADMIN, CAJERO ⚠ | RF-17 (confirmar el 10/12) |
-| 6 | `DELETE /pagos/:id` | sesión + chequeo a mano | ADMIN, CAJERO | Mismo permiso, pero con `authorize` |
-| 7 | `POST`, `PUT`, `DELETE /productos` | ADMIN + chequeo a mano | ADMIN | Quitar el chequeo duplicado |
+| 1 | `GET /empleados` | ADMIN, CAJERO | los 3 roles | RN-16 (pantalla de asistencia) |
+| 2 | `GET /asistencias/hoy` | ADMIN, CAJERO | los 3 roles | RN-16 |
+| 3 | `POST /asistencias` | ADMIN, CAJERO | los 3 roles | RN-16 |
+| 4 | `GET /importacion/plantillas/*` (2 rutas) | sesión | ADMIN | T17 |
+| 5 | `DELETE /pagos/:id` | sesión + chequeo a mano | ADMIN, CAJERO | Mismo permiso, pero con `authorize` |
+| 6 | `POST`, `PUT`, `DELETE /productos` | ADMIN + chequeo a mano | ADMIN | Quitar el chequeo duplicado |
 
-De las **69 rutas** montadas, **8** cambian de protección y **3** solo pierden el chequeo duplicado. Las otras 58 ya coinciden con la matriz.
-
-Las filas 4 y 5 son las únicas que **quitan** algo que el mesero hace hoy. Si el dueño confirma que el mesero también cobra, se vuelven a abrir y la matriz se actualiza.
+De las **69 rutas** montadas, **6** cambian de protección (3 se abren al mesero, 2 se cierran a quien no es ADMIN y 1 pasa el chequeo a `authorize`) y **3** solo pierden el chequeo duplicado. Las otras 60 ya coinciden con la matriz.
 
 ## Efectos en el frontend
 
-- **Configuración de tiempos de reserva:** `reservas.js` (pantalla del mesero y del cajero) tiene un modal que hace `PUT /configuracion`. Con la matriz, ese modal se muestra solo al ADMIN o se mueve al panel de administración (#25).
-- **Cobro:** si el mesero no cobra, el botón de cobrar en la orden se oculta para el MESERO (#25).
-- **Menú de asistencia:** se muestra solo a ADMIN y CAJERO (#63).
+- **Menú de asistencia:** se muestra a los 3 roles; los botones de aprobar y anular, solo a ADMIN y CAJERO (#63).
+- **Anular un pago:** el botón se oculta para el MESERO.
 - **Mensajes:** un 403 se muestra como error de permisos, no como lista vacía (#63); un 401 vuelve al login (#26).
 - El rol guardado en `localStorage` sirve solo para la interfaz. La protección real es la del servidor.
 
@@ -179,7 +188,7 @@ Las filas 4 y 5 son las únicas que **quitan** algo que el mesero hace hoy. Si e
 
 | Endpoint (nombre tentativo) | ADMIN | CAJERO | MESERO | Fuente |
 |-----------------------------|:-----:|:------:|:------:|--------|
-| Abrir y cerrar el día (#34) | ✅ | ✅ | ❌ | RF-22: abre y cierra un cajero |
+| Abrir y cerrar el día (#34) | ✅ | ✅ | ✅ | RF-22 y RN-16: el cajero o el mesero |
 | Reabrir un día cerrado (#35) | ✅ | ❌ ⚠ | ❌ | RF-56: el administrador, valor de prueba (P-09) |
 | Mover una orden a otra mesa (#38) | ✅ | ✅ | ✅ | RF-55: "el personal" |
 | Listado de descuentos aplicados (#39) | ✅ | ❌ | ❌ | RF-49 |
@@ -201,3 +210,4 @@ Las filas 4 y 5 son las únicas que **quitan** algo que el mesero hace hoy. Si e
 | Versión | Fecha | Cambio |
 |---------|-------|--------|
 | 0.1 | 25/11/2026 | Primera versión, a partir de las rutas de `main` (issue #9) |
+| 0.2 | 25/11/2026 | Decisión de Marcelo (RN-16): el mesero cobra, cambia la configuración, abre el día y registra asistencias. Quedan dos diferencias con el cajero |

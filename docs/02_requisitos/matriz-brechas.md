@@ -140,7 +140,7 @@
 
 | Req. | Estado | Situación actual | Acción |
 |------|:------:|------------------|--------|
-| RF-52 | ⚠ | Hay JWT y roles, pero varias rutas solo piden sesión: un MESERO cambia la configuración (T2); el token vencido da 403 y el frontend espera 401 (T1); no hay límite de intentos de login (§5). Matriz de permisos: [`permisos.md`](../03_diseno/permisos.md) | Bug de seguridad, Etapa 4 (#25, #26, #69) |
+| RF-52 | ⚠ | Hay JWT y roles, pero algunas rutas no siguen la matriz de permisos (T17; T2 dejó de ser un bug por RN-16); el token vencido da 403 y el frontend espera 401 (T1); no hay límite de intentos de login (§5). Matriz de permisos: [`permisos.md`](../03_diseno/permisos.md) | Bug de seguridad, Etapa 4 (#25, #26, #69) |
 | RF-53 | ❌ | Las tablas `Registro*` existen, pero nada las llena (§3) | Preguntar (P-19) |
 | RF-54 | ❌ | No hay respaldos | Etapa 7 (P-14) |
 

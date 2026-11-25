@@ -1,6 +1,6 @@
 # Requisitos de DRG – Mesa Dragón
 
-> **Versión 0.2 · 25/11/2026 · Estado: revisado por Marcelo; pendiente de validar con el dueño (presentación del MVP, 10/12/2026).**
+> **Versión 0.3 · 25/11/2026 · Estado: revisado por Marcelo; pendiente de validar con el dueño (presentación del MVP, 10/12/2026).**
 > Reconstruidos a partir de los documentos del equipo original (ver [Fuentes en el contexto del negocio](../01_negocio/contexto.md#fuentes)). Se reescribieron para que cada requisito sea **uno solo, verificable y con su fuente**. Donde los documentos se contradicen o falta un dato, el requisito remite a una pregunta (`P-xx`) de [`preguntas-dueno.md`](preguntas-dueno.md).
 > El estado de cada requisito en el sistema actual está en [`matriz-brechas.md`](matriz-brechas.md).
 
@@ -57,12 +57,12 @@
 
 | Código | Requisito | Fuente | Prioridad | Validado |
 |--------|-----------|--------|:---------:|----------|
-| RF-17 | El cajero cobra una orden en efectivo, por QR o combinando ambos | E2, CU 1.1, IR | I | pendiente |
+| RF-17 | El cajero o el mesero cobra una orden en efectivo, por QR o combinando ambos (RN-16) | E2, CU 1.1, IR, M1 | I | Marcelo 25/11 |
 | RF-18 | El cajero divide la cuenta entre varias personas, **por ítems** (cada uno paga lo que consumió) **o por monto**; la orden queda "pagada parcialmente" hasta completarse. Una misma persona puede pagar parte en efectivo y parte por QR | E1, CU 1.1, IR, M1 | I | Marcelo 25/11 |
 | RF-19 | Cada pago puede llevar, de forma opcional, el CI o el nombre del cliente | E2, CU 1.1 | D | pendiente |
 | RF-20 | El sistema avisa si lo cobrado no alcanza o supera el total, y calcula el vuelto de los pagos en efectivo. Un pago QR mayor al total **no se registra en el sistema**: la diferencia se devuelve aparte y se registra solo el monto que corresponde | CU 1.1, M1 | I | Marcelo 25/11 |
 | RF-21 | La orden se cierra y la mesa se libera solo cuando lo pagado cubre el total (RN-07) | CU 1.1, TW | I | pendiente |
-| RF-22 | Un cajero abre la jornada y un cajero la cierra (no tiene que ser el mismo), con su CI y contraseña. Al cerrar, el sistema guarda un resumen del día (contenido por definir, P-09). Después del cierre no se aceptan órdenes hasta la siguiente apertura | CU 1.7, E1, M1 | I | Marcelo 25/11 (contenido del resumen: pendiente) |
+| RF-22 | Un cajero o un mesero abre la jornada y otro (o el mismo) la cierra, con su CI y contraseña (RN-16). Al cerrar, el sistema guarda un resumen del día (contenido por definir, P-09). Después del cierre no se aceptan órdenes hasta la siguiente apertura | CU 1.7, E1, M1 | I | Marcelo 25/11 (contenido del resumen: pendiente) |
 | RF-56 | Un día cerrado se puede **reabrir** para corregir un error humano (por ejemplo, llega un cliente después del cierre); la reapertura queda registrada con quién y por qué. Quién puede reabrir está pendiente (P-09); valor de prueba: el administrador | M1 | I | Marcelo 25/11 · quién: prueba |
 | RF-23 | Al abrir y cerrar la caja se registran el monto inicial y el final contado (arqueo), y el sistema muestra la diferencia con lo esperado (P-09) | E2 (caja 1), E1 | D | pendiente |
 | RF-24 | El sistema emite facturas físicas o electrónicas. **Totalmente fuera de la primera entrega** | E2, CU 1.1, M1 | F | Marcelo 25/11 |
@@ -149,6 +149,7 @@
 | RN-13 | El catálogo de juegos para clientes muestra **todos** los juegos registrados, activos o no | CU 3.1 | ⚠ Raro para un cliente (¿ver juegos que no se pueden pedir?). Ver P-18 |
 | RN-14 | El personal no registra en el sistema un pago QR mayor al total: devuelve la diferencia y registra solo el monto que corresponde | M1 | Marcelo 25/11 |
 | RN-15 | La mesa de destino de una orden movida tiene que estar libre y no tener una reserva próxima (RN-12) | M1 | Marcelo 25/11 |
+| RN-16 | **El mesero y el cajero tienen casi los mismos permisos:** cualquiera de los dos tiene que poder abrir el sistema, cobrar y cambiar los tiempos de reserva si el otro se atrasa. Las diferencias son pocas y están listadas en la [matriz de permisos](../03_diseno/permisos.md) | M1 | Marcelo 25/11 |
 
 ---
 
@@ -185,3 +186,4 @@
 |---------|-------|--------|
 | 0.1 | 24/11/2026 | Primera versión reconstruida desde los documentos del equipo (issue #4) |
 | 0.2 | 25/11/2026 | Respuestas de Marcelo (fuente M1): nueva tabla de atrasos (RN-01), tamaños de juego (RF-57), mover órdenes (RF-55), reabrir el día (RF-56), descuentos sin tope (RN-06); descartados RF-04, RF-05 y RF-16 |
+| 0.3 | 25/11/2026 | Matriz de permisos (issue #9): nueva RN-16 (mesero y cajero con casi los mismos permisos); RF-17 y RF-22 incluyen al mesero |
