@@ -121,8 +121,8 @@ Estas contraseñas están publicadas en el repositorio: **sirven solo para desar
 Se cambia **editando al empleado desde el panel del ADMIN**:
 
 1. Entrar como `ADMIN`.
-2. En el menú, abrir **Empleados**.
-3. En la tarjeta del empleado, pulsar el botón de **editar**.
+2. En el menú de la izquierda, abrir **Gestionar empleado**.
+3. En la tarjeta del empleado, pulsar el **lápiz** (editar).
 4. Escribir la contraseña nueva en el campo **Contraseña** (si se deja vacío, la contraseña no cambia). No tocar los demás campos.
 5. Pulsar **Guardar Empleado**.
 
@@ -146,7 +146,7 @@ npm run check     # lint + revisión de formato
 
 ```bash
 cd backend
-npm test          # ~370 pruebas, unos 15 segundos
+npm test          # unas 370 pruebas, menos de 20 segundos
 ```
 
 El CI corre lo mismo (`npm run check` y `npm test`) en cada PR. Más detalle en el [plan de pruebas](../05_pruebas/plan-de-pruebas.md) y en [`CONTRIBUTING.md`](../../CONTRIBUTING.md).
@@ -155,11 +155,11 @@ El CI corre lo mismo (`npm run check` y `npm test`) en cada PR. Más detalle en 
 
 | Mensaje | Causa | Solución |
 |---------|-------|----------|
-| `Faltan variables de entorno obligatorias: DATABASE_URL…` | No existe `backend/.env` o está incompleto | Repetir el paso 3.2 |
+| `Faltan variables de entorno obligatorias: …` (al arrancar) o `Falta DATABASE_URL` (en `db:preparar`) | No existe `backend/.env` o está incompleto | Repetir el paso 3.2 |
 | `No se pudo preparar la base: connect ECONNREFUSED 127.0.0.1:5432` | PostgreSQL no está corriendo, o escucha en otro puerto | Iniciar el servicio de PostgreSQL; revisar el puerto en `DATABASE_URL` |
 | `password authentication failed for user "…"` | Usuario o contraseña incorrectos en `DATABASE_URL` | Corregirlos (y codificar los caracteres especiales, paso 3.2) |
 | `permission denied to create database` | El usuario de PostgreSQL no puede crear bases | Usar el usuario `postgres`, o crear la base a mano y volver a correr `npm run db:preparar` |
-| `npm warn EBADENGINE Unsupported engine` | La versión de Node no es la 26 | Instalar Node 26 (sección 2) |
+| `npm warn EBADENGINE Unsupported engine` con `required: { node: '26.x' }` | La versión de Node no es la 26 | Instalar Node 26 (sección 2) |
 | Dice `Servidor Express escuchando…` pero la página no carga o muestra otra cosa | Ya había algo en el puerto 3000 (¿otro `npm start` en otra terminal?). Por un bug (#110), el servidor no avisa que el puerto está ocupado | Cerrar el otro proceso, o cambiar `PORT` en `backend/.env` |
 
 **Volver a empezar con una base limpia** (borra **todos** los datos de la base de `DATABASE_URL`; solo en desarrollo):
