@@ -29,82 +29,31 @@ La arquitectura está descrita en [`docs/03_diseno/arquitectura.md`](docs/03_dis
 * PostgreSQL (Base de datos local o remota)
 * Navegador web moderno con soporte para módulos ES6
 
-## Configuración del Entorno
+## Instalación
 
-Copia `backend/.env.example` como `backend/.env` y completa los valores:
+La guía completa, con los requisitos, las variables de entorno, el primer ingreso, las pruebas, los problemas comunes y los pasos para Windows, está en **[`docs/04_implementacion/instalacion.md`](docs/04_implementacion/instalacion.md)**.
 
-```bash
-cp backend/.env.example backend/.env
-```
+En resumen, con Node.js y PostgreSQL ya instalados:
 
-```env
-PORT=3000
-
-# Base de datos: la usan las migraciones, el seed y la aplicación
-DATABASE_URL=postgres://usuario:contraseña@localhost:5432/mesa_dragon_db
-
-# Seguridad
-JWT_SECRET=una_clave_larga_y_aleatoria
-JWT_EXPIRATION=8h
-```
-
-| Variable | Obligatoria | Para qué |
-|----------|-------------|----------|
-| `DATABASE_URL` | Sí | Conexión a PostgreSQL. La misma para las migraciones, el seed y la aplicación |
-| `JWT_SECRET` | Sí | Clave para firmar las sesiones |
-| `PORT` | No | Puerto del servidor (3000 por defecto) |
-| `JWT_EXPIRATION` | No | Duración de la sesión (8h por defecto) |
-
-Si falta una variable obligatoria, el backend no arranca y muestra cuál falta. `DATABASE_URL2` ya no se usa.
-
-## Instalación y Despliegue
-
-### 1. Clonar el repositorio
 ```bash
 git clone https://github.com/MarcelQuiroF/drg.git
-cd drg
-```
-
-### 2. Configurar el Backend
-```bash
-cd backend
+cd drg/backend
+cp .env.example .env     # completar DATABASE_URL y JWT_SECRET
 npm install
+npm run db:preparar      # crea la base, aplica las migraciones y carga el seed
+npm start                # http://localhost:3000
 ```
 
-### 3. Ejecutar Migraciones y Seeds
+Los usuarios de desarrollo (ADMIN, CAJERO y MESERO) y cómo cambiar sus contraseñas están en la sección 4 de la guía.
+
+## Calidad: lint, pruebas y CI
+
 ```bash
-npx sequelize-cli db:migrate
-npx sequelize-cli db:seed:all
+npm install && npm run check     # en la raíz: ESLint + Prettier
+cd backend && npm test           # pruebas automáticas (necesitan DATABASE_URL_TEST)
 ```
 
-### 4. Iniciar el Servidor
-```bash
-npm start      # o, para desarrollo, npm run dev (nodemon reinicia el servidor al guardar)
-```
-
-El sistema queda en `http://localhost:3000` (la API, en `http://localhost:3000/api/v1`).
-
-### 5. Primer ingreso
-
-El seed carga datos **ficticios** de desarrollo (pisos, mesas, catálogo, la tabla de descuentos por atraso y la configuración de reservas) y tres usuarios:
-
-| Rol | CI | Contraseña inicial |
-|-----|----|--------------------|
-| `ADMIN` | `1234567LP` | `drg-desarrollo` |
-| `CAJERO` | `2345678LP` | `drg-desarrollo` |
-| `MESERO` | `3456789LP` | `drg-desarrollo` |
-
-Estas credenciales son **solo para desarrollo** y son públicas (están en este README). Si el seed se usa en el local, el administrador tiene que cambiar las contraseñas al instalar desde *Empleados* (o borrar los usuarios de prueba). Una guía de instalación completa llega con [#20](https://github.com/MarcelQuiroF/drg/issues/20).
-
-El seed corre dentro de una transacción: si algo falla, no deja datos a medias. `npx sequelize-cli db:seed:undo:all` borra solo lo que insertó el seed.
-
-### 6. Pruebas automáticas
-
-Necesitan una base PostgreSQL **aparte** (`DATABASE_URL_TEST` en `backend/.env`, con un nombre que termine en `_test`; si no existe, se crea sola). Después: `cd backend && npm test`. Detalle en el [plan de pruebas](docs/05_pruebas/plan-de-pruebas.md).
-
-### 7. Herramientas de desarrollo
-
-ESLint y Prettier se instalan en la raíz del repositorio (`npm install` en `drg/`). Antes de abrir un PR: `npm run check`. Detalle en [`CONTRIBUTING.md`](CONTRIBUTING.md#6-estilo-de-código).
+Detalle en el [plan de pruebas](docs/05_pruebas/plan-de-pruebas.md) y en [`CONTRIBUTING.md`](CONTRIBUTING.md#6-estilo-de-código).
 
 
 ## 👥 Estructura de Roles
