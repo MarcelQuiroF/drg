@@ -4,11 +4,10 @@ async function crearPiso(datos) {
     return await Piso.create(datos);
 }
 
-
 async function listarPisos(soloActivos = false) {
     const where = {};
     if (soloActivos) {
-        where.activo = true; 
+        where.activo = true;
     }
 
     return await Piso.findAll({

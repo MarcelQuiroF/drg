@@ -4,23 +4,23 @@ const { actualizarTotalOrden } = require('../utils/orderUtils');
 async function agregarJuego(datos) {
     return await sequelize.transaction(async (t) => {
         const orden = await Orden.findByPk(datos.orden_id, { transaction: t });
-        if (!orden) throw new Error("La orden no existe.");
-        if (orden.finalizado) throw new Error("Orden finalizada.");
+        if (!orden) throw new Error('La orden no existe.');
+        if (orden.finalizado) throw new Error('Orden finalizada.');
 
         const juego = await Juego.findByPk(datos.juego_id, { transaction: t });
-        if (!juego) throw new Error("El juego no existe.");
+        if (!juego) throw new Error('El juego no existe.');
 
-        const nuevoJuego = await ContenedorJuego.create({
-            orden_id: datos.orden_id,
-            juego_id: datos.juego_id,
-            cantidad: datos.cantidad,
-            comentario: datos.comentario,
-            
+        const nuevoJuego = await ContenedorJuego.create(
+            {
+                orden_id: datos.orden_id,
+                juego_id: datos.juego_id,
+                cantidad: datos.cantidad,
+                comentario: datos.comentario,
 
-            hora_inicio: new Date().toTimeString().split(' ')[0], 
-            
-
-        }, { transaction: t });
+                hora_inicio: new Date().toTimeString().split(' ')[0]
+            },
+            { transaction: t }
+        );
 
         await actualizarTotalOrden(datos.orden_id, t);
 
@@ -31,13 +31,10 @@ async function agregarJuego(datos) {
     });
 }
 
-
 async function listarPorOrden(ordenId) {
     return await ContenedorJuego.findAll({
         where: { orden_id: ordenId },
-        include: [
-            { model: Juego, attributes: ['id', 'nombre', 'precio', 'imagen', 'tiempo_partida'] }
-        ],
+        include: [{ model: Juego, attributes: ['id', 'nombre', 'precio', 'imagen', 'tiempo_partida'] }],
         order: [['hora_inicio', 'ASC']]
     });
 }
@@ -56,7 +53,7 @@ async function eliminarJuego(id) {
 
         const ordenId = item.orden_id;
         const orden = await Orden.findByPk(ordenId, { transaction: t });
-        if (orden.finalizado) throw new Error("Orden cerrada.");
+        if (orden.finalizado) throw new Error('Orden cerrada.');
 
         await item.destroy({ transaction: t });
         await actualizarTotalOrden(ordenId, t);

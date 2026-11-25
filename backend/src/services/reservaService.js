@@ -1,9 +1,7 @@
-const { Reserva, Cliente, Mesa, Configuracion} = require('../models');
+const { Reserva, Cliente, Mesa, Configuracion } = require('../models');
 const { Op } = require('sequelize');
 
-
 async function verificarDisponibilidad(mesaId, fechaHora, excludeReservaId = null) {
-    
     const configBuffer = await Configuracion.findOne({ where: { clave: 'ventana_bloqueo' } });
     const bufferMinutes = configBuffer ? configBuffer.valor : 120;
     const bufferMs = bufferMinutes * 60 * 1000;
@@ -23,14 +21,14 @@ async function verificarDisponibilidad(mesaId, fechaHora, excludeReservaId = nul
         }
     });
 
-    return !conflicto; 
+    return !conflicto;
 }
 
 async function procesarExpiraciones() {
     const config = await Configuracion.findOne({ where: { clave: 'minutos_tolerancia' } });
     const toleranciaMins = config ? config.valor : 20;
-    
-    const limiteExpiracion = new Date(new Date().getTime() - (toleranciaMins * 60 * 1000));
+
+    const limiteExpiracion = new Date(new Date().getTime() - toleranciaMins * 60 * 1000);
 
     await Reserva.update(
         { estado: 'EXPIRADA' },
@@ -44,25 +42,23 @@ async function procesarExpiraciones() {
 }
 
 async function crearReserva(datos) {
-
     const cliente = await Cliente.findByPk(datos.cliente_id);
-    if (!cliente) throw new Error("Cliente no encontrado.");
+    if (!cliente) throw new Error('Cliente no encontrado.');
 
     const mesa = await Mesa.findByPk(datos.mesa_id);
-    if (!mesa) throw new Error("Mesa no encontrada.");
+    if (!mesa) throw new Error('Mesa no encontrada.');
 
     if (new Date(datos.hora) <= new Date()) {
-        throw new Error("La reserva debe ser para una fecha futura.");
+        throw new Error('La reserva debe ser para una fecha futura.');
     }
 
     const disponible = await verificarDisponibilidad(datos.mesa_id, datos.hora);
     if (!disponible) {
-        throw new Error("La mesa ya está reservada en un horario cercano.");
+        throw new Error('La mesa ya está reservada en un horario cercano.');
     }
 
     return await Reserva.create(datos);
 }
-
 
 async function listarReservas(filtros = {}) {
     await procesarExpiraciones();
@@ -73,11 +69,9 @@ async function listarReservas(filtros = {}) {
         const [anio, mes, dia] = filtros.fecha.split('-');
         const inicioDia = new Date(anio, mes - 1, dia, 0, 0, 0);
         const finDia = new Date(anio, mes - 1, dia, 23, 59, 59, 999);
-        
-        whereClause.hora = { [Op.between]: [inicioDia, finDia] };
-    } 
 
-    else {
+        whereClause.hora = { [Op.between]: [inicioDia, finDia] };
+    } else {
         whereClause.estado = 'PENDIENTE';
     }
 
@@ -93,16 +87,19 @@ async function listarReservas(filtros = {}) {
 
 async function actualizarReserva(id, datos) {
     const reserva = await Reserva.findByPk(id);
-    if (!reserva) throw new Error("Reserva no encontrada.");
+    if (!reserva) throw new Error('Reserva no encontrada.');
 
     if (datos.hora || datos.mesa_id) {
         const mesaId = datos.mesa_id || reserva.mesa_id;
         const horaNueva = datos.hora || reserva.hora;
 
         const disponible = await verificarDisponibilidad(mesaId, horaNueva);
-        
-        if (!disponible && (mesaId !== reserva.mesa_id || new Date(horaNueva).getTime() !== new Date(reserva.hora).getTime())) {
-            throw new Error("La mesa ya tiene una reserva en ese horario.");
+
+        if (
+            !disponible &&
+            (mesaId !== reserva.mesa_id || new Date(horaNueva).getTime() !== new Date(reserva.hora).getTime())
+        ) {
+            throw new Error('La mesa ya tiene una reserva en ese horario.');
         }
     }
 

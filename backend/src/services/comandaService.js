@@ -1,7 +1,6 @@
 const { ContenedorProducto, Producto, Orden, Mesa, sequelize } = require('../models');
 const { Op } = require('sequelize');
 
-
 async function listarPendientes(zona) {
     const whereProducto = {};
     if (zona) {
@@ -20,35 +19,37 @@ async function listarPendientes(zona) {
             {
                 model: Orden,
                 attributes: ['id', 'finalizado'],
-                include: [{ model: Mesa, attributes: ['nombre', 'numero'] }] 
+                include: [{ model: Mesa, attributes: ['nombre', 'numero'] }]
             }
         ],
-        order: [['createdAt', 'ASC']] 
+        order: [['createdAt', 'ASC']]
     });
 }
 
 async function avanzarEstado(id, cantidadAvanzar = null, estadoOrigen = null) {
     return await sequelize.transaction(async (t) => {
         const item = await ContenedorProducto.findByPk(id, { transaction: t });
-        if (!item) throw new Error("Comanda no encontrada.");
+        if (!item) throw new Error('Comanda no encontrada.');
 
         let cantidad = cantidadAvanzar ? parseInt(cantidadAvanzar) : null;
         const origen = estadoOrigen ? estadoOrigen.toUpperCase() : null;
 
         if (origen) {
             const mapaEstados = {
-                'RECIBIDO': 'cantidad_recibido',
-                'PREPARANDO': 'cantidad_preparando',
-                'TERMINADO': 'cantidad_terminado'
+                RECIBIDO: 'cantidad_recibido',
+                PREPARANDO: 'cantidad_preparando',
+                TERMINADO: 'cantidad_terminado'
             };
 
             const columnaOrigen = mapaEstados[origen];
-            if (!columnaOrigen) throw new Error("Estado de origen no válido. Use: RECIBIDO, PREPARANDO o TERMINADO.");
+            if (!columnaOrigen) throw new Error('Estado de origen no válido. Use: RECIBIDO, PREPARANDO o TERMINADO.');
 
             if (!cantidad) cantidad = item[columnaOrigen];
 
             if (item[columnaOrigen] < cantidad) {
-                throw new Error(`No puedes mover ${cantidad} items de ${origen} porque solo hay ${item[columnaOrigen]}.`);
+                throw new Error(
+                    `No puedes mover ${cantidad} items de ${origen} porque solo hay ${item[columnaOrigen]}.`
+                );
             }
 
             if (origen === 'RECIBIDO') {
@@ -61,9 +62,7 @@ async function avanzarEstado(id, cantidadAvanzar = null, estadoOrigen = null) {
                 item.cantidad_terminado -= cantidad;
                 item.cantidad_enviado += cantidad;
             }
-        } 
-        
-        else {
+        } else {
             const calcularMovimiento = (disponible) => {
                 if (!cantidad) return disponible;
                 if (cantidad > disponible) throw new Error(`Solo hay ${disponible} items en este estado.`);
@@ -84,7 +83,7 @@ async function avanzarEstado(id, cantidadAvanzar = null, estadoOrigen = null) {
                 item.cantidad_terminado -= movido;
                 item.cantidad_enviado += movido;
             } else {
-                throw new Error("El item ya fue entregado completamente.");
+                throw new Error('El item ya fue entregado completamente.');
             }
         }
 

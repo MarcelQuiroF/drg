@@ -4,7 +4,7 @@ const cors = require('cors');
 
 const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
 
-const authRoute = require('./routes/authRoute'); 
+const authRoute = require('./routes/authRoute');
 const empleadoRoute = require('./routes/empleadoRoute');
 const categoriaRoute = require('./routes/categoriaRoute');
 const productoRoute = require('./routes/productoRoute');
@@ -25,15 +25,15 @@ const importacionRoute = require('./routes/importacionRoute');
 
 const app = express();
 
-app.use(cors()); 
-app.use(express.json()); 
-app.use(express.urlencoded({ extended: true })); 
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const API_PREFIX = '/api/v1';
 
 const pathFrontend = path.join(__dirname, '..', '..', 'frontend');
 
-console.log("Sirviendo archivos estáticos desde:", pathFrontend);
+console.log('Sirviendo archivos estáticos desde:', pathFrontend);
 
 app.use(express.static(pathFrontend));
 
@@ -42,7 +42,7 @@ app.get('/', (req, res) => {
 });
 
 app.use(`${API_PREFIX}/auth`, authRoute);
-app.use(`${API_PREFIX}/empleados`, empleadoRoute); 
+app.use(`${API_PREFIX}/empleados`, empleadoRoute);
 app.use(`${API_PREFIX}/categorias`, categoriaRoute);
 app.use(`${API_PREFIX}/productos`, productoRoute);
 app.use(`${API_PREFIX}/juegos`, juegoRoute);
@@ -60,7 +60,7 @@ app.use(`${API_PREFIX}/reportes`, reportesRoute);
 app.use(`${API_PREFIX}/configuracion`, configuracionRoutes);
 app.use(`${API_PREFIX}/importacion`, importacionRoute);
 
-app.use(notFoundHandler); 
-app.use(errorHandler); 
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 module.exports = app;

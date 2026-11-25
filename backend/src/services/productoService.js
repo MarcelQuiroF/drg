@@ -1,11 +1,10 @@
-
 const { Producto, Categoria, ProductoCategoria } = require('../models');
 
 async function crearProducto(datos, idsCategorias = []) {
     const nuevoProducto = await Producto.create(datos);
 
     if (idsCategorias && idsCategorias.length > 0) {
-        const relaciones = idsCategorias.map(categoriaId => ({
+        const relaciones = idsCategorias.map((categoriaId) => ({
             producto_id: nuevoProducto.id,
             categoria_id: categoriaId
         }));
@@ -14,11 +13,13 @@ async function crearProducto(datos, idsCategorias = []) {
     }
 
     return await Producto.findByPk(nuevoProducto.id, {
-        include: [{
-            model: Categoria,
-            attributes: ['id', 'nombre'],
-            through: { attributes: [] } 
-        }]
+        include: [
+            {
+                model: Categoria,
+                attributes: ['id', 'nombre'],
+                through: { attributes: [] }
+            }
+        ]
     });
 }
 
@@ -36,17 +37,19 @@ async function listarProductos(categoriaId = null) {
 
     return await Producto.findAll({
         include: [includeOption],
-        order: [['nombre', 'ASC']] 
+        order: [['nombre', 'ASC']]
     });
 }
 
 async function obtenerProductoPorId(id) {
     return await Producto.findByPk(id, {
-        include: [{
-            model: Categoria,
-            attributes: ['id', 'nombre'],
-            through: { attributes: [] }
-        }]
+        include: [
+            {
+                model: Categoria,
+                attributes: ['id', 'nombre'],
+                through: { attributes: [] }
+            }
+        ]
     });
 }
 
@@ -62,7 +65,7 @@ async function actualizarProducto(id, datos, idsCategorias) {
         });
 
         if (idsCategorias.length > 0) {
-            const relaciones = idsCategorias.map(categoriaId => ({
+            const relaciones = idsCategorias.map((categoriaId) => ({
                 producto_id: id,
                 categoria_id: categoriaId
             }));

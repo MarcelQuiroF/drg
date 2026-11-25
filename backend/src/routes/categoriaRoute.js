@@ -4,8 +4,6 @@ const categoriaController = require('../controllers/categoriaController');
 const { authenticate } = require('../middlewares/authMiddleware');
 const { authorize } = require('../middlewares/roleMiddleware');
 
-
-
 router.get('/', categoriaController.listar);
 
 router.use(authenticate);

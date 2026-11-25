@@ -1,12 +1,11 @@
 let intervaloGlobal = null;
 
-
 export const iniciarAutoRefresco = (callback, segundos = 30) => {
     detenerAutoRefresco();
-    
+
     console.log(`[Sistema] Auto-refresco activado cada ${segundos}s`);
     intervaloGlobal = setInterval(async () => {
-        console.log("[Sistema] Sincronizando datos...");
+        console.log('[Sistema] Sincronizando datos...');
         await callback();
     }, segundos * 1000);
 };
@@ -15,57 +14,49 @@ export const detenerAutoRefresco = () => {
     if (intervaloGlobal) {
         clearInterval(intervaloGlobal);
         intervaloGlobal = null;
-        console.log("[Sistema] Auto-refresco desactivado.");
+        console.log('[Sistema] Auto-refresco desactivado.');
     }
 };
-
 
 export const cargarHTML = (rutaHTML, callback) => {
     detenerAutoRefresco();
     console.log(`[Navegación] Limpiando procesos para cargar: ${rutaHTML}`);
     const cuerpo = document.getElementById('cuerpo');
     fetch(rutaHTML)
-        .then(res => res.text())
-        .then(html => {
+        .then((res) => res.text())
+        .then((html) => {
             cuerpo.innerHTML = html;
-            
+
             const contenido = cuerpo.querySelector('.contenido');
-            
+
             if (contenido) {
-                if(getComputedStyle(contenido).display !== 'flex') {
+                if (getComputedStyle(contenido).display !== 'flex') {
                     contenido.style.display = 'flex';
                 }
-                
-                if(rutaHTML.includes("mesas")) {
-                    contenido.style.flexDirection = "column";
-                } else if(rutaHTML.includes("admin-productos")) {
-                   
-                    contenido.style.flexDirection = "column"; 
-                } else if(rutaHTML.includes("productos")) {
-                    
-                    contenido.style.flexDirection = "row";
+
+                if (rutaHTML.includes('mesas')) {
+                    contenido.style.flexDirection = 'column';
+                } else if (rutaHTML.includes('admin-productos')) {
+                    contenido.style.flexDirection = 'column';
+                } else if (rutaHTML.includes('productos')) {
+                    contenido.style.flexDirection = 'row';
                 }
             }
-            
 
-            if(typeof callback === 'function') callback();
+            if (typeof callback === 'function') callback();
         })
-        .catch(err => console.error("Error cargando HTML:", err));
+        .catch((err) => console.error('Error cargando HTML:', err));
 };
 
-
-
 export const activarMenu = (id) => {
-    document.querySelectorAll('.menu-item, .menu-link').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('.menu-item, .menu-link').forEach((i) => i.classList.remove('active'));
     const item = document.getElementById(id);
-    if(item) {
+    if (item) {
         item.classList.add('active');
         const parent = item.closest('.menu-item');
         if (parent) parent.classList.add('active');
     }
-};  
-
-
+};
 
 export const mostrarNotificacion = (titulo, mensaje, esError = true) => {
     const modal = document.getElementById('notification-modal');
@@ -75,7 +66,7 @@ export const mostrarNotificacion = (titulo, mensaje, esError = true) => {
 
     if (titleEl) {
         titleEl.textContent = titulo;
-        titleEl.style.color = esError ? "#ff5a5e" : "#2e7d32";
+        titleEl.style.color = esError ? '#ff5a5e' : '#2e7d32';
     }
     if (msgEl) msgEl.textContent = mensaje;
 
@@ -90,12 +81,12 @@ export const mostrarNotificacion = (titulo, mensaje, esError = true) => {
 export const cerrarNotificacion = () => {
     const modal = document.getElementById('notification-modal');
     const overlay = document.getElementById('modal-overlay');
-    
+
     if (modal) {
         modal.classList.remove('custom-modal-visible');
         modal.classList.add('custom-modal-hidden');
     }
-    
+
     const algunModalAbierto = document.querySelector('.custom-modal-visible');
     if (!algunModalAbierto && overlay) {
         overlay.classList.remove('modal-overlay-visible');

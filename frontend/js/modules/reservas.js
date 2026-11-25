@@ -5,30 +5,32 @@ let RESERVA_ID_PARA_ELIMINAR = null;
 let ID_RESERVA_EDICION = null;
 let TODAS_LAS_MESAS = [];
 
-let TODOS_LOS_CLIENTES = []; 
-
+let TODOS_LOS_CLIENTES = [];
 
 const filtrarClientes = (termino) => {
     const resultsContainer = document.getElementById('cliente-options-results');
     const query = termino.toLowerCase().trim();
-    
+
     if (!query) {
         resultsContainer.classList.replace('search-results-visible', 'search-results-hidden');
         return;
     }
 
-    const filtrados = TODOS_LOS_CLIENTES.filter(c => 
-        c.nombre.toLowerCase().includes(query) || 
-        (c.telefono && c.telefono.includes(query))
+    const filtrados = TODOS_LOS_CLIENTES.filter(
+        (c) => c.nombre.toLowerCase().includes(query) || (c.telefono && c.telefono.includes(query))
     );
 
     if (filtrados.length > 0) {
-        resultsContainer.innerHTML = filtrados.map(c => `
+        resultsContainer.innerHTML = filtrados
+            .map(
+                (c) => `
             <div class="search-option-item" data-id="${c.id}" data-nombre="${c.nombre}" data-telf="${c.telefono || ''}">
                 ${c.nombre}
                 <span>(${c.telefono || 'Sin teléfono'})</span>
             </div>
-        `).join('');
+        `
+            )
+            .join('');
         resultsContainer.classList.replace('search-results-hidden', 'search-results-visible');
     } else {
         resultsContainer.innerHTML = '<div class="search-option-item">No se encontraron resultados</div>';
@@ -37,14 +39,13 @@ const filtrarClientes = (termino) => {
 };
 
 const seleccionarCliente = (id, nombre, telf) => {
-    const displayTelf = telf ? ` (${telf})` : "";
+    const displayTelf = telf ? ` (${telf})` : '';
     document.getElementById('cliente-search').value = `${nombre}${displayTelf}`;
     document.getElementById('cliente-select-id').value = id;
-    
+
     const resultsContainer = document.getElementById('cliente-options-results');
     resultsContainer.classList.replace('search-results-visible', 'search-results-hidden');
 };
-
 
 const mostrarErrorModal = (mensaje) => {
     const errorEl = document.getElementById('reserva-error-msg');
@@ -60,7 +61,7 @@ const limpiarErrorModal = () => {
     if (errorEl) {
         errorEl.classList.remove('error-text-visible');
         errorEl.classList.add('error-text-hidden');
-        errorEl.textContent = "";
+        errorEl.textContent = '';
     }
 };
 
@@ -76,27 +77,26 @@ const limpiarErrorCliente = () => {
     const errorEl = document.getElementById('cliente-error-msg');
     if (errorEl) {
         errorEl.classList.replace('error-text-visible', 'error-text-hidden');
-        errorEl.textContent = "";
+        errorEl.textContent = '';
     }
 };
-
 
 const abrirModalReserva = async (idReserva = null) => {
     const modal = document.getElementById('reserva-modal');
     const overlay = document.getElementById('modal-overlay');
     const titulo = document.getElementById('reserva-modal-titulo');
-    
+
     ID_RESERVA_EDICION = idReserva;
-    titulo.textContent = idReserva ? "Editar Reserva" : "Nueva Reserva";
-    document.getElementById('btn-guardar-reserva').textContent = idReserva ? "Actualizar" : "Guardar Reserva";
+    titulo.textContent = idReserva ? 'Editar Reserva' : 'Nueva Reserva';
+    document.getElementById('btn-guardar-reserva').textContent = idReserva ? 'Actualizar' : 'Guardar Reserva';
 
     limpiarErrorModal();
     await prepararSelectoresForm();
-    
+
     if (!idReserva) {
         const today = new Date();
         document.getElementById('fecha-reserva').value = today.toISOString().split('T')[0];
-        document.getElementById('hora-reserva').value = "19:00";
+        document.getElementById('hora-reserva').value = '19:00';
     } else {
         try {
             const res = await authFetch(`/reservas/${idReserva}`);
@@ -108,15 +108,17 @@ const abrirModalReserva = async (idReserva = null) => {
                     document.getElementById('cliente-search').value = textoCliente;
                     document.getElementById('cliente-select-id').value = data.cliente_id;
                 }
-                document.getElementById('piso-select').value = data.Mesa?.piso_id || "";
+                document.getElementById('piso-select').value = data.Mesa?.piso_id || '';
                 actualizarMesasPorPiso(data.Mesa?.piso_id);
                 document.getElementById('mesa-select-form').value = data.mesa_id;
 
                 const d = new Date(data.hora);
                 document.getElementById('fecha-reserva').value = d.toISOString().split('T')[0];
-                document.getElementById('hora-reserva').value = d.toTimeString().slice(0,5);
+                document.getElementById('hora-reserva').value = d.toTimeString().slice(0, 5);
             }
-        } catch (e) { console.error("Error al cargar reserva:", e); }
+        } catch (e) {
+            console.error('Error al cargar reserva:', e);
+        }
     }
 
     modal.classList.replace('custom-modal-hidden', 'custom-modal-visible');
@@ -129,16 +131,15 @@ const cerrarModalReserva = () => {
     ID_RESERVA_EDICION = null;
 };
 
-
 const abrirModalCliente = () => {
     const clienteModal = document.getElementById('cliente-modal');
     const reservaModal = document.getElementById('reserva-modal');
-    
-    document.getElementById('new-nombre').value = "";
-    document.getElementById('new-ci').value = "";
-    document.getElementById('new-telf').value = "";
-    
-    limpiarErrorCliente(); 
+
+    document.getElementById('new-nombre').value = '';
+    document.getElementById('new-ci').value = '';
+    document.getElementById('new-telf').value = '';
+
+    limpiarErrorCliente();
 
     reservaModal?.classList.add('modal-backdrop-blur');
     clienteModal.classList.replace('custom-modal-hidden', 'custom-modal-visible');
@@ -160,7 +161,7 @@ async function manejarGuardarReserva() {
     };
 
     if (!payload.cliente_id || !payload.mesa_id || !payload.hora.includes('T')) {
-        return mostrarErrorModal("Todos los campos son obligatorios.");
+        return mostrarErrorModal('Todos los campos son obligatorios.');
     }
 
     try {
@@ -170,20 +171,20 @@ async function manejarGuardarReserva() {
 
         if (!res.ok) {
             const data = await res.json();
-            return mostrarErrorModal(data.message || "Error al guardar.");
+            return mostrarErrorModal(data.message || 'Error al guardar.');
         }
 
         cerrarModalReserva();
-        mostrarNotificacion("¡Éxito!", "Reserva guardada.", false);
+        mostrarNotificacion('¡Éxito!', 'Reserva guardada.', false);
         cargarReservasPage();
     } catch (error) {
-        console.error("DEBUG - El error es:", error);
-        mostrarErrorModal("Error detectado en consola");
+        console.error('DEBUG - El error es:', error);
+        mostrarErrorModal('Error detectado en consola');
     }
 }
 
 async function manejarGuardarClienteRapido() {
-    limpiarErrorCliente(); 
+    limpiarErrorCliente();
 
     const payload = {
         nombre: document.getElementById('new-nombre').value.trim(),
@@ -192,31 +193,30 @@ async function manejarGuardarClienteRapido() {
     };
 
     if (!payload.nombre) {
-        return mostrarErrorCliente("El nombre completo es obligatorio.");
+        return mostrarErrorCliente('El nombre completo es obligatorio.');
     }
 
     try {
         const res = await authFetch('/clientes', { method: 'POST', body: JSON.stringify(payload) });
-        
+
         if (res.ok) {
             const nuevo = await res.json();
             cerrarModalCliente();
             await actualizarListaClientes(nuevo.id);
         } else {
             const data = await res.json();
-            mostrarErrorCliente(data.message || "Error al registrar el cliente.");
+            mostrarErrorCliente(data.message || 'Error al registrar el cliente.');
         }
-    } catch (e) { 
+    } catch (e) {
         console.error(e);
-        mostrarErrorCliente("Error de conexión con el servidor.");
+        mostrarErrorCliente('Error de conexión con el servidor.');
     }
 }
 
-
 export const cargarReservasPage = () => {
-    cargarHTML("../html/reservar.html", () => {
+    cargarHTML('../html/reservar.html', () => {
         initReservas();
-        
+
         iniciarAutoRefresco(actualizarSoloDatosReservas, 30);
     });
 };
@@ -227,18 +227,17 @@ const actualizarSoloDatosReservas = async () => {
         const response = await authFetch('/reservas');
         if (response.ok) {
             const datos = await response.json();
-            renderizarReservas(tbody, datos); 
+            renderizarReservas(tbody, datos);
         }
-    } catch (e) { console.error("Error en auto-refresco:", e); }
+    } catch (e) {
+        console.error('Error en auto-refresco:', e);
+    }
 };
 
 const initReservas = async () => {
-
-    
-
     const tbody = document.getElementById('reserva-tbody');
     if (!tbody) {
-        console.error("No se encontró el elemento #reserva-tbody");
+        console.error('No se encontró el elemento #reserva-tbody');
         return;
     }
 
@@ -270,24 +269,24 @@ const initReservas = async () => {
         } else {
             tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Error al obtener reservas.</td></tr>';
         }
-    } catch (e) { 
-        console.error(e); 
+    } catch (e) {
+        console.error(e);
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Error de conexión.</td></tr>';
     }
 
     document.getElementById('btn-abrir-settings')?.addEventListener('click', abrirModalSettings);
     document.getElementById('close-settings-modal')?.addEventListener('click', cerrarModalSettings);
-    
+
     const btnSaveS = document.getElementById('btn-save-settings');
     if (btnSaveS) {
         const nBtn = btnSaveS.cloneNode(true);
         btnSaveS.parentNode.replaceChild(nBtn, btnSaveS);
         nBtn.addEventListener('click', manejarGuardarSettings);
     }
-    
+
     document.getElementById('btn-nueva-reserva')?.addEventListener('click', () => abrirModalReserva());
     document.getElementById('close-reserva-modal')?.addEventListener('click', cerrarModalReserva);
-    
+
     const btnG = document.getElementById('btn-guardar-reserva');
     if (btnG) {
         const nBtn = btnG.cloneNode(true);
@@ -302,7 +301,7 @@ const initReservas = async () => {
         abrirModalCliente();
     });
     document.getElementById('close-cliente-modal')?.addEventListener('click', cerrarModalCliente);
-    
+
     const btnGC = document.getElementById('btn-guardar-cliente-modal');
     if (btnGC) {
         const nBtn = btnGC.cloneNode(true);
@@ -324,13 +323,12 @@ const initReservas = async () => {
     });
 };
 
-
 async function prepararSelectoresForm() {
     const selectPiso = document.getElementById('piso-select');
     selectPiso.innerHTML = '<option value="">Todos</option>';
-    
-    document.getElementById('cliente-search').value = "";
-    document.getElementById('cliente-select-id').value = "";
+
+    document.getElementById('cliente-search').value = '';
+    document.getElementById('cliente-select-id').value = '';
 
     try {
         const [resC, resP, resM] = await Promise.all([
@@ -340,41 +338,45 @@ async function prepararSelectoresForm() {
         ]);
 
         if (resC.ok) TODOS_LOS_CLIENTES = await resC.json();
-        if (resP.ok) (await resP.json()).forEach(p => selectPiso.add(new Option(p.nombre, p.id)));
+        if (resP.ok) (await resP.json()).forEach((p) => selectPiso.add(new Option(p.nombre, p.id)));
         if (resM.ok) TODAS_LAS_MESAS = await resM.json();
-        
-        actualizarMesasPorPiso("");
-    } catch (e) { console.error("Error cargando selectores:", e); }
+
+        actualizarMesasPorPiso('');
+    } catch (e) {
+        console.error('Error cargando selectores:', e);
+    }
 }
 
 function actualizarMesasPorPiso(pisoId) {
     const selectMesa = document.getElementById('mesa-select-form');
     selectMesa.innerHTML = '<option value="">Seleccione...</option>';
-    const filtradas = pisoId ? TODAS_LAS_MESAS.filter(m => m.piso_id === Number(pisoId)) : TODAS_LAS_MESAS;
-    filtradas.sort((a,b) => a.numero - b.numero).forEach(m => selectMesa.add(new Option(`${m.nombre} (Nº ${m.numero})`, m.id)));
+    const filtradas = pisoId ? TODAS_LAS_MESAS.filter((m) => m.piso_id === Number(pisoId)) : TODAS_LAS_MESAS;
+    filtradas
+        .sort((a, b) => a.numero - b.numero)
+        .forEach((m) => selectMesa.add(new Option(`${m.nombre} (Nº ${m.numero})`, m.id)));
 }
 
 async function actualizarListaClientes(idParaSeleccionar = null) {
     try {
         const res = await authFetch('/clientes');
         if (res.ok) {
-            TODOS_LOS_CLIENTES = await res.json(); 
-            
+            TODOS_LOS_CLIENTES = await res.json();
+
             if (idParaSeleccionar) {
-                const nuevo = TODOS_LOS_CLIENTES.find(c => c.id === Number(idParaSeleccionar));
+                const nuevo = TODOS_LOS_CLIENTES.find((c) => c.id === Number(idParaSeleccionar));
                 if (nuevo) {
                     seleccionarCliente(nuevo.id, nuevo.nombre, nuevo.telefono);
                 }
             }
         }
     } catch (e) {
-        console.error("Error actualizando lista de clientes:", e);
+        console.error('Error actualizando lista de clientes:', e);
     }
 }
 
 const renderizarReservas = async (tbody, reservas) => {
     tbody.innerHTML = '';
-    
+
     let tolerancia = 20;
     let anticipacion = 30;
 
@@ -382,46 +384,47 @@ const renderizarReservas = async (tbody, reservas) => {
         const resConf = await authFetch('/configuracion');
         if (resConf.ok) {
             const configs = await resConf.json();
-            configs.forEach(c => {
+            configs.forEach((c) => {
                 if (c.clave === 'minutos_tolerancia') tolerancia = c.valor;
                 if (c.clave === 'ventana_llegada') anticipacion = c.valor;
             });
         }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+        console.error(e);
+    }
 
     if (reservas.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 30px;">No hay reservas programadas.</td></tr>';
+        tbody.innerHTML =
+            '<tr><td colspan="5" style="text-align:center; padding: 30px;">No hay reservas programadas.</td></tr>';
         return;
     }
 
     const ahora = new Date();
 
-    reservas.forEach(reserva => {
+    reservas.forEach((reserva) => {
         const tr = document.createElement('tr');
         const d = new Date(reserva.hora);
 
-        
-        
         const diffMs = ahora - d;
         const diffMins = diffMs / 60000;
-        
-        console.log(`Reserva: ${reserva.Cliente?.nombre} | Diff: ${diffMins.toFixed(2)} min | Estado: ${reserva.estado}`);
 
-        let timeClass = "";
-        const estadoLimpio = reserva.estado ? reserva.estado.toUpperCase() : "";
+        console.log(
+            `Reserva: ${reserva.Cliente?.nombre} | Diff: ${diffMins.toFixed(2)} min | Estado: ${reserva.estado}`
+        );
 
+        let timeClass = '';
+        const estadoLimpio = reserva.estado ? reserva.estado.toUpperCase() : '';
 
         if (estadoLimpio === 'PENDIENTE') {
             if (diffMins > 0 && diffMins <= tolerancia) {
-                timeClass = "time-tolerance";
-            } 
-            else if (diffMins < 0 && Math.abs(diffMins) <= anticipacion) {
-                timeClass = "time-early";
+                timeClass = 'time-tolerance';
+            } else if (diffMins < 0 && Math.abs(diffMins) <= anticipacion) {
+                timeClass = 'time-early';
             }
         }
 
         const fechaStr = `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
-        const horaStr = d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const horaStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
         tr.innerHTML = `
             <td>
@@ -447,7 +450,9 @@ const renderizarReservas = async (tbody, reservas) => {
         `;
 
         tr.querySelector('.btn-editar').addEventListener('click', () => abrirModalReserva(reserva.id));
-        tr.querySelector('.btn-eliminar').addEventListener('click', () => prepararEliminacionReserva(reserva.id, reserva.Cliente?.nombre));
+        tr.querySelector('.btn-eliminar').addEventListener('click', () =>
+            prepararEliminacionReserva(reserva.id, reserva.Cliente?.nombre)
+        );
         tbody.appendChild(tr);
     });
 };
@@ -462,13 +467,15 @@ const abrirModalSettings = async () => {
         const res = await authFetch('/configuracion');
         if (res.ok) {
             const configs = await res.json();
-            configs.forEach(c => {
+            configs.forEach((c) => {
                 if (c.clave === 'minutos_tolerancia') document.getElementById('input-tolerancia').value = c.valor;
                 if (c.clave === 'ventana_bloqueo') document.getElementById('input-ventana-bloqueo').value = c.valor;
                 if (c.clave === 'ventana_llegada') document.getElementById('input-ventana-llegada').value = c.valor;
             });
         }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+        console.error(e);
+    }
     modal.classList.replace('custom-modal-hidden', 'custom-modal-visible');
     overlay.classList.replace('modal-overlay-hidden', 'modal-overlay-visible');
 };
@@ -490,9 +497,11 @@ async function manejarGuardarSettings() {
         const res = await authFetch('/configuracion', { method: 'PUT', body: JSON.stringify(payload) });
         if (res.ok) {
             cerrarModalSettings();
-            mostrarNotificacion("¡Éxito!", "Tiempos actualizados.", false);
+            mostrarNotificacion('¡Éxito!', 'Tiempos actualizados.', false);
         }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 const prepararEliminacionReserva = (id, nombre) => {
@@ -521,6 +530,8 @@ if (deleteConfirmBtn) {
                 cerrarModalEliminar();
                 cargarReservasPage();
             }
-        } catch (e) { console.error(e); }
+        } catch (e) {
+            console.error(e);
+        }
     });
 }

@@ -4,13 +4,13 @@ const httpCodes = require('../utils/httpCodes');
 async function crear(req, res, next) {
     try {
         if (req.empleado.rol !== 'ADMIN') {
-            return res.status(httpCodes.FORBIDDEN.code).json({ message: "Requiere permisos de administrador." });
+            return res.status(httpCodes.FORBIDDEN.code).json({ message: 'Requiere permisos de administrador.' });
         }
 
-        const { categorias, ...datosProducto } = req.body; 
+        const { categorias, ...datosProducto } = req.body;
 
         if (!datosProducto.nombre || !datosProducto.precio) {
-            return res.status(httpCodes.BAD_REQUEST.code).json({ message: "Nombre y precio son obligatorios." });
+            return res.status(httpCodes.BAD_REQUEST.code).json({ message: 'Nombre y precio son obligatorios.' });
         }
 
         const nuevo = await productoService.crearProducto(datosProducto, categorias);
@@ -22,20 +22,19 @@ async function crear(req, res, next) {
 async function obtenerPorId(req, res, next) {
     try {
         const producto = await productoService.obtenerProductoPorId(req.params.id);
-        if (!producto) return res.status(httpCodes.NOT_FOUND.code).json({ message: "Producto no encontrado" });
+        if (!producto) return res.status(httpCodes.NOT_FOUND.code).json({ message: 'Producto no encontrado' });
         res.status(httpCodes.OK.code).json(producto);
-    } catch (error) { next(error); }
+    } catch (error) {
+        next(error);
+    }
 }
-
-
 
 async function listar(req, res, next) {
     try {
-
         const { categoria_id } = req.query;
 
         const productos = await productoService.listarProductos(categoria_id);
-        
+
         res.status(httpCodes.OK.code).json(productos);
     } catch (error) {
         next(error);
@@ -45,14 +44,14 @@ async function listar(req, res, next) {
 async function actualizar(req, res, next) {
     try {
         if (req.empleado.rol !== 'ADMIN') {
-            return res.status(httpCodes.FORBIDDEN.code).json({ message: "Acceso denegado." });
+            return res.status(httpCodes.FORBIDDEN.code).json({ message: 'Acceso denegado.' });
         }
-        
+
         const { categorias, ...datos } = req.body;
         const actualizado = await productoService.actualizarProducto(req.params.id, datos, categorias);
-        
+
         if (!actualizado) {
-            return res.status(httpCodes.NOT_FOUND.code).json({ message: "Producto no encontrado." });
+            return res.status(httpCodes.NOT_FOUND.code).json({ message: 'Producto no encontrado.' });
         }
         res.status(httpCodes.OK.code).json(actualizado);
     } catch (error) {
@@ -63,12 +62,12 @@ async function actualizar(req, res, next) {
 async function eliminar(req, res, next) {
     try {
         if (req.empleado.rol !== 'ADMIN') {
-            return res.status(httpCodes.FORBIDDEN.code).json({ message: "Acceso denegado." });
+            return res.status(httpCodes.FORBIDDEN.code).json({ message: 'Acceso denegado.' });
         }
         const exito = await productoService.eliminarProducto(req.params.id);
-        if (!exito) return res.status(httpCodes.NOT_FOUND.code).json({ message: "Producto no encontrado." });
-        
-        res.status(httpCodes.OK.code).json({ message: "Producto eliminado." });
+        if (!exito) return res.status(httpCodes.NOT_FOUND.code).json({ message: 'Producto no encontrado.' });
+
+        res.status(httpCodes.OK.code).json({ message: 'Producto eliminado.' });
     } catch (error) {
         next(error);
     }

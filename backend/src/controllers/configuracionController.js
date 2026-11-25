@@ -5,7 +5,9 @@ async function listar(req, res, next) {
     try {
         const configs = await Configuracion.findAll();
         res.status(httpCodes.OK.code).json(configs);
-    } catch (error) { next(error); }
+    } catch (error) {
+        next(error);
+    }
 }
 
 async function actualizarMasivo(req, res, next) {
@@ -13,7 +15,7 @@ async function actualizarMasivo(req, res, next) {
         const { configuraciones } = req.body;
 
         if (!Array.isArray(configuraciones)) {
-            return res.status(httpCodes.BAD_REQUEST.code).json({ message: "Formato de datos inválido." });
+            return res.status(httpCodes.BAD_REQUEST.code).json({ message: 'Formato de datos inválido.' });
         }
 
         for (const item of configuraciones) {
@@ -23,11 +25,11 @@ async function actualizarMasivo(req, res, next) {
             });
         }
 
-        res.status(httpCodes.OK.code).json({ message: "Configuración actualizada con éxito." });
-    } catch (error) { next(error); }
+        res.status(httpCodes.OK.code).json({ message: 'Configuración actualizada con éxito.' });
+    } catch (error) {
+        next(error);
+    }
 }
-
-
 
 async function listarDescuentosAtraso(req, res, next) {
     try {
@@ -35,13 +37,13 @@ async function listarDescuentosAtraso(req, res, next) {
             order: [['cantidad_tiempo', 'ASC']]
         });
         res.status(httpCodes.OK.code).json(descuentos);
-    } catch (error) { 
-        next(error); 
+    } catch (error) {
+        next(error);
     }
 }
 
-module.exports = { 
-    listar, 
+module.exports = {
+    listar,
     actualizarMasivo,
     listarDescuentosAtraso
 };

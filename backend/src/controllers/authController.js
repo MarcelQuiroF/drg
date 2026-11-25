@@ -6,7 +6,7 @@ async function loginHandler(req, res, next) {
 
     if (!ci || !contrasenia) {
         return res.status(httpCodes.BAD_REQUEST.code).json({
-            message: "CI y contraseña son requeridos."
+            message: 'CI y contraseña son requeridos.'
         });
     }
 
@@ -15,21 +15,20 @@ async function loginHandler(req, res, next) {
 
         if (!result) {
             return res.status(httpCodes.UNAUTHORIZED.code).json({
-                message: "CI o contraseña incorrectos, o usuario inactivo."
+                message: 'CI o contraseña incorrectos, o usuario inactivo.'
             });
         }
 
         return res.status(httpCodes.OK.code).json({
-            message: "Login exitoso",
+            message: 'Login exitoso',
             token: result.token,
             empleado: result.empleado
         });
-
     } catch (error) {
-        next(error); 
+        next(error);
     }
 }
 
 module.exports = {
-    loginHandler,
+    loginHandler
 };

@@ -9,7 +9,7 @@ async function registrarAsistencia(req, res, next) {
 
         if (!empleado_id || !estado) {
             return res.status(httpCodes.BAD_REQUEST.code).json({
-                message: "Faltan parámetros obligatorios (empleado_id, estado)."
+                message: 'Faltan parámetros obligatorios (empleado_id, estado).'
             });
         }
 
@@ -18,11 +18,11 @@ async function registrarAsistencia(req, res, next) {
             horario_id: horario_id || null,
             estado,
             descuento_id: descuento_id || null,
-            aprobado: false 
+            aprobado: false
         });
 
         res.status(httpCodes.CREATED.code).json({
-            message: "Asistencia grabada con éxito.",
+            message: 'Asistencia grabada con éxito.',
             data: nuevaAsistencia
         });
     } catch (error) {
@@ -62,30 +62,34 @@ async function aprobarAsistencia(req, res, next) {
         const { ci, contrasenia } = req.body;
 
         if (!ci || !contrasenia) {
-            return res.status(httpCodes.BAD_REQUEST.code).json({ message: "CI y contraseña del supervisor son requeridos." });
+            return res
+                .status(httpCodes.BAD_REQUEST.code)
+                .json({ message: 'CI y contraseña del supervisor son requeridos.' });
         }
 
         // 1. Buscar al supervisor y validar credenciales
         const supervisor = await Empleado.findOne({ where: { ci, activo: true } });
         if (!supervisor || (supervisor.rol !== 'ADMIN' && supervisor.rol !== 'CAJERO')) {
-            return res.status(httpCodes.UNAUTHORIZED.code).json({ message: "Credenciales inválidas o sin privilegios de aprobación." });
+            return res
+                .status(httpCodes.UNAUTHORIZED.code)
+                .json({ message: 'Credenciales inválidas o sin privilegios de aprobación.' });
         }
 
         const validPassword = await bcrypt.compare(contrasenia, supervisor.contrasenia);
         if (!validPassword) {
-            return res.status(httpCodes.UNAUTHORIZED.code).json({ message: "Contraseña incorrecta." });
+            return res.status(httpCodes.UNAUTHORIZED.code).json({ message: 'Contraseña incorrecta.' });
         }
 
         // 2. Aprobar asistencia
         const asistencia = await Asistencia.findByPk(id);
         if (!asistencia) {
-            return res.status(httpCodes.NOT_FOUND.code).json({ message: "Asistencia no encontrada." });
+            return res.status(httpCodes.NOT_FOUND.code).json({ message: 'Asistencia no encontrada.' });
         }
 
         asistencia.aprobado = true;
         await asistencia.save();
 
-        res.status(httpCodes.OK.code).json({ message: "Asistencia aprobada correctamente." });
+        res.status(httpCodes.OK.code).json({ message: 'Asistencia aprobada correctamente.' });
     } catch (error) {
         next(error);
     }
@@ -96,8 +100,8 @@ async function eliminarAsistencia(req, res, next) {
         const { id } = req.params;
         // Usamos force: true para borrado físico y que el empleado vuelva a aparecer limpio en los turnos
         await Asistencia.destroy({ where: { id }, force: true });
-        
-        res.status(httpCodes.OK.code).json({ message: "Registro eliminado, empleado regresado a turnos." });
+
+        res.status(httpCodes.OK.code).json({ message: 'Registro eliminado, empleado regresado a turnos.' });
     } catch (error) {
         next(error);
     }
