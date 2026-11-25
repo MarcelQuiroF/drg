@@ -97,8 +97,8 @@ Las pruebas leen `ventana_bloqueo`, `ventana_llegada` y `minutos_tolerancia` de 
 
 | Código | Caso | Cat. | Resultado esperado | Issue | Estado |
 |--------|------|:----:|--------------------|-------|:------:|
-| F2 | Crear o editar un juego con categorías | 🐞 | 201/200 y las categorías guardadas (hoy 500 al crear y al editar) | #24 | ✔ |
-| C1 | Editar un producto conservando una de sus categorías | ✅ | 200 y el producto conserva sus categorías (corregido en #78; antes 400 y quedaba sin ninguna). También: agregar, quitar y volver a asignar (C1b); una categoría que no existe → 400 sin cambiar nada, al crear y al editar (C1c, C1d); `juego_categoria` admite volver a asignar una categoría quitada (el servicio de juegos es #24) | #78 | ✔ |
+| F2 | Crear o editar un juego con categorías | ✅ | 201/200 y las categorías guardadas (corregido en #24; antes 500 `setCategorias is not a function` y, al crear, el juego quedaba sin categorías). También: quitar, volver a asignar y repetir un id (F2b); una categoría que no existe → 400 sin cambiar nada, al crear y al editar (F2c, F2d) | #24 | ✔ |
+| C1 | Editar un producto conservando una de sus categorías | ✅ | 200 y el producto conserva sus categorías (corregido en #78; antes 400 y quedaba sin ninguna). También: agregar, quitar y volver a asignar (C1b); una categoría que no existe → 400 sin cambiar nada, al crear y al editar (C1c, C1d); `juego_categoria` admite volver a asignar una categoría quitada (el servicio de juegos, en F2) | #78 | ✔ |
 | T4 | Crear una mesa sin nombre | 🐞 | 400 (hoy 500) | #28 | ✔ |
 | C2 | Crear un juego sin `tiempo_partida` | 🐞 | 400 (hoy 500) | #28 | ✔ |
 | C3 | Crear un empleado con dirección | 🐞 | La dirección se guarda (hoy se descarta) | #28 | ✔ |
