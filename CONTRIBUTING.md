@@ -110,8 +110,9 @@ Las etiquetas y los milestones se crean con `.github/scripts/configurar-repo.sh`
 - El título sigue el mismo formato que un commit: `fix(ordenes): registrar pagos QR al finalizar orden (#12)`.
 - Se completa la plantilla: qué cambia, por qué, cómo se probó y la lista de verificación.
 - Un PR resuelve **una sola issue**. Si aparece otro problema en el camino, se anota como issue nueva.
-- Si el PR cambia la API, se actualiza `docs/endpoints.md` en el mismo PR.
-- Si el PR toma una decisión de arquitectura, se agrega o actualiza un ADR en `docs/adr/`.
+- Los documentos nuevos van en la carpeta de su disciplina dentro de `docs/` (índice en `docs/README.md`).
+- Si el PR cambia la API, se actualiza `docs/03_diseno/endpoints.md` en el mismo PR.
+- Si el PR toma una decisión de arquitectura, se agrega o actualiza un ADR en `docs/03_diseno/adr/` (plantilla: `000-plantilla.md`).
 
 ## 6. Estilo de código
 

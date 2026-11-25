@@ -70,3 +70,8 @@ npm start
 * **`ADMIN`:** Acceso exclusivo a la interfaz de administración (`indexAdmin.html`), reportes gráficos financieros, edición de menús, configuraciones de tolerancia de tiempo e inactivación/activación de personal y áreas del salón.
 * **`CAJERO` / `MESERO`:** Acceso a la interfaz operativa (`index.html`) para control de comandas, asignación de clientes a mesas, gestión de reservas del día y toma de asistencias.
 
+## 📚 Documentación
+
+La documentación del proyecto está en [`docs/`](docs/README.md), ordenada por disciplina (negocio, requisitos, diseño, implementación, pruebas y proyecto). La referencia de la API está en [`docs/03_diseno/endpoints.md`](docs/03_diseno/endpoints.md).
+
+Las convenciones para contribuir (ramas, commits, PRs) están en [`CONTRIBUTING.md`](CONTRIBUTING.md).

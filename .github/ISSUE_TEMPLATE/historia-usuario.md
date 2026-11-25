@@ -7,7 +7,7 @@ labels: historia-usuario
 
 **Historia de usuario:** Como <!-- mesero / cajero / administrador / cliente -->, quiero <!-- acción -->, para <!-- beneficio -->.
 
-**Requisito:** <!-- RF-xx de docs/requisitos.md, cuando exista -->
+**Requisito:** <!-- RF-xx de docs/02_requisitos/requisitos.md -->
 **Validado con el negocio:** <!-- sí (fecha) / pendiente -->
 
 **Reglas de negocio**
@@ -21,7 +21,7 @@ labels: historia-usuario
 - [ ] Backend:
 - [ ] Frontend:
 - [ ] Pruebas:
-- [ ] Documentación (`docs/endpoints.md`, manual):
+- [ ] Documentación (`docs/03_diseno/endpoints.md`, manual):
 
 **Fuera de alcance:** <!-- lo que esta historia no incluye, para que no crezca -->
 
