@@ -3,7 +3,7 @@ const httpCodes = require('../utils/httpCodes');
 
 async function agregar(req, res, next) {
     try {
-        const { orden_id, juego_id, cantidad, comentario } = req.body;
+        const { orden_id, juego_id, cantidad } = req.body;
 
         if (!orden_id || !juego_id || !cantidad) {
             return res.status(httpCodes.BAD_REQUEST.code).json({ 

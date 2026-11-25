@@ -32,7 +32,7 @@ const iniciarReloj = () => {
         const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         const fechaEl = document.getElementById('fecha-hoy-display');
         if (fechaEl) {
-            let f = ahora.toLocaleDateString('es-ES', opcionesFecha);
+            const f = ahora.toLocaleDateString('es-ES', opcionesFecha);
             fechaEl.textContent = f.charAt(0).toUpperCase() + f.slice(1);
         }
         const relojEl = document.getElementById('reloj-vivo');
@@ -93,7 +93,7 @@ const renderizarTablas = () => {
         fechaEsperada.setHours(horaE, minE, 0, 0);
 
         const diferenciaMinutos = Math.floor((ahora - fechaEsperada) / 60000);
-        let estadoHTML = diferenciaMinutos <= 0 
+        const estadoHTML = diferenciaMinutos <= 0 
             ? '<span class="status-badge status-ontime">A tiempo</span>' 
             : `<span class="status-badge status-late">Atrasado (${diferenciaMinutos} min)</span>`;
 

@@ -1,7 +1,6 @@
 const { Empleado } = require('../models');
 const { comparePassword } = require('../utils/bcrypt');
 const { generateToken } = require('../utils/jwt');
-const httpCodes = require('../utils/httpCodes');
 
 
 async function login(ci, contrasenia) {

@@ -1,4 +1,4 @@
-const { Mesa, Piso, Reserva, Configuracion, sequelize } = require('../models');
+const { Mesa, Piso, Reserva, Configuracion } = require('../models');
 const { Op } = require('sequelize');
 
 async function crearMesa(datos) {

@@ -330,7 +330,7 @@ const prepararEliminacionDescuento = (ordenId, descuentoId, nombreDescuento) => 
 
 const guardarComentario = async (itemId, tipo, comentario) => {
     try {
-        let endpoint = tipo === 'producto' ? `/ordenes-productos/${itemId}` : `/ordenes-juegos/${itemId}`;
+        const endpoint = tipo === 'producto' ? `/ordenes-productos/${itemId}` : `/ordenes-juegos/${itemId}`;
 
         const res = await authFetch(endpoint, {
             method: 'PUT', 
@@ -348,7 +348,7 @@ const guardarComentario = async (itemId, tipo, comentario) => {
 const gestionarCantidad = async (item, cambio) => {
     try {
         const nuevaCantidad = item.cantidad + cambio;
-        let endpoint = item.tipo === 'producto' ? '/ordenes-productos' : '/ordenes-juegos';
+        const endpoint = item.tipo === 'producto' ? '/ordenes-productos' : '/ordenes-juegos';
 
         if (nuevaCantidad > 0) {
             const res = await authFetch(`${endpoint}/${item.id}`, {
@@ -582,7 +582,7 @@ const inicializarEventosProductos = () => {
         if (isNaN(valor) || valor <= 0) return mostrarErrorDescuento("Ingrese un monto válido.");
         if (motivo === "" || motivo.length < 3) return mostrarErrorDescuento("El motivo es obligatorio (mín. 3 caracteres).");
 
-        let body = { comentario: motivo };
+        const body = { comentario: motivo };
         if (tipo === 'P') body.porcentaje = valor;
         else body.monto = valor;
 

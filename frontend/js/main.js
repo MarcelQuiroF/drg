@@ -28,8 +28,6 @@ if (path.includes('indexAdmin.html') && rol !== 'ADMIN') {
 }
 
 document.addEventListener('click', (e) => {
-    const overlay = document.getElementById('modal-overlay');
-    
     if (e.target.id === 'btn-close-notification' || e.target.id === 'close-notification-modal') {
         cerrarNotificacion();
         return;

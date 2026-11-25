@@ -3,7 +3,7 @@ const httpCodes = require('../utils/httpCodes');
 
 async function crear(req, res, next) {
     try {
-        const { nombre, numero, piso_id } = req.body;
+        const { numero, piso_id } = req.body;
         if (!numero || !piso_id) {
             return res.status(httpCodes.BAD_REQUEST.code).json({ message: "Número y Piso ID son obligatorios." });
         }

@@ -11,7 +11,7 @@ async function importarProductos(req, res, next) {
         const sheetName = workbook.SheetNames[0];
         const rows = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
-        for (let [index, row] of rows.entries()) {
+        for (const [index, row] of rows.entries()) {
             const filaReal = index + 2; // +1 del encabezado, +1 porque el array empieza en 0
             const { nombre, zona, precio, imagen, categoria_id } = row;
 
@@ -50,7 +50,7 @@ async function importarJuegos(req, res, next) {
         const sheetName = workbook.SheetNames[0];
         const rows = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
-        for (let [index, row] of rows.entries()) {
+        for (const [index, row] of rows.entries()) {
             const filaReal = index + 2;
             const { nombre, precio, jugadores_min, jugadores_max, tiempo_partida, enlace, imagen, categoria_id } = row;
 

@@ -1,5 +1,5 @@
 import { authFetch } from '../api.js';
-import { mostrarNotificacion, cargarHTML, iniciarAutoRefresco, cerrarNotificacion } from '../utils.js';
+import { mostrarNotificacion, cargarHTML, iniciarAutoRefresco } from '../utils.js';
 
 let RESERVA_ID_PARA_ELIMINAR = null;
 let ID_RESERVA_EDICION = null;
@@ -350,7 +350,7 @@ async function prepararSelectoresForm() {
 function actualizarMesasPorPiso(pisoId) {
     const selectMesa = document.getElementById('mesa-select-form');
     selectMesa.innerHTML = '<option value="">Seleccione...</option>';
-    const filtradas = pisoId ? TODAS_LAS_MESAS.filter(m => m.piso_id == pisoId) : TODAS_LAS_MESAS;
+    const filtradas = pisoId ? TODAS_LAS_MESAS.filter(m => m.piso_id === Number(pisoId)) : TODAS_LAS_MESAS;
     filtradas.sort((a,b) => a.numero - b.numero).forEach(m => selectMesa.add(new Option(`${m.nombre} (Nº ${m.numero})`, m.id)));
 }
 
@@ -361,7 +361,7 @@ async function actualizarListaClientes(idParaSeleccionar = null) {
             TODOS_LOS_CLIENTES = await res.json(); 
             
             if (idParaSeleccionar) {
-                const nuevo = TODOS_LOS_CLIENTES.find(c => c.id == idParaSeleccionar);
+                const nuevo = TODOS_LOS_CLIENTES.find(c => c.id === Number(idParaSeleccionar));
                 if (nuevo) {
                     seleccionarCliente(nuevo.id, nuevo.nombre, nuevo.telefono);
                 }

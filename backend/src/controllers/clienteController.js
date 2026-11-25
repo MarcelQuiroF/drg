@@ -3,7 +3,7 @@ const httpCodes = require('../utils/httpCodes');
 
 async function crear(req, res, next) {
     try {
-        const { nombre, ci } = req.body;
+        const { nombre } = req.body;
         if (!nombre) return res.status(httpCodes.BAD_REQUEST.code).json({ message: "Nombre es obligatorio." });
 
         const nuevo = await clienteService.crearCliente(req.body);

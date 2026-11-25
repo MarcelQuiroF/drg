@@ -12,6 +12,7 @@ const {
 const { actualizarTotalOrden } = require('../utils/orderUtils');
 const { Op } = require('sequelize');
 
+// eslint-disable-next-line no-unused-vars -- usuarioId se guardará en la orden con #46 (RF-13)
 async function crearOrden(mesaId, usuarioId) {
     return await sequelize.transaction(async (t) => {
         const mesa = await Mesa.findByPk(mesaId, { transaction: t });

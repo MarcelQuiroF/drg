@@ -195,7 +195,7 @@ const closeScheduleModal = () => {
 };
 
 const saveScheduleState = () => {
-    let tempSchedules = [];
+    const tempSchedules = [];
     document.querySelectorAll('.schedule-row').forEach(row => {
         const day = row.dataset.day;
         const chk = row.querySelector('.chk-day');

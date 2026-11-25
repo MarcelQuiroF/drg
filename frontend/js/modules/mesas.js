@@ -106,7 +106,6 @@ const actualizarContadoresMesas = (mesas) => {
         return acc; 
     }, {1:0, 2:0, 3:0});
 
-    const etiquetas = ["RESERVADAS", "EN USO", "DISPONIBLE"];
     const contenedores = document.querySelectorAll('.cabezeraCuerpo .informacion .contenedorMesa p');
     
     if(contenedores.length >= 3){

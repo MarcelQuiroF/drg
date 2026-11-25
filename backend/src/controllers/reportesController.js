@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 
 async function obtenerDatosDashboard(req, res, next) {
     try {
-        let { inicio, fin } = req.query;
+        const { inicio, fin } = req.query;
         
         // Si no mandan fechas, usamos un rango muy amplio (Todos los registros)
         const fechaInicio = inicio ? new Date(`${inicio}T00:00:00.000Z`) : new Date('2000-01-01');

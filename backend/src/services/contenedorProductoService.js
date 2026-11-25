@@ -1,4 +1,4 @@
-const { ContenedorProducto, ContenedorJuego, Orden, Producto, Juego, Descuento, sequelize } = require('../models');
+const { ContenedorProducto, Orden, Producto, sequelize } = require('../models');
 const { actualizarTotalOrden } = require('../utils/orderUtils');
 
 async function agregarItem(datos) {

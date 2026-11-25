@@ -33,7 +33,7 @@ async function avanzarEstado(id, cantidadAvanzar = null, estadoOrigen = null) {
         if (!item) throw new Error("Comanda no encontrada.");
 
         let cantidad = cantidadAvanzar ? parseInt(cantidadAvanzar) : null;
-        let origen = estadoOrigen ? estadoOrigen.toUpperCase() : null;
+        const origen = estadoOrigen ? estadoOrigen.toUpperCase() : null;
 
         if (origen) {
             const mapaEstados = {

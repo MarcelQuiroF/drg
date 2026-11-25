@@ -269,7 +269,7 @@ const openModal = (item = null) => {
     const selectZona = document.getElementById('prod-zona');
     if (selectZona) {
         const options = selectZona.options;
-        for (let opt of options) opt.disabled = false;
+        for (const opt of options) opt.disabled = false;
         selectZona.disabled = false;
 
         if (item) {
@@ -277,7 +277,7 @@ const openModal = (item = null) => {
                 selectZona.value = 'JUEGO';
                 selectZona.disabled = true; 
             } else {
-                for (let opt of options) if (opt.value === 'JUEGO') opt.disabled = true;
+                for (const opt of options) if (opt.value === 'JUEGO') opt.disabled = true;
                 selectZona.value = item.zona;
             }
         } else {
