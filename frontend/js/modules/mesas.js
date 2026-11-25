@@ -10,10 +10,10 @@ const mapEstadoBackendAFrontend = (estado) => {
 };
 
 const obtenerImagenPorEstado = (estadoFront) => ({
-    1: '../assets/imágenes/imagenMesa.svg',
-    2: '../assets/imágenes/imagenMesaBeige.png',
-    3: '../assets/imágenes/imagenMesaCeleste.png'
-}[estadoFront] || '../assets/imágenes/imagenMesa.svg');
+    1: '../assets/imagenes/imagenMesa.svg',
+    2: '../assets/imagenes/imagenMesaBeige.png',
+    3: '../assets/imagenes/imagenMesaCeleste.png'
+}[estadoFront] || '../assets/imagenes/imagenMesa.svg');
 
 const obtenerEstadoTexto = (estadoFront) => ({
     1: 'Disponible',
@@ -162,7 +162,7 @@ const renderizarMesas = (mesas) => {
             <div class="mesa-footer">
                 <p class="mesa-nombre">Mesa ${mesa.numero}</p>
                 <div class="mesa-capacidad">
-                    <img src="../assets/íconos/iconoUsuario.png" alt="Capacidad" class="icono-persona">
+                    <img src="../assets/iconos/iconoUsuario.png" alt="Capacidad" class="icono-persona">
                     <span class="capacidad-texto">${mesa.cantidadMaxima}</span>
                 </div>
             </div>

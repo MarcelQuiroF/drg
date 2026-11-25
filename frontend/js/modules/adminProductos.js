@@ -158,7 +158,7 @@ const renderInventory = () => {
             if (item.imagen.startsWith('data:image') || item.imagen.startsWith('http') || item.imagen.startsWith('.')) {
                 img.src = item.imagen;
             } else {
-                img.src = `../assets/imágenes/${item.imagen}`;
+                img.src = `../assets/imagenes/${item.imagen}`;
             }
         } else {
             img.src = imgDefault;
@@ -259,7 +259,7 @@ const openModal = (item = null) => {
             if (item.imagen.startsWith('data:image') || item.imagen.startsWith('http') || item.imagen.startsWith('.')) {
                 previewImg.src = item.imagen;
             } else {
-                previewImg.src = `../assets/imágenes/${item.imagen}`;
+                previewImg.src = `../assets/imagenes/${item.imagen}`;
             }
         } else {
             previewImg.src = "../assets/productos/default-burger.png";

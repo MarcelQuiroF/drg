@@ -132,12 +132,12 @@ const renderizarCatalogo = (contenedor, items, esJuego) => {
             tipoActual = 'bebida';
         }
 
-        // MODIFICADO: Resolución inteligente para buscar en assets/imágenes de manera condicional
+        // MODIFICADO: Resolución inteligente para buscar en assets/imagenes de manera condicional
         if (p.imagen && p.imagen.trim() !== "") {
             if (p.imagen.startsWith('data:image') || p.imagen.startsWith('http') || p.imagen.startsWith('.') || p.imagen.startsWith('/')) {
                 img.src = p.imagen; 
             } else {
-                img.src = `../assets/imágenes/${p.imagen}`; 
+                img.src = `../assets/imagenes/${p.imagen}`; 
             }
         } else {
             img.src = IMAGENES_DEFECTO[tipoActual];
