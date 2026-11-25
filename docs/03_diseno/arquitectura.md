@@ -108,7 +108,7 @@ sequenceDiagram
 - El token dura lo que diga `JWT_EXPIRATION` y se firma con `JWT_SECRET`. Si falta `JWT_SECRET`, el error aparece recién en el primer login (#14).
 - `authenticate` responde **401** sin token y **403** con un token inválido o vencido; el frontend solo vuelve al login con 401 (#26).
 - `GET /empleados/perfil` devuelve el contenido del token, no los datos de la base: un empleado desactivado o con el rol cambiado sigue operando hasta que el token vence (#60).
-- Hay tres roles: `ADMIN`, `CAJERO` y `MESERO`. Qué puede hacer cada uno está en [`permisos.md`](permisos.md). `usuario_rol` en `localStorage` solo decide qué menú se muestra; la protección real es la del servidor.
+- Hay tres roles: `ADMIN`, `CAJERO` y `MESERO`. Hoy cada ruta lista a mano los roles que la pueden usar; pasa a permisos por acción en #25 (ADR-008). Qué puede hacer cada rol está en [`permisos.md`](permisos.md). `usuario_rol` en `localStorage` solo decide qué menú se muestra; la protección real es la del servidor.
 
 ### 2.5 Errores
 
@@ -170,5 +170,6 @@ sequenceDiagram
 | Clientes de la API | Web | Web + app de meseros | ADR-005 |
 | Impresión | `window.print()` | Servicio de impresión en el servidor | ADR-006 |
 | Precio de juegos | Por juego, recalculado | Por tamaño, guardado en el ítem | ADR-007 |
+| Permisos | Listas de roles escritas en cada ruta (`authorize`) | Permisos por acción (`requierePermiso`), con el mapa en código y, si el dueño lo pide, editable desde el panel | ADR-008 |
 
 Este documento se actualiza cuando termine cada etapa que cambie la arquitectura (por lo menos al cerrar la Etapa 5).
