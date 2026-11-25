@@ -30,7 +30,7 @@ npm test                 # todas las pruebas
 npm test -- ordenes      # solo los archivos cuyo nombre contiene "ordenes"
 npm run test:watch       # vuelve a correr al guardar
 npm run test:cobertura   # informe de cobertura en backend/coverage/
-MOSTRAR_LOGS=1 npm test  # muestra los console.log de la app (silenciados por defecto)
+MOSTRAR_LOGS=1 npm test  # muestra los console.log y console.error de la app (silenciados por defecto)
 ```
 
 No hace falta definir `JWT_SECRET` ni migrar a mano: las pruebas usan sus propios valores y aplican las migraciones solas.
