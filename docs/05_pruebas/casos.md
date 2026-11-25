@@ -1,6 +1,6 @@
 # Casos de prueba
 
-> Versión 0.4 · 25/11/2026 · Issue #18. Cómo se escriben y por qué: [`plan-de-pruebas.md`](plan-de-pruebas.md).
+> Versión 0.5 · 25/11/2026 · Issue #18. Cómo se escriben y por qué: [`plan-de-pruebas.md`](plan-de-pruebas.md).
 > Los códigos (S1, T6, F2…) vienen del análisis técnico del 12/11/2026 (secciones 10 a 12). Cada prueba automática lleva su código en el nombre.
 
 ## Categorías
@@ -97,15 +97,15 @@ Las pruebas leen `ventana_bloqueo`, `ventana_llegada` y `minutos_tolerancia` de 
 
 | Código | Caso | Cat. | Resultado esperado | Issue | Estado |
 |--------|------|:----:|--------------------|-------|:------:|
-| F2 | Crear o editar un juego con categorías | 🐞 | 201/200 y las categorías guardadas (hoy 500 y el juego queda creado sin categorías) | #24 | 🔜 |
-| C1 | Editar un producto conservando una de sus categorías | 🐞 | 200 y el producto conserva sus categorías (hoy falla y queda sin ninguna) | #78 | 🔜 |
-| T4 | Crear una mesa sin nombre | 🐞 | 400 (hoy 500) | #28 | 🔜 |
-| C2 | Crear un juego sin `tiempo_partida` | 🐞 | 400 (hoy 500) | #28 | 🔜 |
-| C3 | Crear un empleado con dirección | 🐞 | La dirección se guarda (hoy se descarta) | #28 | 🔜 |
-| T12 | Crear un producto o un juego con precio 0 | 🐞 | 201 ⚠ (confirmar con el dueño si el precio 0 es válido) | #52 | 🔜 |
-| P1 | Crear un producto con una zona que no es `COCINA` ni `CAFETERIA` | 🐞 | 400 (hoy 201 con cualquier texto) | #32 | 🔜 |
-| T16 | Catálogo de juegos sin sesión | ✅ / ⏳ | 200 sin token (catálogo por QR). Si se muestran los juegos desactivados lo decide el dueño (P-18) | #58 | 🔜 |
-| — | CRUD básico de productos, juegos, categorías, pisos y mesas (ADMIN) | ✅ | 201 / 200 | — | 🔜 |
+| F2 | Crear o editar un juego con categorías | 🐞 | 201/200 y las categorías guardadas (hoy 500 al crear y al editar) | #24 | ✔ |
+| C1 | Editar un producto conservando una de sus categorías | 🐞 | 200 y el producto conserva sus categorías (hoy 400 y queda sin ninguna) | #78 | ✔ |
+| T4 | Crear una mesa sin nombre | 🐞 | 400 (hoy 500) | #28 | ✔ |
+| C2 | Crear un juego sin `tiempo_partida` | 🐞 | 400 (hoy 500) | #28 | ✔ |
+| C3 | Crear un empleado con dirección | 🐞 | La dirección se guarda (hoy se descarta) | #28 | ✔ |
+| T12 | Crear un producto o un juego con precio 0 | ⏳ | Hoy 400. Si el precio 0 es válido lo confirma el dueño (⚠ en #52); la prueba se escribe en el PR de #52 con la regla confirmada | #52 | — |
+| P1 | Crear un producto con una zona que no es `COCINA` ni `CAFETERIA` | 🐞 | 400 (hoy 201 con cualquier texto) | #32 | ✔ |
+| T16 | Catálogo de juegos sin sesión | ✅ / ⏳ | 200 sin token, con los juegos del seed (catálogo por QR). Si se muestran los juegos desactivados lo decide el dueño (P-18) | #58 | ✔ |
+| — | CRUD básico de categorías, productos, juegos, pisos y mesas (ADMIN), datos obligatorios (400) y capacidad máxima menor a la mínima (4xx) | ✅ | 201 / 200 / 400 | — | ✔ |
 
 ## Solo del navegador (pruebas manuales)
 
