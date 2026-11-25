@@ -1,4 +1,4 @@
-import { authFetch, manejarSesion } from '../api.js';
+import { authFetch } from '../api.js';
 import { mostrarNotificacion } from '../utils.js';
 
 export const initAdminImportacion = async () => {
@@ -31,12 +31,12 @@ const cargarCategoriasReferencia = async () => {
 const configurarFormularios = () => {
     document.getElementById('form-import-productos').addEventListener('submit', (e) => {
         e.preventDefault();
-        subirExcel('file-productos', '/api/v1/importacion/productos', 'btn-submit-productos');
+        subirExcel('file-productos', '/importacion/productos', 'btn-submit-productos');
     });
 
     document.getElementById('form-import-juegos').addEventListener('submit', (e) => {
         e.preventDefault();
-        subirExcel('file-juegos', '/api/v1/importacion/juegos', 'btn-submit-juegos');
+        subirExcel('file-juegos', '/importacion/juegos', 'btn-submit-juegos');
     });
 
     // CORREGIDO: Quitamos el '/api/v1' manual para que lo maneje authFetch
@@ -64,19 +64,8 @@ const subirExcel = async (inputId, endpoint, btnId) => {
     btn.disabled = true;
 
     try {
-        const token = localStorage.getItem('token_drg');
-
-        // Utilizamos fetch nativo para omitir el Content-Type
-        // y permitir que el navegador gestione el FormData
-        const response = await manejarSesion(
-            await fetch(endpoint, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
-                body: formData
-            })
-        );
+        // authFetch no pone Content-Type con un FormData y aplica las reglas de sesión (#26)
+        const response = await authFetch(endpoint, { method: 'POST', body: formData });
 
         const result = await response.json();
 

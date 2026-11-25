@@ -46,8 +46,10 @@ export async function authFetch(endpoint, options = {}) {
         return sinRespuesta();
     }
 
+    // Con un FormData (subir un Excel) el navegador pone el Content-Type con su separador
+    const esFormData = options.body instanceof FormData;
     const headers = {
-        'Content-Type': 'application/json',
+        ...(esFormData ? {} : { 'Content-Type': 'application/json' }),
         Authorization: `Bearer ${token}`,
         ...options.headers
     };
