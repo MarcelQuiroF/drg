@@ -4,6 +4,10 @@
 
 Este documento detalla las rutas del servidor, los datos requeridos para las solicitudes, las restricciones de acceso por roles y los formatos de respuesta exitosa.
 
+> **Revisado el 25/11/2026** (issue #12) contra las rutas montadas en `backend/src/app.js`: las **69 rutas** del código están documentadas aquí.
+> El campo **Acceso** describe lo que hace hoy el código. Lo que **debería** poder hacer cada rol está en la [matriz de permisos](permisos.md); las diferencias se corrigen en #25.
+> El cierre del día (sección 16) no está disponible: la ruta existe en el código, pero no está montada.
+
 ---
 
 ## 1. Módulo de Autenticación (`/api/v1/auth`)
@@ -1325,31 +1329,13 @@ Control estructural de los diferentes niveles o plantas del local comercial. Req
 }
 
 
-## 16. Módulo de Cierre Operativo (`/api/v1/reportes`)
+## 16. Módulo de Cierre Operativo (`/api/v1/reportes`) — ⚠ no disponible
 
-Procesamiento de cierres de caja y reconciliación de ingresos al final de cada jornada laboral. Requiere token JWT en la cabecera (`Authorization: Bearer <token>`).
+`GET /api/v1/reportes/cierre-dia` está definida en `routes/reporteRoute.js`, pero esa ruta **no está montada** en `app.js`, así que responde **404** (prueba T15 del análisis). Hoy el cierre del día se guarda solo en el navegador (`localStorage`).
 
-### Ejecutar o Consultar Cierre de Día
+El cierre y la reapertura del día en el servidor se diseñan de nuevo en #34 y #35; cuando estén listos, esta sección se reemplaza por los endpoints nuevos.
 
-* **Ruta:** `GET /api/v1/reportes/cierre-dia`
-
-* **Acceso:** `ADMIN`, `CAJERO`
-
-* **Respuesta Exitosa (200 OK):**
-```json
-{
-  "message": "Cierre de jornada generado con éxito.",
-  "cierre": {
-    "fecha": "2026-05-27",
-    "total_ventas": 2450.00,
-    "total_efectivo": 1100.00,
-    "total_qr": 1350.00,
-    "estado": "CERRADO"
-  }
-}
-
-```
-
+---
 
 ## 17. Módulo de Reservas (`/api/v1/reservas`)
 
@@ -1515,3 +1501,57 @@ Registro de movimientos financieros, ingresos por cobro de órdenes y flujos de 
     "message": "Transacción anulada correctamente."
   }
 
+---
+
+## 19. Módulo de Importación (`/api/v1/importacion`)
+
+Carga masiva de productos y juegos desde un archivo Excel (`.xlsx`), y descarga de las plantillas. Requiere token JWT en la cabecera (`Authorization: Bearer <token>`).
+
+Cada importación corre dentro de una **transacción**: si una fila tiene un error, no se guarda ninguna. Lee solo la primera hoja del archivo y la primera fila son los encabezados. No revisa duplicados: un producto o juego que ya existe se crea de nuevo.
+
+### Importar Productos
+
+* **Ruta:** `POST /api/v1/importacion/productos`
+* **Acceso:** `ADMIN`
+* **Cuerpo:** `multipart/form-data` con el archivo en el campo `archivoExcel`.
+* **Columnas del Excel:** `nombre`, `zona`, `precio`, `imagen`, `categoria_id`. Obligatorias: `nombre`, `precio` (acepta 0) y `categoria_id`, que tiene que existir.
+* **Respuesta Exitosa (200 OK):**
+```json
+{
+  "message": "Productos importados con éxito."
+}
+```
+* **Error (400 Bad Request):** cualquier error responde 400 con la fila en el mensaje, por ejemplo:
+```json
+{
+  "message": "La categoría con ID 9 no existe (Fila 4)."
+}
+```
+
+### Importar Juegos
+
+* **Ruta:** `POST /api/v1/importacion/juegos`
+* **Acceso:** `ADMIN`
+* **Cuerpo:** `multipart/form-data` con el archivo en el campo `archivoExcel`.
+* **Columnas del Excel:** `nombre`, `precio`, `jugadores_min`, `jugadores_max`, `tiempo_partida`, `enlace`, `imagen`, `categoria_id`. Obligatorias: `nombre`, `jugadores_min`, `jugadores_max` y `categoria_id`. Si falta `precio`, se guarda 0.
+* **Respuesta Exitosa (200 OK):**
+```json
+{
+  "message": "Juegos importados con éxito."
+}
+```
+* **Error (400 Bad Request):** igual que en productos.
+
+### Descargar Plantilla de Productos
+
+* **Ruta:** `GET /api/v1/importacion/plantillas/productos`
+* **Acceso:** Autenticado, cualquier rol (según la [matriz de permisos](permisos.md) debería ser solo `ADMIN`: #25)
+* **Respuesta Exitosa (200 OK):** archivo `Plantilla_Importacion_Productos.xlsx` con una hoja `Plantilla` que solo tiene los encabezados `nombre`, `zona`, `precio`, `imagen`, `categoria_id`.
+
+### Descargar Plantilla de Juegos
+
+* **Ruta:** `GET /api/v1/importacion/plantillas/juegos`
+* **Acceso:** Autenticado, cualquier rol (debería ser solo `ADMIN`: #25)
+* **Respuesta Exitosa (200 OK):** archivo `Plantilla_Importacion_Juegos.xlsx` con los encabezados `nombre`, `precio`, `jugadores_min`, `jugadores_max`, `tiempo_partida`, `enlace`, `imagen`, `categoria_id`.
+
+El límite de tamaño del archivo y el reemplazo de la librería `xlsx` se tratan en #57.
