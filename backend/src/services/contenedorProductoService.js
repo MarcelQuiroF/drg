@@ -1,15 +1,17 @@
-const { ContenedorProducto, Orden, Producto, sequelize } = require('../models');
-const { actualizarTotalOrden } = require('../utils/orderUtils');
+const { ContenedorProducto, Producto, sequelize } = require('../models');
+const { bloquearOrden, actualizarTotalOrden } = require('../utils/orderUtils');
 
+// Todas las operaciones empiezan bloqueando la orden (bloquearOrden, #124): sin eso, pedidos
+// simultáneos del mismo producto perdían unidades y el total quedaba por debajo de lo pedido.
 async function agregarItem(datos) {
     return await sequelize.transaction(async (t) => {
-        const orden = await Orden.findByPk(datos.orden_id, { transaction: t });
-        if (!orden) throw new Error('La orden no existe.');
-        if (orden.finalizado) throw new Error('No se pueden agregar productos a una orden finalizada.');
+        await bloquearOrden(datos.orden_id, t);
 
         const producto = await Producto.findByPk(datos.producto_id, { transaction: t });
         if (!producto) throw new Error('El producto no existe.');
 
+        // Con la orden bloqueada, esta búsqueda ve la línea que haya creado un pedido anterior:
+        // ya no se crean dos líneas del mismo producto por pedidos simultáneos (#124).
         // Se suma a la línea que ya tiene el producto con el mismo precio. Si el precio cambió
         // desde que se pidió, las unidades nuevas van en otra línea con el precio nuevo (#22).
         const itemExistente = await ContenedorProducto.findOne({
@@ -77,13 +79,20 @@ async function listarPorOrden(ordenId) {
     });
 }
 
+// El ítem se busca dos veces: la primera solo para saber de qué orden es; la segunda, ya con la
+// orden bloqueada, para trabajar con la versión que dejó la operación anterior (o ver que la
+// borraron mientras se esperaba el bloqueo).
+async function buscarItemConOrdenBloqueada(id, t) {
+    const item = await ContenedorProducto.findByPk(id, { transaction: t });
+    if (!item) return null;
+    await bloquearOrden(item.orden_id, t);
+    return await ContenedorProducto.findByPk(id, { transaction: t });
+}
+
 async function actualizarItem(id, datos) {
     return await sequelize.transaction(async (t) => {
-        const item = await ContenedorProducto.findByPk(id, { transaction: t });
+        const item = await buscarItemConOrdenBloqueada(id, t);
         if (!item) return null;
-
-        const orden = await Orden.findByPk(item.orden_id, { transaction: t });
-        if (orden.finalizado) throw new Error('Orden cerrada.');
 
         // El precio cobrado no se cambia desde aquí: se fija al agregar el ítem (#22)
         const cambios = { ...datos };
@@ -98,13 +107,10 @@ async function actualizarItem(id, datos) {
 
 async function eliminarItem(id) {
     return await sequelize.transaction(async (t) => {
-        const item = await ContenedorProducto.findByPk(id, { transaction: t });
+        const item = await buscarItemConOrdenBloqueada(id, t);
         if (!item) return null;
 
         const ordenId = item.orden_id;
-        const orden = await Orden.findByPk(ordenId, { transaction: t });
-        if (orden.finalizado) throw new Error('Orden cerrada.');
-
         await item.destroy({ transaction: t });
 
         await actualizarTotalOrden(ordenId, t);

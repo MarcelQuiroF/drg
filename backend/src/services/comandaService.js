@@ -1,5 +1,6 @@
 const { ContenedorProducto, Producto, Orden, Mesa, sequelize } = require('../models');
 const { Op } = require('sequelize');
+const { bloquearOrden } = require('../utils/orderUtils');
 
 async function listarPendientes(zona) {
     const whereProducto = {};
@@ -28,6 +29,13 @@ async function listarPendientes(zona) {
 
 async function avanzarEstado(id, cantidadAvanzar = null, estadoOrigen = null) {
     return await sequelize.transaction(async (t) => {
+        const encontrado = await ContenedorProducto.findByPk(id, { transaction: t });
+        if (!encontrado) throw new Error('Comanda no encontrada.');
+
+        // La línea cambia también cuando el mesero suma unidades: se bloquea la orden, como en
+        // contenedorProductoService, para no perder unidades en los contadores (#124). La cocina
+        // puede seguir avanzando ítems de una orden ya cobrada (lo que se cobró se entrega).
+        await bloquearOrden(encontrado.orden_id, t, { abierta: false });
         const item = await ContenedorProducto.findByPk(id, { transaction: t });
         if (!item) throw new Error('Comanda no encontrada.');
 

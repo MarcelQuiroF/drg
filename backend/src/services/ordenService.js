@@ -10,14 +10,8 @@ const {
     Reserva
 } = require('../models');
 
-const { actualizarTotalOrden } = require('../utils/orderUtils');
+const { bloquearOrden, actualizarTotalOrden, errorConEstado } = require('../utils/orderUtils');
 const { Op } = require('sequelize');
-
-function errorConEstado(status, mensaje) {
-    const error = new Error(mensaje);
-    error.status = status;
-    return error;
-}
 
 // Abre una orden en una mesa libre o reservada. La fila de la mesa se lee con bloqueo
 // (SELECT … FOR UPDATE): si llegan dos pedidos a la vez para la misma mesa (doble clic,
@@ -123,9 +117,9 @@ async function finalizarOrden(id, pagos) {
     const pagosValidos = normalizarPagos(pagos);
 
     return await sequelize.transaction(async (t) => {
-        const orden = await Orden.findByPk(id, { transaction: t });
-        if (!orden) throw new Error('Orden no encontrada.');
-        if (orden.finalizado) throw new Error('La orden ya estaba finalizada.');
+        // Con la orden bloqueada, nadie agrega ítems entre que se lee el total y se cierra la
+        // orden: antes podía quedar cerrada con ítems que no se cobraron (#124).
+        const orden = await bloquearOrden(id, t);
 
         const totalOrden = parseFloat(orden.total);
 
@@ -166,7 +160,7 @@ async function finalizarOrden(id, pagos) {
 
 async function eliminarOrden(id) {
     return await sequelize.transaction(async (t) => {
-        const orden = await Orden.findByPk(id, { transaction: t });
+        const orden = await Orden.findByPk(id, { transaction: t, lock: t.LOCK.UPDATE });
         if (!orden) return null;
 
         if (!orden.finalizado) {
@@ -180,9 +174,9 @@ async function eliminarOrden(id) {
 
 async function aplicarDescuento(ordenId, datos) {
     return await sequelize.transaction(async (t) => {
-        const orden = await Orden.findByPk(ordenId, { transaction: t });
-        if (!orden) throw new Error('Orden no encontrada.');
-        if (orden.finalizado) throw new Error('No se puede aplicar descuento a una orden cerrada.');
+        // El descuento por porcentaje se calcula sobre el subtotal: con la orden bloqueada, incluye
+        // los ítems que se agregaron justo antes (#124)
+        await bloquearOrden(ordenId, t);
 
         const nuevoDescuento = await Descuento.create(
             {
@@ -216,10 +210,7 @@ async function obtenerDescuentosPorOrden(ordenId) {
 
 async function removerDescuento(ordenId, descuentoId) {
     return await sequelize.transaction(async (t) => {
-        // 1. Buscar la orden
-        const orden = await Orden.findByPk(ordenId, { transaction: t });
-        if (!orden) throw new Error('Orden no encontrada.');
-        if (orden.finalizado) throw new Error('No se puede modificar una orden cerrada.');
+        await bloquearOrden(ordenId, t);
 
         await OrdenDescuento.destroy({
             where: { orden_id: ordenId, descuento_id: descuentoId },

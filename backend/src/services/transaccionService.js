@@ -1,10 +1,11 @@
-const { ContenedorTransaccion, Orden, Mesa, sequelize } = require('../models');
+const { ContenedorTransaccion, Mesa, sequelize } = require('../models');
+const { bloquearOrden } = require('../utils/orderUtils');
 
+// Los pagos parciales también bloquean la orden (#124): dos pagos a la vez veían la misma suma
+// pagada, y un ítem agregado mientras se cobraba quedaba fuera del total.
 async function registrarPago(datos) {
     return await sequelize.transaction(async (t) => {
-        const orden = await Orden.findByPk(datos.orden_id, { transaction: t });
-        if (!orden) throw new Error('La orden no existe.');
-        if (orden.finalizado) throw new Error('Esta orden ya fue pagada y finalizada.');
+        const orden = await bloquearOrden(datos.orden_id, t);
 
         if (datos.cantidad <= 0) throw new Error('El monto del pago debe ser mayor a 0.');
 
@@ -60,14 +61,17 @@ async function listarPorOrden(ordenId) {
 }
 
 async function anularPago(id) {
-    const pago = await ContenedorTransaccion.findByPk(id);
-    if (!pago) return null;
+    return await sequelize.transaction(async (t) => {
+        const encontrado = await ContenedorTransaccion.findByPk(id, { transaction: t });
+        if (!encontrado) return null;
 
-    const orden = await Orden.findByPk(pago.orden_id);
-    if (orden.finalizado) throw new Error('No se puede anular pagos de una orden ya cerrada.');
+        await bloquearOrden(encontrado.orden_id, t);
+        const pago = await ContenedorTransaccion.findByPk(id, { transaction: t });
+        if (!pago) return null;
 
-    await pago.destroy();
-    return true;
+        await pago.destroy({ transaction: t });
+        return true;
+    });
 }
 
 module.exports = {
