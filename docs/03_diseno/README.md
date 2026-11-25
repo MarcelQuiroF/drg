@@ -5,12 +5,10 @@ Cómo está construido el sistema y por qué.
 | Documento | Contenido |
 |-----------|-----------|
 | [`endpoints.md`](endpoints.md) | Referencia de la API REST (`/api/v1`) |
-| [`permisos.md`](permisos.md) | Qué puede hacer cada rol (ADMIN, CAJERO, MESERO) en cada endpoint (RF-52) |
-| [`arquitectura.md`](arquitectura.md) | Capas, componentes y cómo se comunican *(por completar)* |
-| [`modelo-datos.md`](modelo-datos.md) | Tablas, relaciones y diagrama entidad-relación *(por completar)* |
-| [`adr/`](adr/) | Registro de decisiones de arquitectura (ADR) |
-
-Más adelante también va aquí la referencia de la app Android anterior (capturas y recorrido de pantallas), en `referencia-app-android/`.
+| [`permisos.md`](permisos.md) | Permisos por acción, qué tiene cada rol (ADMIN, CAJERO, MESERO) y qué permiso pide cada endpoint (RF-52, ADR-008) |
+| [`arquitectura.md`](arquitectura.md) | Capas, componentes y cómo se comunican |
+| [`modelo-datos.md`](modelo-datos.md) | Tablas, relaciones y diagrama entidad-relación |
+| [`adr/`](adr/README.md) | Registro de decisiones de arquitectura (ADR), con su índice |
 
 ## ADR (Architecture Decision Record)
 
