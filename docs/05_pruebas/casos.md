@@ -25,15 +25,18 @@
 
 ## Autenticación y permisos (`tests/auth/`)
 
+Archivos: `login.test.js` y `matrizPermisos.test.js`. La matriz se lee de `docs/03_diseno/permisos.md` en cada corrida: si se agrega una ruta o cambia un permiso en el documento, las pruebas cambian solas. Cuando #25 corrija las diferencias, basta con actualizar la columna *Hoy* para que las 7 pruebas 🐞 pasen a ✅.
+
 | Código | Caso | Cat. | Resultado esperado | Issue | Estado |
 |--------|------|:----:|--------------------|-------|:------:|
-| — | Login con CI y contraseña correctos / incorrectos | ✅ | 200 con token / 401 | — | 🔜 |
-| T1 | Token inválido o vencido | 🐞 | 401 (hoy 403) | #26 | 🔜 |
-| T2 | MESERO cambia la configuración de reservas | 🔄 RN-16 | 200: el mesero puede (antes figuraba como bug) | #25 | 🔜 |
-| T2b | Configuración con un valor negativo o no entero | 🐞 | 400 (hoy 200) | #25 | 🔜 |
-| T17 | MESERO descarga una plantilla de importación | 🐞 | 403 (hoy 200) | #25 | 🔜 |
-| F5 (API) | MESERO ve la asistencia del día y la lista de empleados | 🐞 | 200 (hoy 403) | #25 | 🔜 |
-| MATRIZ | Las 69 rutas × 3 roles de `permisos.md` | ✅ / 🐞 | Rol con permiso: no 401/403. Rol sin permiso: 403. Las combinaciones donde el código difiere de la matriz (columna *Dif.*) van como 🐞 | #25 | 🔜 |
+| — | Login: correcto, contraseña o CI incorrectos, datos faltantes, empleado desactivado | ✅ | 200 con token (sin contraseña en la respuesta) / 401 / 400 / 401 | — | ✔ |
+| — | Ruta protegida sin token / con el token del login | ✅ | 401 / 200 | — | ✔ |
+| T1 | Token inválido o vencido | 🐞 | 401 (hoy 403) | #26 | ✔ |
+| T2 | MESERO cambia la configuración de reservas | 🔄 RN-16 | 200: el mesero puede (antes figuraba como bug) | #25 | ✔ |
+| T2b | Configuración con un valor negativo | 🐞 | 400 y no se guarda (hoy 200 y se guarda) | #25 | ✔ |
+| T17 | MESERO o CAJERO descargan una plantilla de importación | 🐞 | 403 (hoy 200). Lo cubre MATRIZ | #25 | ✔ |
+| F5 (API) | MESERO ve la asistencia del día, la lista de empleados y registra llegadas | 🐞 | 200 (hoy 403). Lo cubre MATRIZ | #25 | ✔ |
+| MATRIZ | Las 69 rutas de `permisos.md` × (sin sesión + 3 roles): 265 pruebas generadas desde el documento | ✅ / 🐞 | Sin sesión: 401 (o pasa, si es pública). Rol con permiso: no 401/403. Rol sin permiso: 403. Las **7** combinaciones donde la columna *Hoy* no coincide con la matriz van como 🐞 | #25 | ✔ |
 
 ## Órdenes, pagos, comandas y dashboard (`tests/ordenes/`)
 

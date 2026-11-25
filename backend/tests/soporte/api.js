@@ -45,7 +45,10 @@ async function comoRol(rol) {
 // Sin sesión.
 const anonimo = {
     get: (ruta) => request(app).get(`${API}${ruta}`),
-    post: (ruta) => request(app).post(`${API}${ruta}`)
+    post: (ruta) => request(app).post(`${API}${ruta}`),
+    put: (ruta) => request(app).put(`${API}${ruta}`),
+    patch: (ruta) => request(app).patch(`${API}${ruta}`),
+    delete: (ruta) => request(app).delete(`${API}${ruta}`)
 };
 
 module.exports = { app, API, USUARIOS, iniciarSesion, comoRol, anonimo };
