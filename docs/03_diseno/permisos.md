@@ -188,7 +188,7 @@ La columna **Permiso** dice qué permiso pide la ruta (ver el catálogo). La col
 | GET | `/importacion/plantillas/productos` | `importacion.usar` | ✅ | ❌ | ❌ | sesión | ≠ | T17 |
 | GET | `/importacion/plantillas/juegos` | `importacion.usar` | ✅ | ❌ | ❌ | sesión | ≠ | T17 |
 
-`routes/reporteRoute.js` define `GET /reportes/cierre-dia` (ADMIN, CAJERO), pero **no está montada** en `app.js` (T15). El cierre del día se rehace en #34.
+No existe `GET /reportes/cierre-dia`: la ruta que lo definía nunca estuvo montada en `app.js` (T15) y se eliminó en #15. El cierre del día se rehace en #34.
 
 ## Diferencias entre CAJERO y MESERO
 

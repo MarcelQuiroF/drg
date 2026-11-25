@@ -1,6 +1,6 @@
 # 04 · Implementación
 
-Cómo levantar, desarrollar y desplegar el sistema. El código está en la raíz del repositorio (`backend/`, `frontend/`, `nginx/`); aquí solo van las guías.
+Cómo levantar, desarrollar y desplegar el sistema. El código está en la raíz del repositorio (`backend/`, `frontend/`); aquí solo van las guías.
 
 Qué va aquí:
 
