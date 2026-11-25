@@ -96,7 +96,7 @@
 | RF-37 | El administrador registra juegos con nombre, categorías, **tamaño**, jugadores mínimo y máximo, tiempo estimado, edad mínima y enlace a sus reglas en Drive. El precio del préstamo sale del tamaño (RF-57) | E2, CU 3.1, M1 | I | Marcelo 25/11 |
 | RF-57 | El administrador define los **tamaños** de juego (por ejemplo chico, mediano, grande), cada uno con su precio de préstamo y el color de su etiqueta en el local. Al cambiar el precio de un tamaño, cambia el de todos sus juegos (para las órdenes nuevas) | M1 | I | Marcelo 25/11 |
 | RF-38 | El personal registra en la mesa cada juego que se presta, aunque devuelvan uno y saquen otro, y cada préstamo se cobra (RN-04) | E1, DW, M1 | I | Marcelo 25/11 |
-| RF-39 | El personal registra un juego **leyendo su código con un lector**: el juego se agrega a la mesa y queda registrado que salió del estante y que volvió. Hoy cada juego lleva una etiqueta de color según su precio, así que es de **prioridad baja** | E1, M1 | F | Marcelo 25/11 |
+| RF-39 | Al cobrar, el personal registra cada juego **leyendo su código con un lector** (como hoy se anota en el Excel cuando el cliente lo devuelve): el juego se agrega a la orden de la mesa y queda registrado que salió del estante y que volvió. Hoy cada juego lleva una etiqueta de color según su precio, así que es de **prioridad baja** | E1, M1 | F | Marcelo 25/11 |
 | RF-40 | El cliente consulta el catálogo de juegos desde un QR, sin iniciar sesión: busca por nombre, filtra por categoría y ve jugadores, tiempo, edad mínima y el enlace a las reglas. Es solo de consulta (P-18) | E2, CU 3.1, IR | I | pendiente |
 
 ### 1.8 Empleados y asistencia
@@ -148,7 +148,7 @@
 | RN-12 | Una mesa reservada no se da a otros clientes desde **1 hora antes** de la reserva, y dos reservas de la misma mesa tienen que estar separadas al menos **2 horas** (un grupo se queda entre 1 y 2 horas) | TW, M1 | prueba (P-05). Hoy el sistema bloquea ±120 min |
 | RN-13 | El catálogo de juegos para clientes muestra **todos** los juegos registrados, activos o no | CU 3.1 | ⚠ Raro para un cliente (¿ver juegos que no se pueden pedir?). Ver P-18 |
 | RN-14 | El personal no registra en el sistema un pago QR mayor al total: devuelve la diferencia y registra solo el monto que corresponde | M1 | Marcelo 25/11 |
-| RN-15 | La mesa de destino de una orden movida tiene que estar libre y no tener una reserva próxima (RN-12) | M1 | Propuesta, confirmar con Marcelo |
+| RN-15 | La mesa de destino de una orden movida tiene que estar libre y no tener una reserva próxima (RN-12) | M1 | Marcelo 25/11 |
 
 ---
 

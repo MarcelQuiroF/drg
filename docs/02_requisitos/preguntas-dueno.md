@@ -151,7 +151,7 @@ Mostrarle la lista de requisitos marcados como **I** (imprescindibles) y pedirle
 |----------|-----------|-------|-----------------------|
 | P-01 Alcance | Pendiente | — | — |
 | P-02 Cuenta individual | Pasan las dos cosas: cada uno paga lo suyo o se divide por monto. Una persona puede pagar parte en efectivo y parte por QR. Si alguien paga de más por QR (no debería pasar) se le devuelve la diferencia, sin registrarlo en el sistema. Se acepta la propuesta: dividir por ítems y por monto, tolerancia de 0.50 Bs | M | RF-18, RF-20, RN-07, RN-14 |
-| P-03 Juegos con código | Hoy cada juego tiene una etiqueta de color que representa su precio. El lector de códigos queda en **prioridad baja**. Se usaría un lector; al leer un código, el juego se agrega a la mesa y se registra que salió y volvió al estante. La lectura está pensada para el final, al momento del pago | M | RF-39 (prioridad F) |
+| P-03 Juegos con código | Hoy cada juego tiene una etiqueta de color que representa su precio. El lector de códigos queda en **prioridad baja**. Se usaría un lector; al leer un código, el juego se agrega a la mesa y se registra que salió y volvió al estante. La lectura se hace al final, al momento del pago (como hoy se anota en el Excel cuando devuelven el juego) | M | RF-39 (prioridad F) |
 | P-04 Precio de juegos | El precio depende del tamaño. Cada préstamo se cobra: si sacan dos juegos, se registran los dos en la mesa. El admin debe poder definir tamaños y asignar un precio a cada uno | M | RN-04, RF-37, RF-38, **RF-57 nuevo** |
 | P-05 Reservas | Tolerancia: **30 min**. Bloqueo antes de la reserva: sin dato, **1 h** como prueba. Un grupo se queda **1 a 2 horas**. Registrar cuántas personas vienen: preferiblemente, sirve para reportes | M · bloqueo: prueba | RN-02, RN-12, RF-25 |
 | P-06 Descuentos | Los aplican el **cajero y el mesero**, **sin tope** y **sin doble comprobación**. Motivos habituales: cumpleaños y comida entregada por error. El admin debe tener una sección con los descuentos hechos y su motivo | M | RN-06, RF-11, RF-49 (prioridad I) |
@@ -170,7 +170,7 @@ Mostrarle la lista de requisitos marcados como **I** (imprescindibles) y pedirle
 | P-19 Bitácora | Pendiente | — | — |
 | P-20 Piloto y entrega | Pendiente | — | — |
 
-**Requisito nuevo sin pregunta:** mover una orden abierta a otra mesa (RF-55), para cuando un grupo chico ocupa una mesa grande y llega un grupo más grande.
+**Requisito nuevo sin pregunta:** mover una orden abierta a otra mesa (RF-55), para cuando un grupo chico ocupa una mesa grande y llega un grupo más grande. La mesa de destino tiene que estar libre y sin reserva próxima (RN-15).
 
 ## Pendientes para el 10/12
 
