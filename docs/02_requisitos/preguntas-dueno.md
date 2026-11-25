@@ -1,6 +1,6 @@
 # Preguntas para el dueño
 
-> **Para la reunión de validación del alcance (Etapa 1).** Preparadas el 24/11/2026.
+> **Para validar el alcance.** Preparadas el 24/11/2026. El 25/11/2026 Marcelo respondió las que conoce (ver [Respuestas](#respuestas)); el resto queda para la **presentación del MVP al dueño, el 10/12/2026** (ver [Pendientes para el 10/12](#pendientes-para-el-1012)).
 > Cada pregunta dice **por qué importa** y, cuando hay una, **la propuesta por defecto**: si el dueño no tiene una preferencia, se usa esa. Las respuestas se anotan aquí mismo, con la fecha, y después se actualizan [`requisitos.md`](requisitos.md) y la [matriz de brechas](matriz-brechas.md).
 
 ## Cómo usar esta lista en la reunión
@@ -145,27 +145,45 @@ Mostrarle la lista de requisitos marcados como **I** (imprescindibles) y pedirle
 
 ## Respuestas
 
-> Completar durante o después de la reunión.
+**M** = respondió Marcelo (25/11/2026). **Prueba** = valor provisional para desarrollar, que se confirma con el dueño.
 
-| Pregunta | Respuesta | Fecha | Cambios en requisitos |
+| Pregunta | Respuesta | Quién | Cambios en requisitos |
 |----------|-----------|-------|-----------------------|
-| P-01 | | | |
-| P-02 | | | |
-| P-03 | | | |
-| P-04 | | | |
-| P-05 | | | |
-| P-06 | | | |
-| P-07 | | | |
-| P-08 | | | |
-| P-09 | | | |
-| P-10 | | | |
-| P-11 | | | |
-| P-12 | | | |
-| P-13 | | | |
-| P-14 | | | |
-| P-15 | | | |
-| P-16 | | | |
-| P-17 | | | |
-| P-18 | | | |
-| P-19 | | | |
-| P-20 | | | |
+| P-01 Alcance | Pendiente | — | — |
+| P-02 Cuenta individual | Pasan las dos cosas: cada uno paga lo suyo o se divide por monto. Una persona puede pagar parte en efectivo y parte por QR. Si alguien paga de más por QR (no debería pasar) se le devuelve la diferencia, sin registrarlo en el sistema. Se acepta la propuesta: dividir por ítems y por monto, tolerancia de 0.50 Bs | M | RF-18, RF-20, RN-07, RN-14 |
+| P-03 Juegos con código | Hoy cada juego tiene una etiqueta de color que representa su precio. El lector de códigos queda en **prioridad baja**. Se usaría un lector; al leer un código, el juego se agrega a la mesa y se registra que salió y volvió al estante. La lectura está pensada para el final, al momento del pago | M | RF-39 (prioridad F) |
+| P-04 Precio de juegos | El precio depende del tamaño. Cada préstamo se cobra: si sacan dos juegos, se registran los dos en la mesa. El admin debe poder definir tamaños y asignar un precio a cada uno | M | RN-04, RF-37, RF-38, **RF-57 nuevo** |
+| P-05 Reservas | Tolerancia: **30 min**. Bloqueo antes de la reserva: sin dato, **1 h** como prueba. Un grupo se queda **1 a 2 horas**. Registrar cuántas personas vienen: preferiblemente, sirve para reportes | M · bloqueo: prueba | RN-02, RN-12, RF-25 |
+| P-06 Descuentos | Los aplican el **cajero y el mesero**, **sin tope** y **sin doble comprobación**. Motivos habituales: cumpleaños y comida entregada por error. El admin debe tener una sección con los descuentos hechos y su motivo | M | RN-06, RF-11, RF-49 (prioridad I) |
+| P-07 Atrasos | Tabla real (audio): desde 10 min, −10 % del pago diario; desde 20 min, −20 %; más de 25 min, no se paga el día. Se aplica desde que se cruza el umbral. Quién confirma la llegada: pendiente, **el cajero** como prueba. Cada empleado tiene su horario; la hora de salida sirve para reportes o para salarios | M · quién confirma: prueba | RN-01, RN-10, RF-42, RF-43, RF-44 |
+| P-08 Sueldos | Se acepta la propuesta (solo reportar atrasos y porcentaje acumulado) como valor de prueba; la pregunta sigue pendiente | Prueba | RF-45, RN-11 |
+| P-09 Apertura y cierre | No siempre abre y cierra la misma persona. Se debe poder **reabrir el día** por errores humanos. Monto inicial y arqueo: pendiente. Contenido del reporte de cierre: pendiente | M · resto pendiente | RF-22, **RF-56 nuevo**, RF-23 |
+| P-10 Roles y áreas | Se mantienen los roles del sistema (ADMIN, CAJERO, MESERO). Cocina y cafetería **solo reciben la comanda impresa**. Impresoras y si el mesero debe ver al instante cuándo está listo un pedido: pendiente | M · resto pendiente | RF-15, RF-16 descartado, RNF-04 |
+| P-11 Facturación | Totalmente fuera de la primera entrega | M | RF-24 |
+| P-12 Productos | El costo se registra de forma **opcional**. Zonas: **Cocina y Cafetería** como prueba. Quién marca agotado: pendiente | M · zonas: prueba | RF-32, RF-14, RF-33 |
+| P-13 Equipos | Pendiente | — | — |
+| P-14 Respaldos | Pendiente | — | — |
+| P-15 Excel actuales | Pendiente | — | — |
+| P-16 Mesas | Las mesas como tarjetas ya fueron aceptadas en un semestre anterior: **no hace falta plano**. El estado "sucia" no se usa. Cantidad de pisos y mesas: pendiente | M | RF-04 y RF-05 descartados |
+| P-17 Clientes frecuentes | Pendiente | — | — |
+| P-18 Catálogo por QR | Pendiente | — | — |
+| P-19 Bitácora | Pendiente | — | — |
+| P-20 Piloto y entrega | Pendiente | — | — |
+
+**Requisito nuevo sin pregunta:** mover una orden abierta a otra mesa (RF-55), para cuando un grupo chico ocupa una mesa grande y llega un grupo más grande.
+
+## Pendientes para el 10/12
+
+Lista corta para la presentación del MVP al dueño, en orden de importancia:
+
+1. **P-01** · Qué es imprescindible para empezar a usar el sistema.
+2. **P-09** · ¿Se cuenta el dinero al abrir y al cerrar (arqueo)? ¿Qué debe mostrar el reporte de cierre? ¿Quién puede reabrir un día cerrado?
+3. **P-05** · ¿Cuánto tiempo antes de una reserva se deja de dar la mesa? (Prueba: 1 h.)
+4. **P-07** · ¿Quién confirma la llegada de un empleado? (Prueba: el cajero.)
+5. **P-08** · ¿El sistema solo reporta atrasos, o también calcula sueldos? (Prueba: solo atrasos.)
+6. **P-10** · Impresoras (cuántas, tipo, marca y modelo). ¿El mesero tiene que ver al instante cuándo está listo un pedido?
+7. **P-12** · ¿Las zonas son solo Cocina y Cafetería? ¿Quién marca un producto como agotado?
+8. **P-13 a P-15** · Equipos del local, respaldos y los Excel actuales.
+9. **P-16** · ¿Cuántos pisos y mesas hay hoy?
+10. **P-17 a P-20** · Clientes frecuentes, catálogo por QR, bitácora, piloto y entrega.
+11. **Confirmar con el dueño** las respuestas de Marcelo, sobre todo la tabla de atrasos (RN-01) y los descuentos sin tope (RN-06).

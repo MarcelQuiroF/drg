@@ -1,6 +1,6 @@
 # Matriz de brechas
 
-> **24/11/2026 · Versión 0.1.** Compara cada requisito de [`requisitos.md`](requisitos.md) con el sistema tal como está en `main` (commit `cb210d6`).
+> **25/11/2026 · Versión 0.2** (con las respuestas de Marcelo). Compara cada requisito de [`requisitos.md`](requisitos.md) con el sistema tal como está en `main` (commit `cb210d6`).
 > El estado sale del análisis técnico del proyecto (4 revisiones del código, con pruebas en ejecución, noviembre de 2026). Los códigos entre paréntesis (`T6`, `F2`, `§4.1`…) son las pruebas y secciones de ese análisis. Lo marcado **[verificar]** se dedujo del código, pero no se probó.
 > Esta matriz es la base del backlog de la **Etapa 2**: cada fila con ⚠, 🟡 o ❌ que el dueño confirme se convierte en una issue.
 
@@ -18,24 +18,25 @@
 
 | Módulo | ✅ | ⚠ | 🟡 | ❌ | ➖ |
 |--------|:--:|:--:|:--:|:--:|:--:|
-| Mesas y espacio (RF-01 a 06) | 2 | 1 | 1 | 2 | — |
+| Mesas y espacio (RF-01 a 06, RF-55) | 2 | 1 | 1 | 1 | — |
 | Órdenes (RF-07 a 13) | — | 6 | 1 | — | — |
-| Comandas (RF-14 a 16) | — | 2 | 1 | — | — |
-| Pagos y caja (RF-17 a 24) | 1 | 2 | 2 | 2 | 1 |
+| Comandas (RF-14 y 15) | — | 2 | — | — | — |
+| Pagos y caja (RF-17 a 24, RF-56) | 1 | 2 | 2 | 3 | 1 |
 | Reservas y clientes (RF-25 a 30) | 3 | 2 | 1 | — | — |
 | Productos (RF-31 a 36) | 1 | 2 | 1 | 2 | — |
-| Juegos (RF-37 a 40) | — | 2 | 1 | 1 | — |
+| Juegos (RF-37 a 40, RF-57) | — | 2 | 1 | 2 | — |
 | Empleados y asistencia (RF-41 a 45) | — | 4 | — | 1 | — |
 | Reportes (RF-46 a 51) | 1 | 2 | — | 3 | — |
 | Seguridad y auditoría (RF-52 a 54) | — | 1 | — | 2 | — |
-| **Total (54 requisitos)** | **8** | **24** | **8** | **13** | **1** |
+| **Total (54 requisitos activos)** | **8** | **24** | **7** | **14** | **1** |
 
-**Lectura rápida:** 40 de los 54 requisitos **ya existen** en el sistema, pero solo 8 funcionan sin errores; faltan 13. Lo que más pesa para el negocio:
+**Lectura rápida:** 39 de los 54 requisitos activos **ya existen** en el sistema, pero solo 8 funcionan sin errores; faltan 14. RF-04, RF-05 y RF-16 se descartaron el 25/11/2026 y no cuentan. Lo que más pesa para el negocio:
 
 1. **Cobro:** los pagos QR se registran como efectivo (T6) y la cuenta individual por ítems no existe (RF-18), justo lo que el dueño dijo que era la única complicación.
 2. **Cierre de caja:** no existe en el servidor (RF-22). Hoy es un dato del navegador.
-3. **Control de juegos con código** (RF-39): lo que el dueño ve más necesario, y no existe.
-4. **Asistencia:** el descuento lo decide el navegador y el servidor acepta cualquiera (A6).
+3. **Juegos por tamaño** (RF-57) y **mover una orden de mesa** (RF-55): los dos son imprescindibles y no existen. El control de juegos con lector de códigos (RF-39) pasó a prioridad baja.
+4. **Asistencia:** el descuento lo decide el navegador y el servidor acepta cualquiera (A6); además, la tabla cargada no es la real (RN-01).
+5. **Control de descuentos:** no tienen tope, así que la sección del administrador que los lista (RF-49) es imprescindible y no existe.
 
 ## Detalle
 
@@ -46,9 +47,8 @@
 | RF-01 | ✅ | Mapa de mesas por piso con colores por estado. No es responsive (F6), eso va en RNF-03 | Pruebas |
 | RF-02 | ✅ | `capacidad_min`/`capacidad_max` con validación en el modelo | — |
 | RF-03 | ⚠ | Crear una mesa sin nombre da 500 (T4); se permiten números repetidos en el mismo piso; se puede borrar un piso con mesas o una mesa con orden abierta (§10.3) | Bug, Etapa 4 |
-| RF-04 | ❌ | La mesa no guarda posición en el plano | Preguntar (P-16) |
-| RF-05 | ❌ | No hay estado "sucia" | Preguntar (P-16) |
 | RF-06 | 🟡 | Al abrir una orden, una reserva cercana se marca sola como `LLEGO` (`registrarLlegadaAutomatica`), pero no se avisa al personal **[verificar en la UI]** | Mejora, Etapa 6 |
+| RF-55 | ❌ | No existe forma de cambiar la orden de mesa: la orden queda atada a su `mesa_id` desde que se abre | Historia de usuario, Etapa 6 |
 
 ### Órdenes
 
@@ -58,7 +58,7 @@
 | RF-08 | ⚠ | **Borrar un producto del catálogo baja el total de las órdenes abiertas** (T10); no existe la ruta para cambiar la cantidad de un juego (P2); bajar una cantidad no actualiza la comanda (P7); quitar el último ítem borra la orden sin registro (P8) | Bug crítico (T10), Etapa 4 |
 | RF-09 | ⚠ | Comentarios de productos ✅; comentarios de juegos dan 404 (P2) | Bug |
 | RF-10 | ⚠ | Los productos con zona `Barra` no aparecen en el POS (P1): el vocabulario de zonas no está unificado | Bug, Etapa 4 |
-| RF-11 | ⚠ | El descuento existe, pero el comentario es opcional en el modelo **[verificar en la UI]**, y un MESERO puede aplicar un 100 % o 9999 Bs sin autorización (P3, P4) | Bug + definir RN-06 (P-06) |
+| RF-11 | ⚠ | El descuento existe y lo pueden aplicar cajero y mesero sin tope, **como pide RN-06** (P3 deja de ser un bug). Falta: el comentario es opcional en el modelo **[verificar en la UI]**, y un descuento mayor al total deja la orden en 0 sin avisar (P4) | Bug menor (comentario obligatorio y aviso) |
 | RF-12 | ⚠ | Se pueden editar las notas de una orden finalizada (T13) | Bug menor |
 | RF-13 | 🟡 | `crearOrden` recibe el usuario pero no lo guarda (§4.1-4); los pagos tampoco guardan quién cobró | Mejora, Etapa 6 |
 
@@ -68,7 +68,6 @@
 |------|:------:|------------------|--------|
 | RF-14 | ⚠ | Existe el campo `zona`, pero conviven `COCINA`, `CAFETERIA`, `BARRA`, `Barra`, `Cocina` (P1) | Bug (junto con RF-10) |
 | RF-15 | ⚠ | Hay vista de impresión con selección y contadores (`imprimir-comanda.html`), pero las comandas de órdenes cobradas siguen apareciendo (T7) **[verificar el flujo completo de impresión, §9]** | Bug + prueba |
-| RF-16 | 🟡 | Existen los estados recibido → preparando → terminado → enviado, pero la actualización es cada 30 s, no en tiempo real | Preguntar si cocina usa pantalla (P-10) |
 
 ### Pagos y caja
 
@@ -80,6 +79,7 @@
 | RF-20 | ⚠ | No hay manejo de vuelto cuando el QR supera el total (P6); se registran pagos de 0 Bs (P5) | Bug |
 | RF-21 | ✅ | La mesa se libera solo al saldar (con dos tolerancias distintas, ver RN-07) | Unificar con RF-18 |
 | RF-22 | ❌ | El "cierre del día" se guarda en el navegador (`localStorage`); el servidor sigue aceptando órdenes (§4.7). La ruta de cierre existe en el código pero no está montada (T15) | Historia de usuario, Etapa 6 (alta) |
+| RF-56 | ❌ | Como el cierre no existe en el servidor, tampoco la reapertura. Hoy basta con borrar el `localStorage` (§4.7) | Junto con RF-22 |
 | RF-23 | ❌ | No hay monto inicial ni arqueo | Preguntar (P-09) |
 | RF-24 | ➖ | No hay facturación. El negocio no factura | Futuro (P-11) |
 
@@ -87,11 +87,11 @@
 
 | Req. | Estado | Situación actual | Acción |
 |------|:------:|------------------|--------|
-| RF-25 | 🟡 | La reserva guarda cliente, mesa y hora; **no guarda la cantidad de personas** | Mejora (campo nuevo) |
+| RF-25 | 🟡 | La reserva guarda cliente, mesa y hora; **no guarda la cantidad de personas** | Mejora (campo nuevo, opcional) |
 | RF-26 | ✅ | El choque de reservas se detecta bien (T9); la ventana de ±120 min no la definió el negocio (RN-12) | Preguntar (P-05) |
 | RF-27 | ⚠ | El validador de hora futura impide **editar** una reserva pasada (por ejemplo, para marcarla como cancelada) **[verificar]** (§4.4) | Bug |
 | RF-28 | ⚠ | Editar funciona (T9c), pero borrar hace soft-delete sin usar el estado `CANCELADA` (§4.4); la fecha por defecto pasa al día siguiente después de las 20:00 (R1) | Bug |
-| RF-29 | ✅ | Las reservas vencidas pasan a `EXPIRADA` y liberan la mesa. Se recalcula en cada consulta (§4.4) y la tolerancia por defecto es 20 min, no 30 (RN-02) | Ajustar valor (P-05) y optimizar |
+| RF-29 | ✅ | Las reservas vencidas pasan a `EXPIRADA` y liberan la mesa. Se recalcula en cada consulta (§4.4) y la tolerancia por defecto es 20 min, no 30 (RN-02) | Cambiar el valor a 30 y optimizar |
 | RF-30 | ✅ | Búsqueda por nombre o CI. Tiene **XSS confirmado** en el buscador (F1), que va como bug de seguridad aparte | Bug de seguridad, Etapa 4 |
 
 ### Productos
@@ -99,7 +99,7 @@
 | Req. | Estado | Situación actual | Acción |
 |------|:------:|------------------|--------|
 | RF-31 | ⚠ | CRUD funciona; no acepta precio 0 (T12); el update acepta cualquier campo del body (§10.3) | Bug menor |
-| RF-32 | ❌ | El producto no tiene costo | Preguntar (P-12) |
+| RF-32 | ❌ | El producto no tiene costo | Mejora (campo nuevo, opcional) |
 | RF-33 | ⚠ | Solo el ADMIN puede cambiar el estado (con `PUT`); el CAJERO no puede marcar agotado. La función `toggleEstado` existe pero no tiene ruta (§10.3). El producto tiene dos booleanos (`activado` y `estado`) sin un propósito claro (§3) | Bug + mejora |
 | RF-34 | ❌ | No se validan duplicados **[verificar]** | Mejora |
 | RF-35 | 🟡 | Se crean y borran categorías; no hay ruta para editarlas (§10.3) | Mejora |
@@ -109,9 +109,10 @@
 
 | Req. | Estado | Situación actual | Acción |
 |------|:------:|------------------|--------|
-| RF-37 | ⚠ | **Crear o editar un juego con categorías da 500** (F2). No hay campos de edad mínima ni tamaño | Bug crítico (F2) + campos nuevos |
+| RF-37 | ⚠ | **Crear o editar un juego con categorías da 500** (F2). No hay campos de edad mínima ni tamaño; el precio se carga a mano en cada juego | Bug crítico (F2) + campos nuevos |
+| RF-57 | ❌ | No existe el concepto de tamaño: cada juego tiene su propio `precio` | Historia de usuario + migración (los precios actuales pasan a tamaños) |
 | RF-38 | ⚠ | Se cobra precio × cantidad, que coincide con RN-04 ✅. Las horas de inicio y fin se guardan mal (zona horaria del servidor, `Date` en columna `TIME`, §4.3) | Bug menor. **Resuelve la duda §4.3 del análisis:** el cobro por tiempo no hace falta |
-| RF-39 | ❌ | No existe lectura de código | Historia de usuario (P-03) |
+| RF-39 | ❌ | No existe lectura de código | Historia de usuario, prioridad baja (`futuro`) |
 | RF-40 | 🟡 | Existe `catalogo.html` público; muestra juegos desactivados y no aplica el filtro por categoría (T16); la URL de la API está fija en `localhost` (§5) | Mejora (P-18) |
 
 ### Empleados y asistencia
@@ -122,7 +123,7 @@
 | RF-42 | ⚠ | Solo se guarda la hora de entrada; `hora_salida` se descarta (A5); al editar se pierden los horarios viejos (§4.5) | Bug |
 | RF-43 | ⚠ | Hay registro con aprobación por firma (A2, A3 ✅), pero se puede registrar dos veces el mismo día (A1), borrar una aprobada sin firma (A4) y falla si el empleado no tiene horario ese día (T11) | Bug, Etapa 4 |
 | RF-44 | ⚠ | **El atraso lo calcula el navegador y el servidor acepta cualquier descuento** (A6). El servicio de asistencia del backend está roto y asigna descuentos al azar (§4.5) | Bug crítico, después de definir RN-01 (P-07) |
-| RF-45 | ❌ | El empleado no tiene sueldo | Preguntar (P-08) |
+| RF-45 | ❌ | No hay reporte del acumulado mensual de atrasos por empleado | Mejora (sin guardar sueldos) |
 
 ### Reportes
 
@@ -131,7 +132,7 @@
 | RF-46 | ⚠ | Dashboard con atajos de fecha, pero los rangos se desfasan 4 horas (UTC, §4.6) y el promedio diario divide por 8 días (F3) | Bug, Etapa 4 |
 | RF-47 | ⚠ | Muestra los indicadores, pero mezcla fuentes (órdenes abiertas en la gráfica, transacciones en el total, F3), usa precios actuales y no los cobrados (§3) y el QR siempre sale 0 (F4) | Bug + guardar precio histórico |
 | RF-48 | ❌ | Sin costo no hay ganancia (depende de RF-32) | Según P-12 |
-| RF-49 | ❌ | No hay listado de descuentos de órdenes con comentario | Mejora |
+| RF-49 | ❌ | No hay listado de descuentos de órdenes con comentario. Ahora es **imprescindible**: es el único control de los descuentos (RN-06) | Historia de usuario, Etapa 6 |
 | RF-50 | ❌ | No se guarda el empleado de cada operación (depende de RF-13) | Mejora |
 | RF-51 | ✅ | El dashboard está en el panel de admin y sus rutas piden rol ADMIN | — |
 
@@ -143,19 +144,27 @@
 | RF-53 | ❌ | Las tablas `Registro*` existen, pero nada las llena (§3) | Preguntar (P-19) |
 | RF-54 | ❌ | No hay respaldos | Etapa 7 (P-14) |
 
+## Descartados
+
+| Req. | Motivo |
+|------|--------|
+| RF-04 Plano de mesas | La vista de mesas como tarjetas ya fue aceptada en un semestre anterior |
+| RF-05 Estado "sucia" | No se usa en el local |
+| RF-16 Pantalla de cocina | Cocina y cafetería solo usan la comanda impresa |
+
 ## Reglas de negocio frente al sistema
 
 | Regla | Qué hace el sistema hoy | Diferencia |
 |-------|-------------------------|------------|
-| RN-01 Descuento por atraso | El seed tiene una sola regla: 15 min → 10. El cálculo lo hace el frontend | ❌ No coincide con la tabla de los documentos |
-| RN-02 Tolerancia de reserva 30 min | `minutos_tolerancia` = 20 por defecto | ⚠ Valor distinto |
-| RN-04 Juegos por préstamo | Precio × cantidad | ✅ Coincide |
-| RN-06 Descuento con comentario y autorización | Comentario opcional en el modelo; cualquier rol aplica cualquier monto | ⚠ Falta la regla |
-| RN-07 Cerrar al saldar | Dos tolerancias: 0.01 Bs (`/finalizar`) y 0.5 Bs (`/pagos`) | ⚠ Unificar |
+| RN-01 Descuento por atraso (10 / 20 / más de 25 min → 10 % / 20 % / 100 % del día) | El seed tiene una sola regla: 15 min → 10. El cálculo lo hace el frontend | ❌ No coincide. Hay que cargar la tabla nueva y calcular en el servidor |
+| RN-02 Tolerancia de reserva 30 min | `minutos_tolerancia` = 20 por defecto | ⚠ Cambiar a 30 |
+| RN-04 Juegos por préstamo, precio por tamaño | Precio × cantidad, con precio propio de cada juego | 🟡 El cobro por préstamo coincide; falta el precio por tamaño (RF-57) |
+| RN-06 Descuento con comentario, sin tope ni autorización | Comentario opcional en el modelo; cualquier rol aplica cualquier monto | 🟡 Coincide salvo el comentario obligatorio; falta la sección de control (RF-49) |
+| RN-07 Cerrar al saldar (tolerancia 0.50 Bs) | Dos tolerancias: 0.01 Bs (`/finalizar`) y 0.50 Bs (`/pagos`) | ⚠ Dejar solo 0.50 Bs |
 | RN-08 Agotado no se vende | El POS oculta los desactivados **[verificar]**; el cajero no puede marcar agotado | 🟡 |
 | RN-09 No borrar, desactivar | Soft-delete (`paranoid`) en casi todo; la asistencia se borra físicamente (A4) | ⚠ |
-| RN-10 Confirma un cajero, mozo o admin | Solo ADMIN y CAJERO | ⚠ Confirmar con el dueño |
-| RN-12 Bloqueo ±120 min | `ventana_bloqueo` = 120 | ⚠ Valor puesto por el equipo |
+| RN-10 Confirma el cajero (valor de prueba) | ADMIN y CAJERO | ✅ Coincide con el valor de prueba |
+| RN-12 Bloqueo 1 h antes; reservas separadas 2 h | `ventana_bloqueo` = 120, igual antes y después | ⚠ El sistema usa una sola ventana; habría que separar "antes" y "después" |
 | RN-13 Catálogo muestra todo | Muestra todo, incluso desactivados (T16) | ✅ Coincide con CU 3.1, aunque el análisis lo marcó como problema. Decide el dueño (P-18) |
 
 ## Lo que hay que corregir en la documentación del Drive
@@ -177,3 +186,4 @@ Los documentos del equipo se usan como fuente, pero tienen errores que no se deb
 | Versión | Fecha | Cambio |
 |---------|-------|--------|
 | 0.1 | 24/11/2026 | Primera versión (issue #4) |
+| 0.2 | 25/11/2026 | Respuestas de Marcelo: se agregan RF-55, RF-56 y RF-57, se descartan RF-04, RF-05 y RF-16 y se actualizan las reglas |

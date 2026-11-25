@@ -1,6 +1,6 @@
 # Contexto del negocio
 
-> Reconstruido el 24/11/2026 a partir de los documentos del equipo original (2025–2026). Todavía **no está validado** con el dueño: lo que diga la reunión de validación tiene prioridad sobre este documento.
+> Reconstruido el 24/11/2026 a partir de los documentos del equipo original (2025–2026) y revisado por Marcelo el 25/11/2026. Se valida con el dueño en la presentación del MVP (10/12/2026): lo que diga el dueño tiene prioridad sobre este documento.
 > Las fuentes se citan con los códigos de la sección [Fuentes](#fuentes).
 
 ## 1. El negocio
@@ -9,7 +9,7 @@
 
 - El atractivo es el juego, pero **lo que más ingresos deja es la comida** [E1].
 - La idea del local es ofrecer una experiencia distinta a "salir a tomar": la gente viene a jugar unas horas y, mientras juega, pide de comer [E1].
-- Los juegos **se cobran por préstamo, no por tiempo**: cada juego tiene un precio fijo [E1, DW].
+- Los juegos **se cobran por préstamo, no por tiempo**. El precio depende del tamaño del juego, y cada caja lleva una etiqueta de color según su precio [E1, DW, M1].
 - El cobro se hace **al final** del servicio, en efectivo o por QR [E1, NEG].
 - Las reservas llegan por **WhatsApp**, no tienen costo y la mesa se guarda **media hora**; si el cliente no llega, se libera [E1].
 - **No emiten factura** [E1].
@@ -77,3 +77,4 @@ Fuentes: [E1, E2, DW]. Los roles de cocina y cafetería aparecen en los document
 | NEG | `Bussines`, `TECII_MESA DRAGON` | 2026 | Situación actual, flujo de trabajo y de datos, problema y solución |
 | DW | `Entregable DRG`, `Documento del proyecto V1/V2`, `Planificacion de proyecto`, `Para power BI` | 2026 | Proyecto de Data Warehouse (SIS-226): incluye necesidades de información del dueño |
 | TW | `TW.mp4` | may 2026 | Video de presentación del sistema |
+| M1 | Respuestas de Marcelo Quiroga a las preguntas para el dueño, incluido un audio sobre los descuentos por atraso | 25/11/2026 | Marcelo conoce la operación del local; sus respuestas se vuelven a confirmar con el dueño en la presentación del MVP (10/12/2026) |
