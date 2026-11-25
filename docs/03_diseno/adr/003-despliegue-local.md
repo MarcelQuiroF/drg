@@ -1,6 +1,6 @@
 # ADR-003: Despliegue en la PC local del café con Docker Compose
 
-- **Estado:** Propuesto
+- **Estado:** Aceptado (25/11/2026, aprobado por Marcelo)
 - **Fecha:** 2026-11-25
 - **Issue:** #10
 

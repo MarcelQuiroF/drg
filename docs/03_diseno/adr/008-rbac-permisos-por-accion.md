@@ -1,6 +1,6 @@
 # ADR-008: Control de acceso por roles con permisos por acción (RBAC)
 
-- **Estado:** Propuesto
+- **Estado:** Aceptado (25/11/2026, aprobado por Marcelo)
 - **Fecha:** 2026-11-25
 - **Issue:** #10
 

@@ -1,6 +1,6 @@
 # ADR-004: Respaldos de la base de datos con `pg_dump` diario y copia fuera de la PC
 
-- **Estado:** Propuesto
+- **Estado:** Aceptado (25/11/2026, aprobado por Marcelo)
 - **Fecha:** 2026-11-25
 - **Issue:** #10
 
