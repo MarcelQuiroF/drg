@@ -14,6 +14,7 @@ async function agregarJuego(datos) {
             {
                 orden_id: datos.orden_id,
                 juego_id: datos.juego_id,
+                precio_unitario: juego.precio,
                 cantidad: datos.cantidad,
                 comentario: datos.comentario,
 
@@ -25,7 +26,7 @@ async function agregarJuego(datos) {
         await actualizarTotalOrden(datos.orden_id, t);
 
         return await ContenedorJuego.findByPk(nuevoJuego.id, {
-            include: [{ model: Juego, attributes: ['nombre', 'precio'] }],
+            include: [{ model: Juego, attributes: ['nombre', 'precio'], paranoid: false }],
             transaction: t
         });
     });
@@ -34,7 +35,10 @@ async function agregarJuego(datos) {
 async function listarPorOrden(ordenId) {
     return await ContenedorJuego.findAll({
         where: { orden_id: ordenId },
-        include: [{ model: Juego, attributes: ['id', 'nombre', 'precio', 'imagen', 'tiempo_partida'] }],
+        // Un juego borrado del catálogo sigue apareciendo en las órdenes que lo tienen
+        include: [
+            { model: Juego, attributes: ['id', 'nombre', 'precio', 'imagen', 'tiempo_partida'], paranoid: false }
+        ],
         order: [['hora_inicio', 'ASC']]
     });
 }

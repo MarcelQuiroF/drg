@@ -90,6 +90,7 @@ erDiagram
         time hora_inicio
         time hora_fin "NULL"
         int cantidad
+        numeric precio_unitario
         varchar comentario "NULL"
     }
     contenedor_producto {
@@ -101,6 +102,7 @@ erDiagram
         int cantidad_preparando
         int cantidad_terminado
         int cantidad_enviado
+        numeric precio_unitario
         varchar comentario "NULL"
     }
     contenedor_transaccion {
@@ -245,8 +247,8 @@ erDiagram
 | Tabla | Para qué | Notas |
 |-------|----------|-------|
 | `orden` | Cuenta abierta de una mesa | `total` (se recalcula con precios actuales, #22), `finalizado`, `notas`. `mesa_id` admite nulos. No guarda qué empleado la abrió (#46) |
-| `contenedor_producto` | Productos de una orden | `cantidad`, `comentario` y los contadores de la comanda: `cantidad_recibido`, `cantidad_preparando`, `cantidad_terminado`, `cantidad_enviado`. No guarda el precio cobrado (#22) |
-| `contenedor_juego` | Juegos prestados en una orden | `cantidad`, `comentario`, `hora_inicio` y `hora_fin` (tipo `time`, sin fecha ni zona horaria: #27). No guarda el precio cobrado |
+| `contenedor_producto` | Productos de una orden | `cantidad`, `comentario` y los contadores de la comanda: `cantidad_recibido`, `cantidad_preparando`, `cantidad_terminado`, `cantidad_enviado`. `precio_unitario` (`numeric(10,2)`): precio cobrado por unidad, fijado al agregar el ítem (#22, ADR-007) |
+| `contenedor_juego` | Juegos prestados en una orden | `cantidad`, `comentario`, `hora_inicio` y `hora_fin` (tipo `time`, sin fecha ni zona horaria: #27). `precio_unitario` (`numeric(10,2)`): precio cobrado por unidad, fijado al agregar el juego (#22, ADR-007) |
 | `descuento` | Un descuento aplicado | `porcentaje` y `monto` (los dos obligatorios; el que no se usa va en 0) y `comentario` opcional (pasa a obligatorio: #39). Se crea uno por cada vez que se aplica |
 | `orden_descuento` | Relación entre la orden y sus descuentos | Clave primaria compuesta y borrado lógico |
 | `contenedor_transaccion` | Pagos de una orden | `tipo` (`EFECTIVO` o `QR`, texto libre), `cantidad`, `fecha`, `activo` y `cliente_id` opcional. Anular un pago hace un borrado lógico; `activo` se guarda siempre en `true`. `orden_id` admite nulos y queda en `NULL` si se borra la orden |
@@ -308,7 +310,6 @@ Hoy casi todo usa borrado lógico, así que estas reglas casi no se activan. Imp
 
 | Cambio | Issue / ADR |
 |--------|-------------|
-| `precio_unitario` en `contenedor_producto` y `contenedor_juego` | #22 |
 | Tabla `tamano_juego` y `juego.tamano_id`; se elimina `juego.precio` | #37, ADR-007 |
 | Tabla de jornadas (apertura, cierre y reapertura del día) | #34, #35 |
 | Empleado que abre la orden y que registra cada pago o descuento | #46, #39 |
@@ -322,3 +323,4 @@ Hoy casi todo usa borrado lógico, así que estas reglas casi no se activan. Imp
 | Versión | Fecha | Cambio |
 |---------|-------|--------|
 | 0.1 | 25/11/2026 | Primera versión, a partir de las migraciones de `main` (issue #11) |
+| 0.2 | 25/11/2026 | `precio_unitario` en `contenedor_producto` y `contenedor_juego` (#22) |

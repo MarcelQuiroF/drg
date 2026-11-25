@@ -226,7 +226,7 @@ const cargarDetalleOrden = async (ordenId) => {
                 prods.map((i) => ({
                     id: i.id,
                     nombre: i.Producto.nombre,
-                    precio: i.Producto.precio,
+                    precio: i.precio_unitario,
                     cantidad: i.cantidad,
                     comentario: i.comentario,
                     tipo: 'producto'
@@ -240,7 +240,7 @@ const cargarDetalleOrden = async (ordenId) => {
                 juegos.map((j) => ({
                     id: j.id,
                     nombre: j.Juego.nombre,
-                    precio: j.Juego.precio,
+                    precio: j.precio_unitario,
                     indigo: j.cantidad,
                     cantidad: j.cantidad,
                     comentario: j.comentario,

@@ -26,11 +26,11 @@ async function obtenerDatosDashboard(req, res, next) {
             ContenedorTransaccion.findAll({ attributes: ['cantidad', 'tipo'], where: { fecha: rangoFechas } }),
             Reserva.count({ where: { createdAt: rangoFechas } }),
             ContenedorProducto.findAll({
-                include: [{ model: Producto, attributes: ['nombre', 'precio'] }],
+                include: [{ model: Producto, attributes: ['nombre'], paranoid: false }],
                 where: { createdAt: rangoFechas }
             }),
             ContenedorJuego.findAll({
-                include: [{ model: Juego, attributes: ['nombre', 'precio'] }],
+                include: [{ model: Juego, attributes: ['nombre'], paranoid: false }],
                 where: { createdAt: rangoFechas }
             })
         ]);
@@ -53,15 +53,14 @@ async function obtenerDatosDashboard(req, res, next) {
             rankingJuegosMap = {};
 
         productosVendidos.forEach((cp) => {
-            const precio = parseFloat(cp.Producto?.precio || 0);
-            ingresosComida += precio * cp.cantidad;
+            // Precio cobrado (#22), no el precio actual del catálogo
+            ingresosComida += parseFloat(cp.precio_unitario) * cp.cantidad;
             const nombre = cp.Producto?.nombre || 'Desconocido';
             rankingComidaMap[nombre] = (rankingComidaMap[nombre] || 0) + cp.cantidad;
         });
 
         juegosJugados.forEach((cj) => {
-            const precio = parseFloat(cj.Juego?.precio || 0);
-            ingresosJuegos += precio * cj.cantidad; // O solo el precio si se cobra por hora independiente
+            ingresosJuegos += parseFloat(cj.precio_unitario) * cj.cantidad;
             const nombre = cj.Juego?.nombre || 'Desconocido';
             rankingJuegosMap[nombre] = (rankingJuegosMap[nombre] || 0) + 1; // 1 vez por orden
         });

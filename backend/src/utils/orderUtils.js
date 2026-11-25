@@ -1,26 +1,20 @@
-const { Orden, ContenedorProducto, ContenedorJuego, Producto, Juego, Descuento } = require('../models');
+const { Orden, ContenedorProducto, ContenedorJuego, Descuento } = require('../models');
 
+// Recalcula el total con el precio guardado en cada ítem (precio_unitario), no con el precio
+// actual del catálogo: así borrar un producto o cambiarle el precio no cambia lo que se cobra
+// en una orden ya abierta (#22, ADR-007).
 async function actualizarTotalOrden(ordenId, transaction) {
     const orden = await Orden.findByPk(ordenId, {
-        include: [
-            { model: ContenedorProducto, include: [Producto] },
-            { model: ContenedorJuego, include: [Juego] },
-            { model: Descuento }
-        ],
+        include: [{ model: ContenedorProducto }, { model: ContenedorJuego }, { model: Descuento }],
         transaction
     });
 
     if (!orden) return 0;
 
-    let subtotal = (orden.ContenedorProductos || []).reduce((sum, item) => {
-        const precio = item.Producto ? parseFloat(item.Producto.precio) : 0;
-        return sum + precio * (item.cantidad || 0);
-    }, 0);
+    const sumarItems = (items) =>
+        (items || []).reduce((sum, item) => sum + parseFloat(item.precio_unitario) * (item.cantidad || 0), 0);
 
-    subtotal += (orden.ContenedorJuegos || []).reduce((sum, item) => {
-        const precio = item.Juego ? parseFloat(item.Juego.precio) : 0;
-        return sum + precio * (item.cantidad || 0);
-    }, 0);
+    const subtotal = sumarItems(orden.ContenedorProductos) + sumarItems(orden.ContenedorJuegos);
 
     let totalDescuento = 0;
     const descuentos = orden.Descuentos || [];
