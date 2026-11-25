@@ -3,7 +3,7 @@
 // Catálogo (categorías, productos, juegos) y espacio (pisos, mesas), más el alta de empleados.
 // Casos F2, C1, C2, C3, T4, P1 y T16 del análisis, y el CRUD básico del ADMIN.
 const { comoRol, anonimo } = require('../soporte/api');
-const { sequelize, Producto, JuegoCategoria } = require('../../src/models');
+const { sequelize, Producto, Juego, JuegoCategoria } = require('../../src/models');
 
 let admin;
 
@@ -153,19 +153,58 @@ describe('Juegos', () => {
         await expect(JuegoCategoria.create({ juego_id: j.id, categoria_id: cat.id })).resolves.toBeDefined();
     });
 
-    test.failing('F2 · crear un juego con categorías responde 201 y las guarda (#24)', async () => {
+    test('F2 · crear un juego con categorías responde 201 y las guarda (#24)', async () => {
         const cat = await categoria('Estrategia');
         const res = await admin.post('/juegos').send(juegoValido({ nombre: 'Carcassonne', categorias: [cat.id] }));
-        expect(res.status).toBe(201); // hoy 500
+        expect(res.status).toBe(201); // antes 500: juego.setCategorias is not a function
         expect(nombresDe(res.body)).toEqual(['Estrategia']);
     });
 
-    test.failing('F2 · editar las categorías de un juego responde 200 y las guarda (#24)', async () => {
+    test('F2 · editar las categorías de un juego responde 200 y las guarda (#24)', async () => {
         const cat = await categoria('Familiar');
         const creado = (await admin.post('/juegos').send(juegoValido({ nombre: 'Ticket to Ride' }))).body;
         const res = await admin.put(`/juegos/${creado.id}`).send({ categorias: [cat.id] });
-        expect(res.status).toBe(200); // hoy 500
+        expect(res.status).toBe(200); // antes 500
         expect(nombresDe(res.body)).toEqual(['Familiar']);
+    });
+
+    test('F2b · reasignar categorías varias veces: quitar, volver a poner y repetir un id (#24)', async () => {
+        const a = await categoria('Party');
+        const b = await categoria('Cartas');
+        const j = (await admin.post('/juegos').send(juegoValido({ nombre: 'Codenames', categorias: [a.id, b.id] })))
+            .body;
+        expect(nombresDe(j)).toEqual(['Cartas', 'Party']);
+
+        const soloA = await admin.put(`/juegos/${j.id}`).send({ categorias: [a.id] });
+        expect(soloA.status).toBe(200);
+        expect(nombresDe(soloA.body)).toEqual(['Party']);
+
+        const otraVez = await admin.put(`/juegos/${j.id}`).send({ categorias: [a.id, b.id, b.id] });
+        expect(otraVez.status).toBe(200);
+        expect(nombresDe(otraVez.body)).toEqual(['Cartas', 'Party']);
+
+        const editarSinCategorias = await admin.put(`/juegos/${j.id}`).send({ precio: 20 });
+        expect(nombresDe(editarSinCategorias.body)).toEqual(['Cartas', 'Party']); // no las toca
+
+        const ninguna = await admin.put(`/juegos/${j.id}`).send({ categorias: [] });
+        expect(ninguna.status).toBe(200);
+        expect(nombresDe(ninguna.body)).toEqual([]);
+    });
+
+    test('F2c · crear con una categoría que no existe responde 400 y no crea el juego (#24)', async () => {
+        const res = await admin.post('/juegos').send(juegoValido({ nombre: 'Juego huérfano', categorias: [999999] }));
+        expect(res.status).toBe(400);
+        expect(await Juego.findOne({ where: { nombre: 'Juego huérfano' }, paranoid: false })).toBeNull();
+    });
+
+    test('F2d · editar con una categoría que no existe responde 400 y no cambia nada (#24)', async () => {
+        const cat = await categoria('Abstracto');
+        const j = (await admin.post('/juegos').send(juegoValido({ nombre: 'Azul', categorias: [cat.id] }))).body;
+        const res = await admin.put(`/juegos/${j.id}`).send({ nombre: 'Azul cambiado', categorias: [999999] });
+        expect(res.status).toBe(400);
+        const guardado = (await admin.get(`/juegos/${j.id}`)).body;
+        expect(guardado.nombre).toBe('Azul'); // la transacción deshace también el cambio de nombre
+        expect(nombresDe(guardado)).toEqual(['Abstracto']);
     });
 
     test.failing('C2 · crear un juego sin tiempo_partida responde 400, no 500 (#28)', async () => {

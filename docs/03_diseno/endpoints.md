@@ -474,10 +474,13 @@ Administración de la ludoteca disponible para préstamo y consumo en salón.
   "precio": 15.00,
   "jugadores_min": 3,
   "jugadores_max": 6,
-  "tiempo_partida": 30
+  "tiempo_partida": 30,
+  "categorias": [2, 4]
 }
 
 ```
+
+* `categorias` (opcional): ids de categorías. El juego y sus categorías se guardan en una sola transacción: si una categoría no existe responde **400** y no se crea el juego (#24). Un id repetido se guarda una sola vez.
 
 
 * **Respuesta Exitosa (201 Created):**
@@ -489,7 +492,11 @@ Administración de la ludoteca disponible para préstamo y consumo en salón.
   "jugadores_min": 3,
   "jugadores_max": 6,
   "tiempo_partida": 30,
-  "activado": true
+  "activado": true,
+  "Categoria": [
+    { "id": 2, "nombre": "Familiar" },
+    { "id": 4, "nombre": "Party" }
+  ]
 }
 
 ```
@@ -504,11 +511,14 @@ Administración de la ludoteca disponible para préstamo y consumo en salón.
 ```json
 {
   "jugadores_max": 8,
-  "enlace": "https://tutorial-dixit.com"
+  "enlace": "https://tutorial-dixit.com",
+  "categorias": [4]
 }
 
 ```
 
+* `categorias` (opcional): si viene, **reemplaza** las categorías del juego por exactamente las de la lista (`[]` las quita todas); si no viene, no se tocan. Se puede conservar, agregar, quitar y volver a asignar una categoría (#24).
+* Todo se guarda en una transacción: si una categoría no existe responde **400** y el juego queda como estaba (datos y categorías).
 
 * **Respuesta Exitosa (200 OK):**
 ```json

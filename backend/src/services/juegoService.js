@@ -1,11 +1,30 @@
-const { Juego, Categoria } = require('../models');
+const { Juego, Categoria, sequelize } = require('../models');
 
-async function crearJuego(datos, idsCategorias = []) {
-    const nuevoJuego = await Juego.create(datos);
+// Ids de categoría sin repetir (un id repetido chocaría con la clave primaria de juego_categoria)
+const idsUnicos = (ids) => [...new Set(ids.map(Number))];
 
-    if (idsCategorias && idsCategorias.length > 0) {
-        await nuevoJuego.setCategorias(idsCategorias);
+// Reemplaza las categorías del juego por las recibidas. La asociación se llama `Categoria`
+// (Sequelize no pluraliza el nombre del modelo), así que el método es `setCategoria`, no
+// `setCategorias` (#24). `setCategoria` borra las relaciones que sobran y crea las nuevas;
+// como juego_categoria ya no tiene borrado lógico (#78), volver a asignar una categoría no choca.
+async function guardarCategorias(juego, idsCategorias, transaction) {
+    const ids = idsUnicos(idsCategorias);
+    const existentes = await Categoria.count({ where: { id: ids }, transaction });
+    if (existentes !== ids.length) {
+        const error = new Error('Alguna de las categorías no existe.');
+        error.status = 400;
+        throw error;
     }
+    await juego.setCategoria(ids, { transaction });
+}
+
+// Juego y categorías se guardan juntos: si algo falla no queda un juego a medias (#24)
+async function crearJuego(datos, idsCategorias = []) {
+    const nuevoJuego = await sequelize.transaction(async (t) => {
+        const juego = await Juego.create(datos, { transaction: t });
+        if (idsCategorias) await guardarCategorias(juego, idsCategorias, t);
+        return juego;
+    });
 
     return await obtenerJuegoPorId(nuevoJuego.id);
 }
@@ -40,16 +59,18 @@ async function obtenerJuegoPorId(id) {
     });
 }
 
+// Si llegan categorías, reemplazan a las anteriores; todo en la misma transacción (#24)
 async function actualizarJuego(id, datos, idsCategorias) {
-    const juego = await Juego.findByPk(id);
-    if (!juego) return null;
+    const actualizado = await sequelize.transaction(async (t) => {
+        const juego = await Juego.findByPk(id, { transaction: t });
+        if (!juego) return null;
 
-    await juego.update(datos);
+        await juego.update(datos, { transaction: t });
+        if (idsCategorias) await guardarCategorias(juego, idsCategorias, t);
+        return juego;
+    });
 
-    if (idsCategorias) {
-        await juego.setCategorias(idsCategorias);
-    }
-
+    if (!actualizado) return null;
     return await obtenerJuegoPorId(id);
 }
 
