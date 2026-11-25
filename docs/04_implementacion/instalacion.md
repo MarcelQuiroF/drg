@@ -125,11 +125,11 @@ Se cambia **editando al empleado desde el panel del ADMIN**:
 4. Escribir la contraseña nueva en el campo **Contraseña** (si se deja vacío, la contraseña no cambia). No tocar los demás campos.
 5. Pulsar **Guardar Empleado**.
 
-Desde ese momento el empleado entra con la contraseña nueva y la anterior deja de funcionar. Probado con el cajero y el mesero.
+Desde ese momento el empleado entra con la contraseña nueva y la anterior deja de funcionar. Probado con el ADMIN, el cajero y el mesero.
 
-> ⚠ **Bug conocido (#109): por ahora, no editar al ADMIN.** El formulario no tiene la opción `ADMIN` en el selector de rol y, al guardar, le deja el rol vacío: el administrador pierde el acceso al panel. Hasta que se corrija #109 (Etapa 4), la contraseña del ADMIN se queda en `drg-desarrollo`, lo que solo es aceptable en una máquina de desarrollo.
->
-> Si ya pasó, se recupera desde `psql` (o pgAdmin) conectado a la base: `UPDATE empleado SET rol = 'ADMIN' WHERE ci = '1234567LP';`
+**Lo primero al instalar con datos reales: cambiar la contraseña del ADMIN.** El ADMIN se edita igual que los demás y conserva su rol (corregido en #109).
+
+> El sistema no deja quitarle el rol ni desactivar al **último administrador activo** (responde "No se puede quitar el rol ADMIN ni desactivar al último administrador activo"). Para cambiar de administrador, primero se le da el rol `ADMIN` a otro empleado.
 
 ## 5. Lint y pruebas automáticas
 

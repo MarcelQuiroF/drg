@@ -107,6 +107,14 @@ Las pruebas leen `ventana_bloqueo`, `ventana_llegada` y `minutos_tolerancia` de 
 | T16 | Catálogo de juegos sin sesión | ✅ / ⏳ | 200 sin token, con los juegos del seed (catálogo por QR). Si se muestran los juegos desactivados lo decide el dueño (P-18) | #58 | ✔ |
 | — | CRUD básico de categorías, productos, juegos, pisos y mesas (ADMIN), datos obligatorios (400) y capacidad máxima menor a la mínima (4xx) | ✅ | 201 / 200 / 400 | — | ✔ |
 
+## Empleados (`tests/empleados/`)
+
+| Código | Caso | Cat. | Resultado esperado | Issue | Estado |
+|--------|------|:----:|--------------------|-------|:------:|
+| E1 | Editar al ADMIN desde el panel cambiando solo la contraseña | ✅ | 200, sigue siendo `ADMIN` y entra con la contraseña nueva (corregido en #109: el selector no tenía `ADMIN` y guardaba `rol = ''`). El formulario se probó en Chrome | #109 | ✔ |
+| E2 | Crear o editar un empleado con un rol que no es `ADMIN`, `CAJERO` ni `MESERO` (vacío, `COCINERO`, en minúsculas, nulo) | ✅ | 400 y no se guarda nada | #109 | ✔ |
+| E3 | Quitar el rol o desactivar al último ADMIN activo (también con un ADMIN inactivo de más, y dos cambios simultáneos) | ✅ | 409 y no cambia nada; con dos ADMIN activos, uno sí se puede cambiar (RN-18) | #109 | ✔ |
+
 ## Solo del navegador (pruebas manuales)
 
 | Código | Caso | Resultado esperado | Issue |
