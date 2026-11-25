@@ -648,6 +648,11 @@ Registro de la clientela para control de reservas, consumos y cuentas recurrente
 
 Control operativo de consumos en mesa, procesamiento de cuentas y aplicación de descuentos. Todas las rutas requieren token JWT en la cabecera (`Authorization: Bearer <token>`)
 
+**Pedidos simultáneos sobre una misma orden (#124).** Las rutas que cambian una orden o sus ítems (`POST /ordenes/:id/finalizar`, descuentos, `DELETE /ordenes/:id`, `/ordenes-productos`, `/ordenes-juegos`, `POST /comandas/:id/avanzar` y `/pagos`) bloquean la fila de la orden mientras trabajan: si llegan varias a la vez para la misma orden (clics rápidos, dos meseros en la mesa), se atienden una detrás de otra. Así no se pierden unidades y `orden.total` siempre es la suma de las líneas menos los descuentos. En todas ellas:
+
+* `404`: la orden no existe.
+* `409`: la orden ya está cobrada (*"La orden ya está cobrada y no se puede modificar."*). La cocina sí puede seguir avanzando las comandas de una orden cobrada.
+
 ### Listar Todas las Órdenes
 
 * **Ruta:** `GET /api/v1/ordenes`
@@ -745,7 +750,8 @@ Control operativo de consumos en mesa, procesamiento de cuentas y aplicación de
 ```
 * **Errores:**
   * `400`: falta `pagos` (y el total es mayor a 0), `pagos` no es una lista, un pago tiene un tipo que no es `QR` ni `EFECTIVO` o un monto que no es mayor a 0, o la suma no coincide con el total. No se registra nada y la orden sigue abierta.
-  * `500`: la orden no existe o ya estaba finalizada (pasarán a 404 y 409 con #68).
+  * `404`: la orden no existe; `409`: la orden ya estaba cobrada (antes 500, #124).
+  * Mientras se cobra, nadie puede agregar ítems a la orden: un pedido que llega durante el cobro espera y recibe 409; uno que llegó antes cambia el total y el cobro responde 400 (#124).
 
 ### Aplicar Descuento a una Orden
 * **Ruta:** `POST /api/v1/ordenes/:id/descuento`
@@ -1093,6 +1099,7 @@ Control detallado de los tiempos de juego prestados en las mesas y vinculados a 
 ```
 
 * El servidor guarda en `precio_unitario` el precio del juego en ese momento (#22). Si el precio del catálogo cambia después, la orden sigue cobrando el guardado.
+* Errores: `404` si la orden no existe y `409` si ya está cobrada (#124, ver *Pedidos simultáneos* en el módulo 7).
 
 ### Finalizar Préstamo de Juego (Fijar Hora de Fin)
 * **Ruta:** `PATCH /api/v1/ordenes-juegos/:id/terminar`
@@ -1190,6 +1197,7 @@ Control e inserción detallada de los platos, bebidas y snacks vinculados a una 
 ```
 
 * El servidor guarda en `precio_unitario` el precio del producto en ese momento (#22). Si la orden ya tiene ese producto **con el mismo precio**, se suma la cantidad a esa línea; si el precio cambió desde entonces, se crea una línea nueva con el precio nuevo.
+* Con varios pedidos del mismo producto a la vez se suman todas las unidades en **una sola línea** (#124). Errores: `404` si la orden no existe y `409` si ya está cobrada (ver *Pedidos simultáneos* en el módulo 7).
 
 
 

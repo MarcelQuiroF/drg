@@ -1,11 +1,10 @@
-const { ContenedorJuego, Orden, Juego, sequelize } = require('../models');
-const { actualizarTotalOrden } = require('../utils/orderUtils');
+const { ContenedorJuego, Juego, sequelize } = require('../models');
+const { bloquearOrden, actualizarTotalOrden } = require('../utils/orderUtils');
 
+// Igual que con los productos, cada operación bloquea primero la orden (#124).
 async function agregarJuego(datos) {
     return await sequelize.transaction(async (t) => {
-        const orden = await Orden.findByPk(datos.orden_id, { transaction: t });
-        if (!orden) throw new Error('La orden no existe.');
-        if (orden.finalizado) throw new Error('Orden finalizada.');
+        await bloquearOrden(datos.orden_id, t);
 
         const juego = await Juego.findByPk(datos.juego_id, { transaction: t });
         if (!juego) throw new Error('El juego no existe.');
@@ -52,12 +51,14 @@ async function terminarJuego(id) {
 
 async function eliminarJuego(id) {
     return await sequelize.transaction(async (t) => {
+        const encontrado = await ContenedorJuego.findByPk(id, { transaction: t });
+        if (!encontrado) return null;
+
+        const ordenId = encontrado.orden_id;
+        await bloquearOrden(ordenId, t);
+        // Otra vez, ya con la orden bloqueada: pudo borrarse mientras se esperaba
         const item = await ContenedorJuego.findByPk(id, { transaction: t });
         if (!item) return null;
-
-        const ordenId = item.orden_id;
-        const orden = await Orden.findByPk(ordenId, { transaction: t });
-        if (orden.finalizado) throw new Error('Orden cerrada.');
 
         await item.destroy({ transaction: t });
         await actualizarTotalOrden(ordenId, t);
