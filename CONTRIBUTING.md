@@ -149,6 +149,7 @@ Además:
 Un PR está listo para merge cuando:
 
 - [ ] Cumple todos los criterios de aceptación de la issue.
-- [ ] Se probó de forma manual (y, cuando existan, pasan las pruebas automáticas y el CI).
+- [ ] Se probó de forma manual y pasan las pruebas automáticas (`cd backend && npm test`) y el CI.
+- [ ] Si corrige un bug que tenía una prueba `test.failing`, la prueba pasa a `test`. Si agrega o cambia comportamiento, agrega su prueba (ver `docs/05_pruebas/`).
 - [ ] La documentación afectada está actualizada (`README.md`, `docs/`).
 - [ ] No deja código comentado, `console.log` de depuración ni archivos sueltos.
