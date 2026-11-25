@@ -1,8 +1,8 @@
 const { Asistencia, Empleado, Horario } = require('../models');
 const httpCodes = require('../utils/httpCodes');
-const { fechaLocal, inicioDelDia, finDelDia } = require('../utils/fechas');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
+const { fechaLocal, inicioDelDia, finDelDia } = require('../utils/fechas');
 
 async function registrarAsistencia(req, res, next) {
     try {
