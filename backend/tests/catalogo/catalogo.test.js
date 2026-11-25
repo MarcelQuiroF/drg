@@ -207,10 +207,10 @@ describe('Juegos', () => {
         expect(nombresDe(guardado)).toEqual(['Abstracto']);
     });
 
-    test.failing('C2 · crear un juego sin tiempo_partida responde 400, no 500 (#28)', async () => {
+    test('C2 · crear un juego sin tiempo_partida responde 400, no 500 (#28)', async () => {
         const { tiempo_partida: _omitido, ...sinTiempo } = juegoValido({ nombre: 'Uno' });
         const res = await admin.post('/juegos').send(sinTiempo);
-        expect(res.status).toBe(400); // hoy 500: la columna es NOT NULL y el modelo no lo valida
+        expect(res.status).toBe(400); // antes 500: la columna es NOT NULL y el modelo no lo validaba
     });
 });
 
@@ -240,15 +240,15 @@ describe('Pisos y mesas', () => {
         expect(res.status).toBeLessThan(500);
     });
 
-    test.failing('T4 · crear una mesa sin nombre responde 400, no 500 (#28)', async () => {
+    test('T4 · crear una mesa sin nombre responde 400, no 500 (#28)', async () => {
         const piso = (await admin.get('/pisos')).body[0];
         const res = await admin.post('/mesas').send({ numero: 62, piso_id: piso.id });
-        expect(res.status).toBe(400); // hoy 500: la columna es NOT NULL y el modelo no lo valida
+        expect(res.status).toBe(400); // antes 500: la columna es NOT NULL y el modelo no lo validaba
     });
 });
 
 describe('Empleados', () => {
-    test.failing('C3 · la dirección de un empleado nuevo se guarda (#28)', async () => {
+    test('C3 · la dirección de un empleado nuevo se guarda (#28)', async () => {
         const res = await admin.post('/empleados').send({
             nombre: 'Empleado con dirección',
             ci: '8888888LP',
@@ -258,6 +258,6 @@ describe('Empleados', () => {
         });
         expect(res.status).toBe(201);
         const [[fila]] = await sequelize.query("SELECT direccion FROM empleado WHERE ci = '8888888LP'");
-        expect(fila.direccion).toBe('Calle Falsa 123'); // hoy null: el modelo no tiene el campo
+        expect(fila.direccion).toBe('Calle Falsa 123'); // antes null: el modelo no tenía el campo
     });
 });

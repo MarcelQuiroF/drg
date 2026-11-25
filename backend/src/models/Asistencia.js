@@ -5,7 +5,8 @@ module.exports = (sequelize, DataTypes) => {
         {
             fecha_hora_llegada: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
 
-            aprobado: { type: DataTypes.BOOLEAN, defaultValue: false },
+            // La base tenía DEFAULT true hasta la migración 20261125160000 (#28)
+            aprobado: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
 
             estado: {
                 type: DataTypes.STRING,
@@ -16,8 +17,9 @@ module.exports = (sequelize, DataTypes) => {
                 }
             },
 
-            empleado_id: DataTypes.INTEGER,
-            horario_id: DataTypes.INTEGER,
+            empleado_id: { type: DataTypes.INTEGER, allowNull: false },
+            // NOT NULL en la base: una llegada siempre corresponde a un horario (T11, #28)
+            horario_id: { type: DataTypes.INTEGER, allowNull: false },
 
             descuento_id: {
                 type: DataTypes.INTEGER,

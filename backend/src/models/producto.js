@@ -1,10 +1,12 @@
 'use strict';
+const { largoMaximo } = require('../utils/largoMaximo');
+
 module.exports = (sequelize, DataTypes) => {
     const Producto = sequelize.define(
         'Producto',
         {
-            nombre: { type: DataTypes.STRING, allowNull: false },
-            zona: DataTypes.STRING,
+            nombre: { type: DataTypes.STRING(100), allowNull: false, validate: { ...largoMaximo(100, 'El nombre') } },
+            zona: { type: DataTypes.STRING(50), validate: { ...largoMaximo(50, 'La zona') } },
             activado: { type: DataTypes.BOOLEAN, defaultValue: true },
             precio: {
                 type: DataTypes.DECIMAL(10, 2),

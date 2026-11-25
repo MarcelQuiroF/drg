@@ -127,6 +127,7 @@ Gestión de perfiles de usuarios y personal del restaurante. Todas las rutas de 
 ```
 
 * `rol`: `ADMIN`, `CAJERO` o `MESERO`, escrito así (#109). Cualquier otro valor, incluido el texto vacío, responde **400** y no crea el empleado.
+* `direccion` (opcional, hasta 255 caracteres) se guarda desde #28; antes se descartaba (C3). Largos máximos: `nombre` 100, `ci` 20, `telefono` 20 y `correo` 100 (si no, 400).
 
 * **Respuesta Exitosa (201 Created):**
 ```json
@@ -243,7 +244,7 @@ Monitoreo de asistencia diaria y control de penalizaciones por atrasos. Requiere
 
 ```
 
-
+* **Errores:** `400` si falta `empleado_id` o `estado`, si falta `horario_id` (*"El empleado no tiene un horario para hoy…"*; antes 500, T11) o si el horario no existe o es de otro empleado (#28). Una llegada sin horario se rechaza porque sin la hora de entrada no se puede calcular el atraso (RN-01).
 
 ### Aprobar Registro de Asistencia
 
@@ -481,6 +482,7 @@ Administración de la ludoteca disponible para préstamo y consumo en salón.
 ```
 
 * `categorias` (opcional): ids de categorías. El juego y sus categorías se guardan en una sola transacción: si una categoría no existe responde **400** y no se crea el juego (#24). Un id repetido se guarda una sola vez.
+* `tiempo_partida` es **obligatorio**: duración de una partida en minutos, entero ≥ 1. Sin él responde **400** (antes 500, C2, #28). El formulario del panel lo pide desde #28.
 
 
 * **Respuesta Exitosa (201 Created):**
@@ -603,7 +605,7 @@ Registro de la clientela para control de reservas, consumos y cuentas recurrente
 
 ```
 
-
+* Largos máximos (los de la base): `nombre` 100, `ci` 20 y `telefono` 20 caracteres. Uno más largo responde **400** al crear y al editar (antes 500, #28).
 
 ### Actualizar Información del Cliente
 
@@ -1287,6 +1289,8 @@ Administración de la distribución física de los muebles del establecimiento. 
 }
 
 ```
+
+* `nombre` (hasta 100 caracteres) y `numero` son obligatorios: sin ellos responde **400** (antes 500, T4, #28).
 
 ### Actualizar Mesa / Modificar Estado de Actividad
 * **Ruta:** `PUT /api/v1/mesas/:id`

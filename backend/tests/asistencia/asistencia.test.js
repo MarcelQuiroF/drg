@@ -71,10 +71,10 @@ describe('Registrar la llegada', () => {
         expect(res.status).toBe(409); // hoy 201
     });
 
-    test.failing('T11 · un empleado sin horario ese día recibe 400 con un mensaje claro (#28)', async () => {
+    test('T11 · un empleado sin horario ese día recibe 400 con un mensaje claro (#28)', async () => {
         const sinHorario = await empleado('ADMIN'); // el seed no le asigna horario
         const res = await registrarLlegada({ empleado_id: sinHorario.id });
-        expect(res.status).toBe(400); // hoy 500: horario_id es NOT NULL en la base
+        expect(res.status).toBe(400); // antes 500: horario_id es NOT NULL en la base
         expect(res.body.message).toMatch(/horario/i);
     });
 
