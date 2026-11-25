@@ -1,10 +1,10 @@
 'use strict';
 
 // Órdenes: abrir, agregar productos y juegos, descuentos, notas y cobro.
-// Casos T5, T6, T10, T13, P2, P3, P4, P7, P9 y P9b del análisis.
+// Casos T5, T6, T10, T13, P2, P3, P4, P7 y P9 (P9b a P9e) del análisis.
 const { comoRol, cobrarEnEfectivo } = require('../soporte/api');
 const { producto, juego, mesaLibre } = require('../soporte/datos');
-const { ContenedorTransaccion, Producto, Juego, Mesa, Orden } = require('../../src/models');
+const { ContenedorTransaccion, Producto, Juego, Mesa, Orden, Piso } = require('../../src/models');
 
 let api;
 
@@ -60,30 +60,72 @@ describe('Abrir una orden', () => {
         expect(res.status).toBe(400);
     });
 
-    test.failing('P9 · abrir una orden en una mesa ocupada responde 409 (#45)', async () => {
+    test('P9 · abrir una orden en una mesa ocupada responde 409 (#45)', async () => {
         const mesa = await mesaLibre();
         await abrirOrden(mesa);
         const res = await api.post('/ordenes').send({ mesa_id: mesa.id });
-        expect(res.status).toBe(409); // hoy 500
+        expect(res.status).toBe(409); // antes 500
+        expect(res.body.message).toMatch(/ocupada/);
     });
 
-    test.failing('P9 · dos pedidos simultáneos para la misma mesa abren una sola orden (#45)', async () => {
+    test('P9c · dos pedidos simultáneos para la misma mesa abren una sola orden (#45)', async () => {
         const mesa = await mesaLibre();
         const respuestas = await Promise.all([
             api.post('/ordenes').send({ mesa_id: mesa.id }),
             api.post('/ordenes').send({ mesa_id: mesa.id })
         ]);
-        // hoy las dos responden 201: crearOrden lee mesa.estado sin bloquear la fila y las dos
-        // transacciones ven la mesa libre
+        // antes las dos respondían 201: crearOrden leía mesa.estado sin bloquear la fila y las dos
+        // transacciones veían la mesa libre
         expect(await Orden.count({ where: { mesa_id: mesa.id, finalizado: false } })).toBe(1);
         expect(respuestas.map((r) => r.status).sort()).toEqual([201, 409]);
     });
 
-    test.failing('P9b · no se puede abrir una orden en una mesa desactivada (#45)', async () => {
+    test('P9c · cinco pedidos simultáneos (dos meseros con doble clic) abren una sola orden (#45)', async () => {
+        const mesa = await mesaLibre();
+        const otro = await comoRol('CAJERO');
+        const respuestas = await Promise.all(
+            [api, otro, api, otro, api].map((cliente) => cliente.post('/ordenes').send({ mesa_id: mesa.id }))
+        );
+        expect(await Orden.count({ where: { mesa_id: mesa.id, finalizado: false } })).toBe(1);
+        expect(respuestas.map((r) => r.status).sort()).toEqual([201, 409, 409, 409, 409]);
+    });
+
+    test('P9b · no se puede abrir una orden en una mesa desactivada: 409 (#45)', async () => {
         const mesa = await mesaLibre({ activo: false });
         const res = await api.post('/ordenes').send({ mesa_id: mesa.id });
-        expect(res.status).toBeGreaterThanOrEqual(400); // hoy 201
-        expect(res.status).toBeLessThan(500);
+        expect(res.status).toBe(409); // antes 201
+        expect(res.body.message).toMatch(/desactivada/);
+        expect(await Orden.count({ where: { mesa_id: mesa.id } })).toBe(0);
+        await mesa.reload();
+        expect(mesa.estado).toBe(0);
+    });
+
+    test('P9d · no se puede abrir una orden en una mesa de un piso desactivado: 409 (#45)', async () => {
+        const piso = await Piso.create({ nombre: 'Sótano cerrado', numero: 90, activo: false });
+        const mesa = await mesaLibre({ piso_id: piso.id });
+        const res = await api.post('/ordenes').send({ mesa_id: mesa.id });
+        expect(res.status).toBe(409); // antes 201
+        expect(await Orden.count({ where: { mesa_id: mesa.id } })).toBe(0);
+    });
+
+    test('P9e · una mesa marcada libre pero con una orden abierta no abre otra (#45)', async () => {
+        const mesa = await mesaLibre();
+        await abrirOrden(mesa);
+        await mesa.update({ estado: 0 }); // estado desincronizado (datos viejos o un arreglo a mano)
+        const res = await api.post('/ordenes').send({ mesa_id: mesa.id });
+        expect(res.status).toBe(409);
+        expect(await Orden.count({ where: { mesa_id: mesa.id, finalizado: false } })).toBe(1);
+    });
+
+    test('una mesa que no existe responde 404 (#45)', async () => {
+        const res = await api.post('/ordenes').send({ mesa_id: 999999 });
+        expect(res.status).toBe(404); // antes 500
+    });
+
+    test('una mesa reservada sí se puede abrir (la reserva pasa a LLEGÓ)', async () => {
+        const mesa = await mesaLibre({ estado: 3 });
+        const res = await api.post('/ordenes').send({ mesa_id: mesa.id });
+        expect(res.status).toBe(201);
     });
 });
 
