@@ -8,7 +8,7 @@ Cómo está construido el sistema y por qué.
 | [`permisos.md`](permisos.md) | Permisos por acción, qué tiene cada rol (ADMIN, CAJERO, MESERO) y qué permiso pide cada endpoint (RF-52, ADR-008) |
 | [`arquitectura.md`](arquitectura.md) | Capas, componentes y cómo se comunican |
 | [`modelo-datos.md`](modelo-datos.md) | Tablas, relaciones y diagrama entidad-relación |
-| [`adr/`](adr/) | Registro de decisiones de arquitectura (ADR) |
+| [`adr/`](adr/README.md) | Registro de decisiones de arquitectura (ADR), con su índice |
 
 ## ADR (Architecture Decision Record)
 
