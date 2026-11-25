@@ -95,8 +95,8 @@ const CONFIGURACION = [
     },
     {
         clave: 'ventana_llegada',
-        valor: 60,
-        descripcion: 'Minutos antes de la reserva en que la mesa pasa a reservada (RN-12, valor de prueba)'
+        valor: 30,
+        descripcion: 'Minutos antes de la reserva en que la mesa pasa a reservada (RN-12)'
     },
     {
         clave: 'ventana_bloqueo',
