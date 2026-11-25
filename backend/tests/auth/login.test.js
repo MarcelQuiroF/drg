@@ -103,13 +103,73 @@ describe('Configuración de reservas', () => {
         expect(Number(fila.valor)).toBe(45);
     });
 
-    test.failing('T2b · un valor negativo se rechaza con 400 y no se guarda (#25)', async () => {
+    test('T2b · un valor negativo se rechaza con 400 y no se guarda (#25)', async () => {
         const api = await comoRol('MESERO');
         const res = await api.put('/configuracion').send({
             configuraciones: [{ clave: 'ventana_bloqueo', valor: -30 }]
         });
-        expect(res.status).toBe(400); // hoy 200 y se guarda -30
+        expect(res.status).toBe(400); // antes 200 y se guardaba -30
         const fila = await Configuracion.findOne({ where: { clave: 'ventana_bloqueo' } });
         expect(Number(fila.valor)).toBe(120);
+    });
+
+    test.each([
+        ['un decimal', 2.5],
+        ['un texto', 'mucho'],
+        ['vacío', ''],
+        ['null', null],
+        ['un booleano', true]
+    ])('T2b · %s no es un valor válido: 400 (#25)', async (_caso, valor) => {
+        const api = await comoRol('CAJERO');
+        const res = await api.put('/configuracion').send({ configuraciones: [{ clave: 'ventana_bloqueo', valor }] });
+        expect(res.status).toBe(400);
+        expect(res.body.message).toMatch(/entero/);
+    });
+
+    test('T2b · el número como texto (lo que mandan los <input>) se acepta (#25)', async () => {
+        const api = await comoRol('MESERO');
+        const res = await api
+            .put('/configuracion')
+            .send({ configuraciones: [{ clave: 'ventana_llegada', valor: '0' }] });
+        expect(res.status).toBe(200);
+        const fila = await Configuracion.findOne({ where: { clave: 'ventana_llegada' } });
+        expect(Number(fila.valor)).toBe(0);
+        await fila.update({ valor: 30 });
+    });
+
+    test('T2b · una clave que no existe se rechaza y no se crea (#25)', async () => {
+        const api = await comoRol('MESERO');
+        const res = await api
+            .put('/configuracion')
+            .send({ configuraciones: [{ clave: 'ventana_inventada', valor: 5 }] });
+        expect(res.status).toBe(400); // antes 200 y se creaba la fila
+        expect(await Configuracion.count({ where: { clave: 'ventana_inventada' } })).toBe(0);
+    });
+
+    test('T2b · si un valor es inválido no se guarda ninguno (todo o nada) (#25)', async () => {
+        const api = await comoRol('MESERO');
+        const res = await api.put('/configuracion').send({
+            configuraciones: [
+                { clave: 'minutos_tolerancia', valor: 15 },
+                { clave: 'ventana_bloqueo', valor: -1 }
+            ]
+        });
+        expect(res.status).toBe(400);
+        const fila = await Configuracion.findOne({ where: { clave: 'minutos_tolerancia' } });
+        expect(Number(fila.valor)).not.toBe(15);
+    });
+
+    test('T2b · sin la lista de configuraciones responde 400 (#25)', async () => {
+        const api = await comoRol('MESERO');
+        expect((await api.put('/configuracion').send({})).status).toBe(400);
+        expect((await api.put('/configuracion').send({ configuraciones: [] })).status).toBe(400);
+    });
+});
+
+describe('Pasos de la issue #25', () => {
+    test('el MESERO no descarga las plantillas de importación (403) y sí ve la asistencia de hoy (200)', async () => {
+        const mesero = await comoRol('MESERO');
+        expect((await mesero.get('/importacion/plantillas/productos')).status).toBe(403); // antes 200 (T17)
+        expect((await mesero.get('/asistencias/hoy')).status).toBe(200); // antes 403 (F5)
     });
 });
