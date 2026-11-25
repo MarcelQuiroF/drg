@@ -1,4 +1,5 @@
 import { authFetch } from '../api.js';
+import { mostrarNotificacion } from '../utils.js';
 
 let allEmployees = [];
 let localSchedules = [];
@@ -303,6 +304,11 @@ const handleConfirmToggle = async () => {
         if (res.ok) {
             closeAllModals();
             await loadEmployees();
+        } else {
+            // Por ejemplo, 409 al desactivar al último administrador activo (#109)
+            const err = await res.json();
+            closeAllModals();
+            mostrarNotificacion('No se pudo cambiar el estado', err.message || 'Error al guardar.');
         }
     } catch (e) {
         console.error(e);
