@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:3000/api/v1'; 
+// Ruta relativa: funciona en cualquier servidor y puerto, igual que js/api.js.
+const API_URL = '/api/v1';
 
 let todosLosJuegos = [];
 

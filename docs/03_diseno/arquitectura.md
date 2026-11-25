@@ -48,7 +48,7 @@ flowchart LR
    3. Las 18 rutas de la API bajo `/api/v1` (`auth`, `empleados`, `categorias`, `productos`, `juegos`, `pisos`, `mesas`, `ordenes`, `ordenes-productos`, `ordenes-juegos`, `pagos`, `clientes`, `reservas`, `comandas`, `asistencias`, `reportes`, `configuracion` e `importacion`).
    4. `notFoundHandler` y `errorHandler`.
 
-`server.js` no carga `dotenv`: las variables se cargan porque `models/index.js` llama a `dotenv` al importarse antes que `utils/jwt.js`. Depende del orden de los `require` (#14).
+Antes de cargar `app.js`, `server.js` llama a `validarEntorno()` (`config/env.js`), que lee `backend/.env` con `dotenv` y detiene el arranque con un mensaje claro si falta `DATABASE_URL` o `JWT_SECRET` (#14).
 
 ### 2.2 Capas
 
@@ -105,7 +105,7 @@ sequenceDiagram
 ```
 
 - Las contraseñas se guardan con **bcrypt**, en los *hooks* `beforeCreate` y `beforeUpdate` del modelo `Empleado`, y no se devuelven en las respuestas.
-- El token dura lo que diga `JWT_EXPIRATION` y se firma con `JWT_SECRET`. Si falta `JWT_SECRET`, el error aparece recién en el primer login (#14).
+- El token dura lo que diga `JWT_EXPIRATION` y se firma con `JWT_SECRET`. Si falta `JWT_SECRET`, el backend no arranca (#14).
 - `authenticate` responde **401** sin token y **403** con un token inválido o vencido; el frontend solo vuelve al login con 401 (#26).
 - `GET /empleados/perfil` devuelve el contenido del token, no los datos de la base: un empleado desactivado o con el rol cambiado sigue operando hasta que el token vence (#60).
 - Hay tres roles: `ADMIN`, `CAJERO` y `MESERO`. Hoy cada ruta lista a mano los roles que la pueden usar; pasa a permisos por acción en #25 (ADR-008). Qué puede hacer cada rol está en [`permisos.md`](permisos.md). `usuario_rol` en `localStorage` solo decide qué menú se muestra; la protección real es la del servidor.
@@ -153,11 +153,11 @@ sequenceDiagram
 
 | Variable | Para qué | Observación |
 |----------|----------|-------------|
-| `DATABASE_URL` | Conexión que usan `sequelize-cli` (migraciones y seed) y la app | `models/index.js` y `config/db.js` usan `DATABASE_URL2` si existe: la app y las migraciones pueden apuntar a bases distintas (#14) |
+| `DATABASE_URL` | Conexión que usan `sequelize-cli` (migraciones y seed) y la app | Obligatoria. `config/config.js` es la única fuente: lo leen `sequelize-cli` y `models/index.js` (#14) |
 | `PORT` | Puerto de Express | 3000 por defecto |
-| `JWT_SECRET`, `JWT_EXPIRATION` | Firma y duración del token | No se validan al arrancar (#14) |
+| `JWT_SECRET`, `JWT_EXPIRATION` | Firma y duración del token | `JWT_SECRET` es obligatoria; `JWT_EXPIRATION` vale `8h` si falta (#14) |
 
-`.sequelizerc` apunta `sequelize-cli` a `src/config/config.js`, `src/models`, `src/migrations` y `src/seeders`. No hay `.env.example` (#14).
+`.sequelizerc` apunta `sequelize-cli` a `src/config/config.js`, `src/models`, `src/migrations` y `src/seeders`. Las variables están documentadas en `backend/.env.example` (#14).
 
 ## 5. Cómo va a cambiar
 
