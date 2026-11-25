@@ -5,24 +5,16 @@ const path = require('path');
 const Sequelize = require('sequelize');
 const process = require('process');
 
-const envPath = path.resolve(__dirname, '../../.env');
-require('dotenv').config({ path: envPath });
-
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
 
+// config.js carga backend/.env y usa DATABASE_URL: la misma conexión
+// para las migraciones, el seed y la aplicación.
 const configPath = path.join(__dirname, '..', 'config', 'config.js');
 const config = require(configPath)[env];
 
 const db = {};
-let sequelize;
-
-if (process.env.DATABASE_URL2) {
-  sequelize = new Sequelize(process.env.DATABASE_URL2, config);
-} else {
-
-  sequelize = new Sequelize(config.url, config);
-}
+const sequelize = new Sequelize(config.url, config);
 
 fs
   .readdirSync(__dirname)

@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
 
 const JWT_SECRET = process.env.JWT_SECRET;
-const JWT_EXPIRATION = process.env.JWT_EXPIRATION ;
+const JWT_EXPIRATION = process.env.JWT_EXPIRATION || '8h';
 
 
 function generateToken(payload) {
