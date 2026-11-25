@@ -131,7 +131,7 @@ npm run check            # lint + revisión de formato (lo mismo que corre el CI
 Qué revisa cada uno:
 
 - **Prettier** (`.prettierrc.json`): 4 espacios (2 en JSON), punto y coma, comillas simples, líneas de hasta 120 caracteres, sin coma final y finales de línea LF. Solo formatea **JavaScript y JSON**; HTML y CSS quedan fuera hasta #71/#72, y el Markdown se escribe a mano (`.prettierignore`).
-- **ESLint** (`eslint.config.js`): las reglas recomendadas más `no-unused-vars`, `eqeqeq`, `no-var` y `prefer-const`. El backend se revisa como CommonJS para Node y el frontend como módulos ES para el navegador (`catalogoCliente.js` como script clásico). `eslint-config-prettier` apaga las reglas de formato para que no choquen con Prettier.
+- **ESLint** (`eslint.config.js`): las reglas recomendadas más `no-unused-vars`, `eqeqeq`, `no-var` y `prefer-const`. El backend se revisa como CommonJS para Node y el frontend como módulos ES para el navegador. En el frontend, una regla propia deja el CI en rojo si un dato entra sin escapar en HTML (ver *Frontend*, más abajo). `eslint-config-prettier` apaga las reglas de formato para que no choquen con Prettier.
 - Si hace falta silenciar una regla, se hace en la línea concreta y con el motivo: `// eslint-disable-next-line no-unused-vars -- se usa en #46`.
 
 Además:
@@ -139,6 +139,7 @@ Además:
 - **Finales de línea LF** en todos los sistemas: lo fijan `.editorconfig` y `.gitattributes` (Git no convierte a CRLF en Windows).
 - **Backend:** CommonJS (`require` / `module.exports`), patrón **Route → Controller → Service → Model**. Los controladores no hablan directo con los modelos: pasan por el servicio.
 - **Frontend:** módulos ES6 (`import` / `export`) en `frontend/js/modules/`.
+- **Frontend, datos en HTML (#23):** todo dato que venga de la API y se inserte con `innerHTML`, `outerHTML` o `insertAdjacentHTML` pasa por `escaparHTML()` (`js/utils.js`); los ids, por `Number()`. Si no hace falta HTML, mejor `textContent`. Un trozo de HTML armado a propósito va en una variable que termine en `HTML` (`estadoHTML`), y ESLint también revisa esa variable. Los enlaces guardados en la base se abren solo si `urlSegura()` dice que son `http(s)`.
 - Nombres de variables, funciones, rutas y mensajes en **español**, en `camelCase` (`crearOrden`, `actualizarTotalOrden`). Las tablas y columnas de la base de datos en `snake_case` (`mesa_id`, `hora_entrada`).
 - Los errores del backend se pasan a `next(error)` para que los maneje `errorHandler`.
 - Nada de credenciales, `.env` ni datos reales de clientes o empleados en el repositorio.

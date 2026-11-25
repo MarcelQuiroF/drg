@@ -14,6 +14,8 @@ Las pruebas parten de los casos que se probaron a mano en el análisis (seccione
 |-------|-----------|-------------|-------|
 | **Integración de la API** (la mayoría) | Una petición HTTP real a la app de Express, con autenticación, permisos, controladores, servicios y una base PostgreSQL real | Jest + Supertest | `backend/tests/<módulo>/*.test.js` |
 | **Unitarias** | Funciones puras, sin base (por ejemplo, la guardia de la base de pruebas) | Jest | junto a las de integración |
+| **Unitarias del frontend** (#23) | Funciones del navegador sin DOM ni API: `escaparHTML` y `urlSegura` | Test runner de Node (`node --test`), sin dependencias: `npm run test:frontend` en la raíz; corre en el job *Pruebas* | `frontend/tests/*.test.js` |
+| **Regla de lint contra XSS** (#23) | Que ningún dato entre sin escapar en el HTML que arma el frontend | ESLint (`no-restricted-syntax` en `eslint.config.js`); corre en el job *Lint y formato* | `frontend/js/` |
 | **Manuales / E2E** | Lo que solo se ve en el navegador: XSS en pantalla, responsive, consola, fechas que arma el frontend | A mano, con la lista de [`casos.md`](casos.md); E2E automático más adelante | `docs/05_pruebas/` |
 
 **Por qué casi todo es de integración:** los bugs del análisis están en la combinación de rutas, servicios y base (un `include` de Sequelize que pierde productos borrados, una columna NOT NULL que el modelo no conoce, pagos que el controlador no pasa al servicio). Una prueba unitaria con la base simulada no los vería. Supertest llama a la app de Express **sin abrir un puerto** (`request(app)`), así que las pruebas son rápidas y no chocan con un servidor que esté corriendo.
