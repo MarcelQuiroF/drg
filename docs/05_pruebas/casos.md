@@ -43,8 +43,8 @@ Archivos: `login.test.js` y `matrizPermisos.test.js`. La matriz se lee de `docs/
 | Código | Caso | Cat. | Resultado esperado | Issue | Estado |
 |--------|------|:----:|--------------------|-------|:------:|
 | T5 | Orden con 2 Cappuccino (18) + 1 Catan (25) | ✅ | Total 61.00 | — | ✔ |
-| T6 | Finalizar con QR 30 + EFECTIVO 31 | 🐞 | Dos transacciones: QR 30.00 y EFECTIVO 31.00 (hoy una EFECTIVO 61.00) | #21 | ✔ |
-| T14 / F4 | Dashboard después de T6 | 🐞 | QR 30, efectivo 31 (hoy QR 0). Aparte, ✅: con transacciones QR y EFECTIVO bien registradas el dashboard ya las separa; el fallo está en el cobro | #21 | ✔ |
+| T6 | Finalizar con QR 30 + EFECTIVO 31 | ✅ | Dos transacciones: QR 30.00 y EFECTIVO 31.00 (corregido en #21; antes, una EFECTIVO 61.00). Sin pagos, con un tipo o monto inválido o si la suma no da el total: 400 y la orden sigue abierta | #21 | ✔ |
+| T14 / F4 | Dashboard después de T6 | ✅ | QR 30, efectivo 31 (corregido en #21; antes, QR 0). Aparte, ✅: con transacciones QR y EFECTIVO bien registradas el dashboard ya las separa; el fallo está en el cobro | #21 | ✔ |
 | F3 | Dashboard con una orden cobrada (61) y otra abierta | 🐞 | Ingresos 61 (✅ pasa hoy), gráfica 61 (hoy 122), órdenes 1 (hoy 2), promedio 61 / 7 (hoy 61 / 8). Una prueba por métrica | #31 | ✔ |
 | F3b | Ranking de juegos con un juego pedido 3 veces | 🐞 | Suma la cantidad (3), como el de comida (hoy cuenta 1 fila) | #31 | ✔ |
 | T7 | Comandas de una orden ya cobrada o borrada | 🐞 | El ítem no aparece (hoy sí, en los dos casos) | #33 | ✔ |
@@ -53,7 +53,7 @@ Archivos: `login.test.js` y `matrizPermisos.test.js`. La matriz se lee de `docs/
 | P2 | Cambiar la cantidad o el comentario de un juego de la orden | 🐞 | Se actualiza (hoy 404: la ruta no existe) | #42 | ✔ |
 | P3 | MESERO aplica un descuento del 100 % | 🔄 RN-06 | 200 y total 0.00: sin tope ni autorización | #39 | ✔ |
 | P4 | Descuento de monto mayor al total (9999) | 🔄 RN-06 | 200 y el total queda en 0.00, nunca negativo. El aviso es parte de #39 (⏳) | #39 | ✔ |
-| P5 | Finalizar una orden con total 0 | ⏳ | Un solo flujo de pago (#36) define si se registra una transacción de 0 | #36 | — |
+| P5 | Finalizar una orden con total 0 | ✅ | Se cierra sin pagos y sin una transacción de 0 Bs (#21). El flujo único de pago (#36) puede revisarlo | #21 | ✔ |
 | P6 | Pago con QR mayor al total | ⏳ | RN-14: el QR de más no se registra; el detalle lo define #36 | #36 | — |
 | P7 | Reducir la cantidad de un producto ya enviado a cocina | 🐞 | La comanda muestra la cantidad nueva (hoy la vieja) | #43 | ✔ |
 | P8 | Quitar el último ítem de una orden | ⏳ | ⚠ Regla por definir: dejarla vacía o cancelarla con motivo | #44 | — |

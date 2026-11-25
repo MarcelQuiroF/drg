@@ -669,14 +669,32 @@ Control operativo de consumos en mesa, procesamiento de cuentas y aplicación de
 
 * **Ruta:** `POST /api/v1/ordenes/:id/finalizar`
 * **Acceso:** `ADMIN`, `CAJERO`, `MESERO`
-* **Respuesta Exitosa (200 OK):**
+* **Cuerpo de la Solicitud (JSON):** el detalle de los pagos. Se registra una transacción por cada pago (#21).
 ```json
 {
-  "message": "Orden finalizada y cuenta cerrada con éxito.",
-  "total_pagado": "120.00"
+  "pagos": [
+    { "tipo": "QR", "monto": 30 },
+    { "tipo": "EFECTIVO", "monto": 31 }
+  ]
 }
-
 ```
+  * `tipo`: `QR` o `EFECTIVO` (no distingue mayúsculas).
+  * `monto`: número (o texto numérico) mayor a 0.
+  * La suma de los montos tiene que ser igual al total de la orden (tolerancia de 0.01 Bs).
+  * Si el total de la orden es 0 (descuento del 100 %), `pagos` puede ir vacío: la orden se cierra sin registrar ninguna transacción.
+* **Respuesta Exitosa (200 OK):** libera la mesa.
+```json
+{
+  "message": "Orden finalizada y mesa liberada.",
+  "orden": {
+    "orden": { "id": 12, "mesa_id": 3, "total": "61.00", "finalizado": true },
+    "transacciones": 2
+  }
+}
+```
+* **Errores:**
+  * `400`: falta `pagos` (y el total es mayor a 0), `pagos` no es una lista, un pago tiene un tipo que no es `QR` ni `EFECTIVO` o un monto que no es mayor a 0, o la suma no coincide con el total. No se registra nada y la orden sigue abierta.
+  * `500`: la orden no existe o ya estaba finalizada (pasarán a 404 y 409 con #68).
 
 ### Aplicar Descuento a una Orden
 * **Ruta:** `POST /api/v1/ordenes/:id/descuento`

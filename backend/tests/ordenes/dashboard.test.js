@@ -4,7 +4,7 @@
 // Las órdenes se fechan a un día pasado fijo (fecharOrden) y se consulta "Esta semana" vista
 // desde ese día, para que el resultado no dependa del día ni de la hora en que corre la prueba
 // (#27). El mediodía evita los bordes de la zona horaria.
-const { comoRol } = require('../soporte/api');
+const { comoRol, cobrarEnEfectivo } = require('../soporte/api');
 const { producto, juego, mesaLibre, fecharOrden } = require('../soporte/datos');
 
 // Cada prueba usa su propia semana para no sumar las órdenes de las otras (la base se
@@ -45,7 +45,7 @@ describe('F3 · una orden cobrada de 61.00 y otra abierta, vistas en "Esta seman
 
     beforeAll(async () => {
         const cobrada = await ordenDe61();
-        expect((await mesero.post(`/ordenes/${cobrada.id}/finalizar`).send({})).status).toBe(200);
+        expect((await cobrarEnEfectivo(mesero, cobrada.id)).status).toBe(200);
         const abierta = await ordenDe61();
         await fecharOrden(cobrada.id, mediodia('2026-06-15'));
         await fecharOrden(abierta.id, mediodia('2026-06-15'));
@@ -81,17 +81,18 @@ describe('Pagos por tipo', () => {
         expect(totales).toMatchObject({ ingresos: 61, qr: 30, efectivo: 31 });
     });
 
-    test.failing('T14 / F4 · después de cobrar con QR 30 + EFECTIVO 31, el dashboard muestra QR 30 (#21)', async () => {
+    test('T14 / F4 · después de cobrar con QR 30 + EFECTIVO 31, el dashboard muestra QR 30 (#21)', async () => {
         const orden = await ordenDe61();
-        await mesero.post(`/ordenes/${orden.id}/finalizar`).send({
+        const cobro = await mesero.post(`/ordenes/${orden.id}/finalizar`).send({
             pagos: [
                 { tipo: 'QR', monto: 30 },
                 { tipo: 'EFECTIVO', monto: 31 }
             ]
         });
+        expect(cobro.status).toBe(200);
         await fecharOrden(orden.id, mediodia('2026-04-15'));
         const { totales } = await dashboard('2026-04-15');
-        expect(totales).toMatchObject({ ingresos: 61, qr: 30, efectivo: 31 }); // hoy QR 0 y efectivo 61
+        expect(totales).toMatchObject({ ingresos: 61, qr: 30, efectivo: 31 });
     });
 });
 

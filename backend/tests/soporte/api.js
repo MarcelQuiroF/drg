@@ -51,4 +51,13 @@ const anonimo = {
     delete: (ruta) => request(app).delete(`${API}${ruta}`)
 };
 
-module.exports = { app, API, USUARIOS, iniciarSesion, comoRol, anonimo };
+// Cobra una orden entera en efectivo por su total actual (POST /ordenes/:id/finalizar exige el
+// detalle de los pagos desde #21). Devuelve la respuesta del cobro.
+async function cobrarEnEfectivo(api, ordenId) {
+    const { body } = await api.get(`/ordenes/${ordenId}`);
+    const total = Number(body.total);
+    const pagos = total > 0 ? [{ tipo: 'EFECTIVO', monto: total }] : [];
+    return api.post(`/ordenes/${ordenId}/finalizar`).send({ pagos });
+}
+
+module.exports = { app, API, USUARIOS, iniciarSesion, comoRol, anonimo, cobrarEnEfectivo };

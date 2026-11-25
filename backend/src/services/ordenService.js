@@ -73,7 +73,36 @@ async function obtenerOrdenPorId(id) {
  * @param {Array} pagos
  */
 
-async function finalizarOrden(id, pagos = []) {
+const TIPOS_DE_PAGO = ['EFECTIVO', 'QR'];
+
+// Error causado por los datos que mandó el cliente: el errorHandler lo responde como 400.
+function errorDeSolicitud(mensaje) {
+    const error = new Error(mensaje);
+    error.status = 400;
+    return error;
+}
+
+// Valida la lista de pagos que manda la caja y la normaliza (tipo en mayúsculas, monto numérico).
+function normalizarPagos(pagos) {
+    if (pagos === undefined || pagos === null) return [];
+    if (!Array.isArray(pagos)) throw errorDeSolicitud('"pagos" tiene que ser una lista.');
+
+    return pagos.map((pago) => {
+        const tipo = String(pago?.tipo ?? '').toUpperCase();
+        const monto = Number(pago?.monto);
+        if (!TIPOS_DE_PAGO.includes(tipo)) {
+            throw errorDeSolicitud(`Tipo de pago inválido: "${pago?.tipo ?? ''}". Use ${TIPOS_DE_PAGO.join(' o ')}.`);
+        }
+        if (!Number.isFinite(monto) || monto <= 0) {
+            throw errorDeSolicitud('Cada pago tiene que tener un monto mayor a 0.');
+        }
+        return { tipo, monto };
+    });
+}
+
+async function finalizarOrden(id, pagos) {
+    const pagosValidos = normalizarPagos(pagos);
+
     return await sequelize.transaction(async (t) => {
         const orden = await Orden.findByPk(id, { transaction: t });
         if (!orden) throw new Error('Orden no encontrada.');
@@ -81,24 +110,26 @@ async function finalizarOrden(id, pagos = []) {
 
         const totalOrden = parseFloat(orden.total);
 
-        if (pagos.length === 0) {
-            pagos = [{ tipo: 'EFECTIVO', monto: totalOrden }];
+        // Antes se inventaba un pago EFECTIVO por el total cuando no llegaban pagos (#21).
+        // Una orden con total 0 (descuento del 100 %) se cierra sin registrar pagos.
+        if (pagosValidos.length === 0 && totalOrden > 0) {
+            throw errorDeSolicitud('Falta el detalle de los pagos (QR y/o EFECTIVO).');
         }
 
-        const sumaPagos = pagos.reduce((acc, pago) => acc + parseFloat(pago.monto), 0);
+        const sumaPagos = pagosValidos.reduce((acc, pago) => acc + pago.monto, 0);
 
         if (Math.abs(sumaPagos - totalOrden) > 0.01) {
-            throw new Error(
+            throw errorDeSolicitud(
                 `El total de los pagos (${sumaPagos}) no coincide con el total de la orden (${totalOrden})`
             );
         }
 
-        for (const pago of pagos) {
+        for (const pago of pagosValidos) {
             await ContenedorTransaccion.create(
                 {
                     fecha: new Date(),
                     cantidad: pago.monto,
-                    tipo: pago.tipo.toUpperCase(),
+                    tipo: pago.tipo,
                     orden_id: id,
                     activo: true
                 },
@@ -110,7 +141,7 @@ async function finalizarOrden(id, pagos = []) {
 
         await Mesa.update({ estado: 0 }, { where: { id: orden.mesa_id }, transaction: t });
 
-        return { orden, transacciones: pagos.length };
+        return { orden, transacciones: pagosValidos.length };
     });
 }
 
