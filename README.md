@@ -86,9 +86,17 @@ El sistema queda en `http://localhost:3000` (la API, en `http://localhost:3000/a
 
 ### 5. Primer ingreso
 
-El seed crea un empleado de prueba con CI `1234567LP`. Su contraseña inicial no está documentada todavía y el seed tiene errores conocidos: **falla a la mitad en una base vacía y crea ese usuario con rol `CAJERO`, así que no queda ningún administrador**. Se corrige en [#13](https://github.com/MarcelQuiroF/drg/issues/13), que también documenta la contraseña inicial de desarrollo y cómo cambiarla. Una guía de instalación completa llega con [#20](https://github.com/MarcelQuiroF/drg/issues/20).
+El seed carga datos **ficticios** de desarrollo (pisos, mesas, catálogo, la tabla de descuentos por atraso y la configuración de reservas) y tres usuarios:
 
-Nunca uses en el local las credenciales de prueba: cámbialas al instalar.
+| Rol | CI | Contraseña inicial |
+|-----|----|--------------------|
+| `ADMIN` | `1234567LP` | `drg-desarrollo` |
+| `CAJERO` | `2345678LP` | `drg-desarrollo` |
+| `MESERO` | `3456789LP` | `drg-desarrollo` |
+
+Estas credenciales son **solo para desarrollo** y son públicas (están en este README). Si el seed se usa en el local, el administrador tiene que cambiar las contraseñas al instalar desde *Empleados* (o borrar los usuarios de prueba). Una guía de instalación completa llega con [#20](https://github.com/MarcelQuiroF/drg/issues/20).
+
+El seed corre dentro de una transacción: si algo falla, no deja datos a medias. `npx sequelize-cli db:seed:undo:all` borra solo lo que insertó el seed.
 
 
 ## 👥 Estructura de Roles

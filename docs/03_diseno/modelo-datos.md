@@ -265,13 +265,13 @@ erDiagram
 | `empleado` | Usuarios del sistema | `ci` único (pero admite nulos), `contrasenia` con hash bcrypt, `rol` como texto (`ADMIN`, `CAJERO`, `MESERO`), `activo`, `direccion` y `correo` |
 | `horario` | Horario de cada empleado por día | `dia` como texto, `hora_entrada` obligatoria, `hora_salida` opcional (hoy se descarta: #61) |
 | `asistencia` | Llegada de un empleado | `fecha_hora_llegada`, `estado` (`PRESENTE`, `FALTA`, `PERMISO`, validado solo en el modelo), `aprobado`, `horario_id` obligatorio y `descuento_id` opcional |
-| `descuento_atraso` | Tabla de descuentos por atraso | `cantidad_tiempo` (tipo `time`), `descuento` y `descuento_porcentual`. Tiene que cargar la tabla RN-01 (#13, #29) |
+| `descuento_atraso` | Tabla de descuentos por atraso | `cantidad_tiempo` (tipo `time`), `descuento` y `descuento_porcentual`. El seed carga la tabla RN-01: desde `00:10:00` −10 %, desde `00:20:00` −20 % y desde `00:25:01` −100 % (`cantidad_tiempo` es el atraso mínimo, inclusive). El cálculo en el servidor llega con #29 |
 
 ### Configuración y bitácora
 
 | Tabla | Para qué | Notas |
 |-------|----------|-------|
-| `configuracion` | Valores que el personal puede ajustar | `clave` única, `valor` entero. Claves en uso: `ventana_bloqueo`, `minutos_tolerancia` y `ventana_llegada`. **El seed no las carga**: si no existen, el código usa 120, 20 y 30 minutos (RN-02 pide 30 de tolerancia: #13, #51) |
+| `configuracion` | Valores que el personal puede ajustar | `clave` única, `valor` entero. Claves en uso: `ventana_bloqueo`, `minutos_tolerancia` y `ventana_llegada`. El seed las carga con 120, 30 y 60 minutos (RN-02 y valores de prueba de RN-12, #13); si no existen, el código usa 120, 20 y 30 minutos (#51) |
 | `registro`, `registro_orden`, `registro_reserva`, `registro_asistencia` | Pensadas como bitácora | **Nada las llena** (#66). En `registro_asistencia` la clave hacia `asistencia` se llama `atraso_id`, un nombre confuso |
 
 ## 4. Reglas de borrado de las claves foráneas
