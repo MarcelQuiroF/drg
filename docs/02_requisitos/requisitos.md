@@ -124,7 +124,7 @@
 
 | Código | Requisito | Fuente | Prioridad | Validado |
 |--------|-----------|--------|:---------:|----------|
-| RF-52 | Cada usuario entra con CI y contraseña, y el **servidor** solo le permite las acciones de su rol (matriz de permisos por definir en la Etapa 2) | E2, IR | I | pendiente |
+| RF-52 | Cada usuario entra con CI y contraseña, y el **servidor** solo le permite las acciones de su rol (matriz de permisos en [`permisos.md`](../03_diseno/permisos.md)) | E2, IR | I | pendiente |
 | RF-53 | El sistema guarda una bitácora de quién cambió qué: precios y productos, órdenes, descuentos y asistencia (P-19) | E2 | D | pendiente |
 | RF-54 | La base de datos se respalda de forma automática; el administrador ve la fecha del último respaldo y puede lanzar uno a mano (P-14) | E2 (admin 11) | I | pendiente |
 
