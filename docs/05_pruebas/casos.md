@@ -1,6 +1,6 @@
 # Casos de prueba
 
-> Versión 0.3 · 25/11/2026 · Issue #18. Cómo se escriben y por qué: [`plan-de-pruebas.md`](plan-de-pruebas.md).
+> Versión 0.4 · 25/11/2026 · Issue #18. Cómo se escriben y por qué: [`plan-de-pruebas.md`](plan-de-pruebas.md).
 > Los códigos (S1, T6, F2…) vienen del análisis técnico del 12/11/2026 (secciones 10 a 12). Cada prueba automática lleva su código en el nombre.
 
 ## Categorías
@@ -84,13 +84,14 @@ Las pruebas leen `ventana_bloqueo`, `ventana_llegada` y `minutos_tolerancia` de 
 
 | Código | Caso | Cat. | Resultado esperado | Issue | Estado |
 |--------|------|:----:|--------------------|-------|:------:|
-| A1 | Registrar dos veces la llegada del mismo empleado el mismo día | 🐞 | La segunda responde 409 (hoy 201) | #30 | 🔜 |
-| A2 | Aprobar con contraseña incorrecta o con la firma de un MESERO | ✅ | 401 | — | 🔜 |
-| A3 | Aprobar con la firma del ADMIN o del CAJERO | ✅ | 200 | — | 🔜 |
-| A4 | Borrar una asistencia aprobada sin firma | 🐞 | Se rechaza y no se borra (hoy 200 y borrado físico) | #30 | 🔜 |
-| A5 | Guardar un horario con hora de salida | 🐞 | Se guardan entrada y salida (hoy solo la entrada) | #61 | 🔜 |
-| A6 | El navegador envía un descuento por atraso que no corresponde | 🐞 | El servidor lo ignora y calcula el suyo (hoy guarda el enviado) | #29 | 🔜 |
-| T11 | Registrar la llegada de un empleado sin horario ese día | 🐞 | 400 con un mensaje claro (hoy 500) | #28 | 🔜 |
+| A1 | Registrar dos veces la llegada del mismo empleado el mismo día | 🐞 | La segunda responde 409 (hoy 201) | #30 | ✔ |
+| A2 | Aprobar con contraseña incorrecta o con la firma de un MESERO | ✅ | 401 y la asistencia sigue sin aprobar | — | ✔ |
+| A3 | Aprobar con la firma del ADMIN o del CAJERO | ✅ | 200 y queda aprobada | — | ✔ |
+| A4 | Borrar una asistencia aprobada sin firma | 🐞 | Se rechaza y no se borra (hoy 200 y borrado físico). Quitar una asistencia **sin aprobar** sí funciona (✅) | #30 | ✔ |
+| A5 | Guardar un horario con hora de salida | 🐞 | Se guardan entrada y salida (hoy solo la entrada) | #61 | ✔ |
+| A5b | Editar los horarios de un empleado con asistencias anteriores | 🐞 | El horario usado por las asistencias sigue existiendo (hoy se borra: `destroy` + `bulkCreate`) | #61 | ✔ |
+| A6 | El navegador envía un descuento por atraso que no corresponde | 🐞 | Un empleado puntual que manda el −100 % queda sin descuento (hoy guarda el enviado). Los bordes de RN-01 (9:59, 10:00… 25:01) se prueban en el PR de #29 | #29 | ✔ |
+| T11 | Registrar la llegada de un empleado sin horario ese día | 🐞 | 400 con un mensaje claro (hoy 500) | #28 | ✔ |
 
 ## Catálogo y espacio (`tests/catalogo/`)
 
