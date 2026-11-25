@@ -75,3 +75,16 @@ npm start
 La documentación del proyecto está en [`docs/`](docs/README.md), ordenada por disciplina (negocio, requisitos, diseño, implementación, pruebas y proyecto). La referencia de la API está en [`docs/03_diseno/endpoints.md`](docs/03_diseno/endpoints.md).
 
 Las convenciones para contribuir (ramas, commits, PRs) están en [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+## 👏 Créditos
+
+Proyecto iniciado en equipo en la Universidad Católica Boliviana "San Pablo" (Tarija, 2025–2026); continuado, completado y entregado al negocio por **Marcelo Quiroga**.
+
+| Integrante | Aporte en el proyecto original |
+|------------|--------------------------------|
+| Marcelo Gabriel Quiroga Fernandez | Backend (API, base de datos y lógica de negocio), Data Warehouse / Power BI y documentación |
+| Alex Ricardo Quispe Estrada | Frontend: diseño e interfaz |
+| Mateo Nair Caba Mercado | App Android para meseros y documentación |
+| Rolando Antonio Cuellar Cassab | Apoyo en Data Warehouse / Power BI y presentaciones |
+
+El detalle está en [`docs/01_negocio/creditos.md`](docs/01_negocio/creditos.md).
