@@ -71,6 +71,12 @@ Mostrarle la lista de requisitos marcados como **I** (imprescindibles) y pedirle
 - ¿Quién marca un producto como agotado: el cajero, la cocina, usted?
 *Por qué:* RF-32, RF-14 (hoy hay zonas mezcladas que esconden productos) y RF-33.
 
+**P-21 · ¿Quién cobra y quién puede borrar una orden?** *(agregada el 25/11/2026, al armar la matriz de permisos)*
+- ¿El mesero también cobra, o solo el cajero (y el administrador)?
+- Si una orden se abrió por error o con ítems ya enviados a cocina, ¿quién la puede borrar o cancelar?
+*Por qué:* RF-17 dice que cobra el cajero, pero hoy el sistema deja cobrar al mesero. La [matriz de permisos](../03_diseno/permisos.md) usa RF-17 hasta tener la respuesta.
+*Propuesta:* cobran el cajero y el administrador; borrar una orden con ítems enviados lo hacen el cajero o el administrador, con motivo.
+
 ## C. Personal
 
 **P-07 · Atrasos**
@@ -169,6 +175,7 @@ Mostrarle la lista de requisitos marcados como **I** (imprescindibles) y pedirle
 | P-18 Catálogo por QR | Pendiente | — | — |
 | P-19 Bitácora | Pendiente | — | — |
 | P-20 Piloto y entrega | Pendiente | — | — |
+| P-21 Quién cobra y quién borra órdenes | Pendiente. Valor de prueba: cobran ADMIN y CAJERO (RF-17) | Prueba | RF-17, RF-52 |
 
 **Requisito nuevo sin pregunta:** mover una orden abierta a otra mesa (RF-55), para cuando un grupo chico ocupa una mesa grande y llega un grupo más grande. La mesa de destino tiene que estar libre y sin reserva próxima (RN-15).
 
@@ -178,12 +185,13 @@ Lista corta para la presentación del MVP al dueño, en orden de importancia:
 
 1. **P-01** · Qué es imprescindible para empezar a usar el sistema.
 2. **P-09** · ¿Se cuenta el dinero al abrir y al cerrar (arqueo)? ¿Qué debe mostrar el reporte de cierre? ¿Quién puede reabrir un día cerrado?
-3. **P-05** · ¿Cuánto tiempo antes de una reserva se deja de dar la mesa? (Prueba: 1 h.)
-4. **P-07** · ¿Quién confirma la llegada de un empleado? (Prueba: el cajero.)
-5. **P-08** · ¿El sistema solo reporta atrasos, o también calcula sueldos? (Prueba: solo atrasos.)
-6. **P-10** · Impresoras (cuántas, tipo, marca y modelo). ¿El mesero tiene que ver al instante cuándo está listo un pedido?
-7. **P-12** · ¿Las zonas son solo Cocina y Cafetería? ¿Quién marca un producto como agotado?
-8. **P-13 a P-15** · Equipos del local, respaldos y los Excel actuales.
-9. **P-16** · ¿Cuántos pisos y mesas hay hoy?
-10. **P-17 a P-20** · Clientes frecuentes, catálogo por QR, bitácora, piloto y entrega.
-11. **Confirmar con el dueño** las respuestas de Marcelo, sobre todo la tabla de atrasos (RN-01) y los descuentos sin tope (RN-06).
+3. **P-21** · ¿El mesero también cobra? ¿Quién puede borrar una orden con ítems ya enviados a cocina? (Prueba: cobran el cajero y el administrador.)
+4. **P-05** · ¿Cuánto tiempo antes de una reserva se deja de dar la mesa? (Prueba: 1 h.)
+5. **P-07** · ¿Quién confirma la llegada de un empleado? (Prueba: el cajero.)
+6. **P-08** · ¿El sistema solo reporta atrasos, o también calcula sueldos? (Prueba: solo atrasos.)
+7. **P-10** · Impresoras (cuántas, tipo, marca y modelo). ¿El mesero tiene que ver al instante cuándo está listo un pedido?
+8. **P-12** · ¿Las zonas son solo Cocina y Cafetería? ¿Quién marca un producto como agotado?
+9. **P-13 a P-15** · Equipos del local, respaldos y los Excel actuales.
+10. **P-16** · ¿Cuántos pisos y mesas hay hoy?
+11. **P-17 a P-20** · Clientes frecuentes, catálogo por QR, bitácora, piloto y entrega.
+12. **Confirmar con el dueño** las respuestas de Marcelo, sobre todo la tabla de atrasos (RN-01) y los descuentos sin tope (RN-06).

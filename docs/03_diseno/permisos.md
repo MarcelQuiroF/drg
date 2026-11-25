@@ -84,8 +84,8 @@ La columna **Hoy** dice qué protección tiene la ruta en el código: `público`
 | GET | `/ordenes/:id` | ✅ | ✅ | ✅ | sesión | | |
 | POST | `/ordenes` | ✅ | ✅ | ✅ | sesión | | Con el día cerrado responde 409 (#34) |
 | PUT | `/ordenes/:id` | ✅ | ✅ | ✅ | los 3 roles | | Notas. No si la orden está cobrada (#41) |
-| DELETE | `/ordenes/:id` | ✅ | ✅ | ✅ ⚠ | los 3 roles | | ⚠ Quién puede borrar o cancelar una orden con ítems ya enviados a cocina: pendiente (#44) |
-| POST | `/ordenes/:id/finalizar` | ✅ | ✅ | ❌ ⚠ | los 3 roles | ≠ | RF-17 dice que **cobra el cajero**. ⚠ Confirmar con el dueño el 10/12 si el mesero también cobra; hasta entonces, se aplica RF-17 |
+| DELETE | `/ordenes/:id` | ✅ | ✅ | ✅ ⚠ | los 3 roles | | ⚠ Quién puede borrar o cancelar una orden con ítems ya enviados a cocina: pendiente (P-21, #44) |
+| POST | `/ordenes/:id/finalizar` | ✅ | ✅ | ❌ ⚠ | los 3 roles | ≠ | RF-17 dice que **cobra el cajero**. ⚠ Confirmar con el dueño el 10/12 si el mesero también cobra (P-21); hasta entonces, se aplica RF-17 |
 | POST | `/ordenes/:id/descuento` | ✅ | ✅ | ✅ | los 3 roles | | RN-06: cajero y mesero, sin tope. Motivo obligatorio (#39) |
 | GET | `/ordenes/:id/descuentos` | ✅ | ✅ | ✅ | los 3 roles | | |
 | DELETE | `/ordenes/:ordenId/descuento/:descuentoId` | ✅ | ✅ | ✅ | los 3 roles | | |
@@ -158,7 +158,7 @@ La columna **Hoy** dice qué protección tiene la ruta en el código: `público`
 | 1 | `PUT /configuracion` | sesión | ADMIN | T2: cualquier rol cambia reglas del negocio |
 | 2 | `GET /configuracion/descuentos-atraso` | sesión | ADMIN, CAJERO | Solo la usa asistencia |
 | 3 | `GET /importacion/plantillas/*` (2 rutas) | sesión | ADMIN | T17 |
-| 4 | `POST /ordenes/:id/finalizar` | los 3 roles | ADMIN, CAJERO ⚠ | RF-17 (confirmar el 10/12) |
+| 4 | `POST /ordenes/:id/finalizar` | los 3 roles | ADMIN, CAJERO ⚠ | RF-17 (P-21, confirmar el 10/12) |
 | 5 | `GET` y `POST /pagos` | sesión | ADMIN, CAJERO ⚠ | RF-17 (confirmar el 10/12) |
 | 6 | `DELETE /pagos/:id` | sesión + chequeo a mano | ADMIN, CAJERO | Mismo permiso, pero con `authorize` |
 | 7 | `POST`, `PUT`, `DELETE /productos` | ADMIN + chequeo a mano | ADMIN | Quitar el chequeo duplicado |
