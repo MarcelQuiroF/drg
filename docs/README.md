@@ -14,6 +14,7 @@ La documentación está ordenada **por disciplina**, en el mismo orden en que av
 ## Documentos actuales
 
 - [Guía de instalación](04_implementacion/instalacion.md)
+- [Dependencias: cómo revisarlas y actualizarlas](04_implementacion/dependencias.md)
 - [Endpoints de la API](03_diseno/endpoints.md)
 - [Arquitectura](03_diseno/arquitectura.md) *(por completar)*
 - [Modelo de datos](03_diseno/modelo-datos.md) *(por completar)*

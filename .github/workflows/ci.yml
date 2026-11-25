@@ -1,7 +1,9 @@
 # Integración continua (#19): cada PR hacia main y cada push a main se verifican solos.
-# Dos jobs en paralelo, para que el rojo diga enseguida qué falló:
+# Jobs en paralelo, para que el rojo diga enseguida qué falló:
 #   - "Lint y formato": npm run check en la raíz (ESLint + Prettier, #17).
 #   - "Pruebas": npm test en backend/ contra un PostgreSQL de servicio (#18).
+#   - "Dependencias": npm audit de lo que corre en producción (#111). Guía:
+#     docs/04_implementacion/dependencias.md
 # Plan de pruebas: docs/05_pruebas/plan-de-pruebas.md
 
 name: CI
@@ -38,6 +40,24 @@ jobs:
 
       - run: npm ci
       - run: npm run check
+
+  # Falla solo con vulnerabilidades críticas en las dependencias de producción del backend.
+  # Las altas se revisan a mano (xlsx no tiene arreglo y se reemplaza en #57); con
+  # --audit-level=high el job estaría siempre en rojo y nadie lo miraría.
+  # npm audit solo lee package-lock.json: no hace falta npm ci.
+  dependencias:
+    name: Dependencias
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+      - run: npm audit --omit=dev --audit-level=critical
 
   pruebas:
     name: Pruebas
