@@ -5,7 +5,7 @@
 Este documento detalla las rutas del servidor, los datos requeridos para las solicitudes, las restricciones de acceso por roles y los formatos de respuesta exitosa.
 
 > **Revisado el 25/11/2026** (issue #12) contra las rutas montadas en `backend/src/app.js`: las **69 rutas** del código están documentadas aquí.
-> El campo **Acceso** describe lo que hace hoy el código. Lo que **debería** poder hacer cada rol está en la [matriz de permisos](permisos.md); las diferencias se corrigen en #25.
+> Desde #25 cada ruta pide un **permiso por acción** (`requierePermiso`, ADR-008). La fuente es la [matriz de permisos](permisos.md): el campo **Acceso** de este documento solo resume qué roles tienen ese permiso hoy.
 > El cierre del día (sección 16) no está disponible: la ruta existe en el código, pero no está montada.
 
 ---
@@ -17,10 +17,14 @@ Desde #26 las rutas protegidas distinguen dos errores, para que el frontend web 
 | Código | Cuándo | Qué hace el cliente |
 |--------|--------|---------------------|
 | **401** | Sin cabecera `Authorization: Bearer …`, token con otra firma, token mal formado o **vencido**. La respuesta trae `WWW-Authenticate: Bearer` (sin token) o `Bearer error="invalid_token"` (token que no sirve) | Borrar la sesión y volver al login. El `message` dice el motivo: *"La sesión venció. Vuelva a iniciar sesión."* o *"Token inválido. Vuelva a iniciar sesión."* |
-| **403** | La sesión es válida, pero el rol no tiene permiso para la ruta, o la firma de un supervisor que pide la ruta no sirve (aprobar asistencia) | Mostrar el `message` y quedarse en la pantalla |
+| **403** | La sesión es válida, pero el rol no tiene el permiso de la ruta (la respuesta trae `permiso`, el que faltó, #25), o la firma de un supervisor que pide la ruta no sirve (aprobar asistencia) | Mostrar el `message` y quedarse en la pantalla |
 
 ```json
 { "message": "La sesión venció. Vuelva a iniciar sesión." }
+```
+
+```json
+{ "message": "No tienes permiso para esta acción (importacion.usar).", "permiso": "importacion.usar" }
 ```
 
 `POST /auth/login` con credenciales incorrectas sigue respondiendo 401: ahí no hay sesión que borrar.
@@ -55,12 +59,13 @@ Maneja el control de acceso inicial al sistema para todo el personal.
     "nombre": "Marcelo Quiroga",
     "rol": "ADMIN",
     "ci": "1234567"
-  }
+  },
+  "permisos": ["catalogo.ver", "catalogo.gestionar", "..."]
 }
 
 ```
 
-
+* `permisos`: los permisos del usuario según su rol (el ADMIN tiene todos, RN-17), para que la interfaz sepa qué mostrar (#25). No van dentro del token: el servidor los calcula en cada petición.
 
 ---
 
@@ -75,12 +80,14 @@ Gestión de perfiles de usuarios y personal del restaurante. Todas las rutas de 
 * **Respuesta Exitosa (200 OK):**
 ```json
 {
+  "message": "Perfil obtenido",
   "empleado": {
     "id": 1,
     "nombre": "Marcelo Quiroga",
     "rol": "ADMIN",
     "ci": "1234567"
-  }
+  },
+  "permisos": ["catalogo.ver", "catalogo.gestionar", "..."]
 }
 
 ```
@@ -90,7 +97,7 @@ Gestión de perfiles de usuarios y personal del restaurante. Todas las rutas de 
 ### Listar Todos los Empleados
 
 * **Ruta:** `GET /api/v1/empleados`
-* **Acceso:** `ADMIN`, `CAJERO`
+* **Acceso:** `ADMIN`, `CAJERO`, `MESERO` (permiso `asistencia.registrar`: la pantalla de asistencia lista a los empleados; el mesero, desde #25 por RN-16)
 * **Parámetros Query (Opcional):** `?activo=true` (Para filtrar solo personal vigente)
 * **Respuesta Exitosa (200 OK):**
 ```json
@@ -186,7 +193,7 @@ Monitoreo de asistencia diaria y control de penalizaciones por atrasos. Requiere
 ### Obtener Asistencias Registradas Hoy
 
 * **Ruta:** `GET /api/v1/asistencias/hoy`
-* **Acceso:** `ADMIN`, `CAJERO`
+* **Acceso:** `ADMIN`, `CAJERO`, `MESERO` (permiso `asistencia.registrar`; el mesero, desde #25 por RN-16)
 * **Respuesta Exitosa (200 OK):**
 ```json
 [
@@ -214,7 +221,7 @@ Monitoreo de asistencia diaria y control de penalizaciones por atrasos. Requiere
 ### Registrar una Nueva Asistencia
 
 * **Ruta:** `POST /api/v1/asistencias`
-* **Acceso:** `ADMIN`, `CAJERO`
+* **Acceso:** `ADMIN`, `CAJERO`, `MESERO` (permiso `asistencia.registrar`; el mesero, desde #25 por RN-16)
 * **Cuerpo de la Solicitud (JSON):**
 ```json
 {
@@ -900,22 +907,28 @@ Ajustes operativos globales del negocio y parámetros de penalizaciones. Requier
 ```
 
 ### Actualización Masiva de Configuraciones
-* **Ruta:** `PUT /api/v1/configuracion` 
-* **Acceso:** Autenticado (Cualquier rol) 
+* **Ruta:** `PUT /api/v1/configuracion`
+* **Acceso:** `ADMIN`, `CAJERO`, `MESERO` (permiso `configuracion.editar`, RN-16)
 * **Cuerpo de la Solicitud (JSON):**
-  ```json
+```json
+{
+  "configuraciones": [
+    { "clave": "minutos_tolerancia", "valor": "15" },
+    { "clave": "ventana_llegada", "valor": 45 }
+  ]
+}
+```
 
-  { "clave": "minutos_tolerancia", "valor": "15" },
-  { "clave": "ventana_llegada", "valor": "45" }
-
-
+* `valor`: minutos, entero mayor o igual a 0 (número o texto numérico). Solo se pueden cambiar claves que ya existen.
+* Se guarda todo o nada: si un valor no sirve, no cambia ninguno (#25).
 * **Respuesta Exitosa (200 OK):**
 ```json
 {
-  "message": "Configuraciones globales actualizadas de manera masiva."
+  "message": "Configuración actualizada con éxito."
 }
 
 ```
+* **Errores:** `400` si falta la lista o está vacía, una clave no existe o un valor no es un entero ≥ 0 (antes se guardaba cualquier valor y una clave nueva creaba una fila, #25).
 
 
 ## 10. Módulo de Categorías (`/api/v1/categorias`)
@@ -1628,13 +1641,13 @@ Cada importación corre dentro de una **transacción**: si una fila tiene un err
 ### Descargar Plantilla de Productos
 
 * **Ruta:** `GET /api/v1/importacion/plantillas/productos`
-* **Acceso:** Autenticado, cualquier rol (según la [matriz de permisos](permisos.md) debería ser solo `ADMIN`: #25)
+* **Acceso:** `ADMIN` (permiso `importacion.usar`; antes cualquier rol, T17, #25)
 * **Respuesta Exitosa (200 OK):** archivo `Plantilla_Importacion_Productos.xlsx` con una hoja `Plantilla` que solo tiene los encabezados `nombre`, `zona`, `precio`, `imagen`, `categoria_id`.
 
 ### Descargar Plantilla de Juegos
 
 * **Ruta:** `GET /api/v1/importacion/plantillas/juegos`
-* **Acceso:** Autenticado, cualquier rol (debería ser solo `ADMIN`: #25)
+* **Acceso:** `ADMIN` (permiso `importacion.usar`; antes cualquier rol, T17, #25)
 * **Respuesta Exitosa (200 OK):** archivo `Plantilla_Importacion_Juegos.xlsx` con los encabezados `nombre`, `precio`, `jugadores_min`, `jugadores_max`, `tiempo_partida`, `enlace`, `imagen`, `categoria_id`.
 
 El límite de tamaño del archivo y el reemplazo de la librería `xlsx` se tratan en #57.
