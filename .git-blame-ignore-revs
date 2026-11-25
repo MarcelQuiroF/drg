@@ -1,0 +1,10 @@
+# Commits de solo formato que "git blame" debe saltar para mostrar el autor real de cada línea.
+# GitHub lo usa solo en la vista Blame. En local:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+# Los hashes son los de main: los PRs que los traen se mergean con "Create a merge commit"
+# (ni squash ni rebase, que cambian los hashes).
+
+# style: formatear JavaScript y JSON con Prettier (#17)
+1e1c00bab061f53507257403883714e291631c5c
+# style(docs): pasar endpoints.md de CRLF a LF (#17)
+d3f6f7fe588a2d74c82d518991bd49c814889db9
