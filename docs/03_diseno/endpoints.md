@@ -980,6 +980,7 @@ Control detallado de los tiempos de juego prestados en las mesas y vinculados a 
     "hora_inicio": "14:00:00",
     "hora_fin": null,
     "cantidad": 1,
+    "precio_unitario": "25.00",
     "comentario": "Falta el dado azul",
     "Juego": {
       "nombre": "Catan"
@@ -989,6 +990,8 @@ Control detallado de los tiempos de juego prestados en las mesas y vinculados a 
 
 
 ```
+
+* `precio_unitario` es el precio cobrado por unidad, fijado al agregar el juego (#22). Un juego borrado del catálogo sigue apareciendo con sus datos en `Juego`.
 
 ### Agregar un Juego a una Orden (Iniciar Préstamo)
 * **Ruta:** `POST /api/v1/ordenes-juegos`
@@ -1013,11 +1016,14 @@ Control detallado de los tiempos de juego prestados en las mesas y vinculados a 
   "hora_inicio": "14:00:00",
   "hora_fin": null,
   "cantidad": 1,
+  "precio_unitario": "25.00",
   "comentario": "Falta el dado azul",
   "createdAt": "2026-05-27T14:00:00.000Z"
 }
 
 ```
+
+* El servidor guarda en `precio_unitario` el precio del juego en ese momento (#22). Si el precio del catálogo cambia después, la orden sigue cobrando el guardado.
 
 ### Finalizar Préstamo de Juego (Fijar Hora de Fin)
 * **Ruta:** `PATCH /api/v1/ordenes-juegos/:id/terminar`
@@ -1076,6 +1082,7 @@ Control e inserción detallada de los platos, bebidas y snacks vinculados a una 
 "cantidad_preparando": 0,
 "cantidad_terminado": 0,
 "cantidad_enviado": 0,
+"precio_unitario": "15.00",
 "comentario": "Bien cocidas",
 "orden_id": 45,
 "producto_id": 5
@@ -1083,6 +1090,8 @@ Control e inserción detallada de los platos, bebidas y snacks vinculados a una 
 ]
 
 ```
+
+* `precio_unitario` es el precio cobrado por unidad (#22). Un producto borrado del catálogo sigue apareciendo con sus datos en `Producto`.
 
 ### Agregar Producto a una Orden (Generar Comanda)
 * **Ruta:** `POST /api/v1/ordenes-productos`
@@ -1104,11 +1113,14 @@ Control e inserción detallada de los platos, bebidas y snacks vinculados a una 
   "producto_id": 5,
   "cantidad": 3,
   "cantidad_recibido": 3,
+  "precio_unitario": "15.00",
   "comentario": "Bien cocidas",
   "createdAt": "2026-05-27T14:45:00.000Z"
 }
 
 ```
+
+* El servidor guarda en `precio_unitario` el precio del producto en ese momento (#22). Si la orden ya tiene ese producto **con el mismo precio**, se suma la cantidad a esa línea; si el precio cambió desde entonces, se crea una línea nueva con el precio nuevo.
 
 
 
@@ -1121,6 +1133,8 @@ Control e inserción detallada de los platos, bebidas y snacks vinculados a una 
     "cantidad": 4,
     "comentario": "Bien cocidas y con salsa extra"
   }
+
+* `precio_unitario` no se puede cambiar por esta ruta: si viene en el cuerpo, se ignora (#22).
 
 
 * **Respuesta Exitosa (200 OK):**

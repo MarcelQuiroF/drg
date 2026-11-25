@@ -48,7 +48,7 @@ Archivos: `login.test.js` y `matrizPermisos.test.js`. La matriz se lee de `docs/
 | F3 | Dashboard con una orden cobrada (61) y otra abierta | 🐞 | Ingresos 61 (✅ pasa hoy), gráfica 61 (hoy 122), órdenes 1 (hoy 2), promedio 61 / 7 (hoy 61 / 8). Una prueba por métrica | #31 | ✔ |
 | F3b | Ranking de juegos con un juego pedido 3 veces | 🐞 | Suma la cantidad (3), como el de comida (hoy cuenta 1 fila) | #31 | ✔ |
 | T7 | Comandas de una orden ya cobrada o borrada | 🐞 | El ítem no aparece (hoy sí, en los dos casos) | #33 | ✔ |
-| T10 | Orden con Sandwich (35); se borra el Sandwich; se agrega un Cappuccino (18) | 🐞 | Total 53.00 (hoy 18.00) | #22 | ✔ |
+| T10 | Orden con Sandwich (35); se borra el Sandwich; se agrega un Cappuccino (18) | ✅ | Total 53.00 (corregido en #22; antes 18.00). También con un juego borrado (T10b), con un precio que cambia (la orden cobra el guardado) y en los ingresos por comida y juegos del dashboard | #22 | ✔ |
 | T13 | Editar las notas de una orden cobrada | 🐞 | 409 (hoy 200) | #41 | ✔ |
 | P2 | Cambiar la cantidad o el comentario de un juego de la orden | 🐞 | Se actualiza (hoy 404: la ruta no existe) | #42 | ✔ |
 | P3 | MESERO aplica un descuento del 100 % | 🔄 RN-06 | 200 y total 0.00: sin tope ni autorización | #39 | ✔ |
