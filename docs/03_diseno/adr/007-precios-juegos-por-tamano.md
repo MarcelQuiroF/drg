@@ -1,6 +1,6 @@
 # ADR-007: Precios de juegos por tamaño y precio cobrado guardado en la orden
 
-- **Estado:** Propuesto
+- **Estado:** Aceptado (25/11/2026, aprobado por Marcelo)
 - **Fecha:** 2026-11-25
 - **Issue:** #10
 

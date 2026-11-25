@@ -1,6 +1,6 @@
 # ADR-005: Cliente móvil para meseros
 
-- **Estado:** Propuesto
+- **Estado:** Aceptado (25/11/2026, aprobado por Marcelo)
 - **Fecha:** 2026-11-25
 - **Issue:** #10
 
@@ -40,7 +40,7 @@ Y sobre **dónde vive el código**:
 
 ## Decisión
 
-Se propone la **opción 4: React Native con Expo y TypeScript**, en la carpeta **`mobile/`** de este mismo repo. La opción 1 (web responsive, #73) se hace igual antes, porque sirve mientras no exista la app y para cualquier dispositivo.
+Se elige la **opción 4: React Native con Expo y TypeScript**, en la carpeta **`mobile/`** de este mismo repo. La opción 1 (web responsive, #73) se hace igual antes, porque sirve mientras no exista la app y para cualquier dispositivo.
 
 - **Por qué React Native y no Kotlin:**
   - Con un solo desarrollador, mantener **un solo lenguaje** en todo el sistema (TypeScript en el backend, la web y la app) reduce el trabajo y los errores.
@@ -48,7 +48,7 @@ Se propone la **opción 4: React Native con Expo y TypeScript**, en la carpeta *
   - Cubre Android e iPhone mientras no se sepa qué celulares usan los meseros (P-13).
   - En una entrevista se puede mostrar un sistema completo *full-stack* en TypeScript, con un contrato de API compartido entre el servidor y sus dos clientes.
 - **Por qué en `mobile/`:** el backlog, la API y la app evolucionan juntos, y se muestra un solo repo.
-- **Si Marcelo prefiere Kotlin + Jetpack Compose** (por ejemplo, para orientarse a puestos de Android nativo), la opción 3 es válida: se cambia esta sección antes de aceptar el ADR y el resto (alcance, red, carpeta) se mantiene.
+- **Kotlin + Jetpack Compose** (opción 3) era la alternativa más fuerte. Si en la Etapa 6b se reconsidera, se escribe un ADR nuevo que reemplace a este; el alcance, la red y la carpeta se mantienen.
 - **Detalles que acompañan la decisión:**
   - La dirección del servidor (IP o nombre de la PC) se configura en la app la primera vez.
   - Android bloquea por defecto el tráfico HTTP sin cifrar: la app tiene que permitirlo **solo** para la dirección del servidor local.

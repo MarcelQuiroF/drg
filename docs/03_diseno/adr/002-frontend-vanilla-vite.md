@@ -1,6 +1,6 @@
 # ADR-002: Frontend en JavaScript vanilla con Vite, sin framework
 
-- **Estado:** Propuesto
+- **Estado:** Aceptado (25/11/2026, aprobado por Marcelo)
 - **Fecha:** 2026-11-25
 - **Issue:** #10
 

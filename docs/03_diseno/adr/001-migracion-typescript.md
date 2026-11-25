@@ -1,6 +1,6 @@
 # ADR-001: Migración gradual del backend a TypeScript
 
-- **Estado:** Propuesto
+- **Estado:** Aceptado (25/11/2026, aprobado por Marcelo)
 - **Fecha:** 2026-11-25
 - **Issue:** #10
 
