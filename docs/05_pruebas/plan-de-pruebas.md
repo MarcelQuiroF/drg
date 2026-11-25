@@ -96,7 +96,7 @@ test.failing('T6 · finalizar con QR 30 + EFECTIVO 31 registra los dos pagos (#2
 
 ### 4.6 Entorno fijo
 
-- **Zona horaria `America/La_Paz`** (`tests/soporte/entorno.js`): el local está en Bolivia y el CI de #19 corre en UTC. Con la zona fija, las pruebas dan lo mismo en las dos máquinas y los bugs de zona horaria (#27) se ven igual en todas.
+- **Zona horaria:** las pruebas **arrancan en UTC** (`tests/soporte/entorno.js`), como el CI y como un servidor sin configurar, y la aplicación pone sola `America/La_Paz` al cargar `config/env.js` (#27). Si dejara de hacerlo, fallan las pruebas de `tests/infraestructura/zonaHoraria.test.js`. Las del frontend (`frontend/tests/fechas.test.js`) se corren con el proceso en UTC, en Tokio y en La Paz: `fechaLocalISO` da lo mismo en las tres.
 - `JWT_SECRET` y `JWT_EXPIRATION` propios de las pruebas: no hace falta tocar el `.env`.
 - **Solo datos ficticios:** el seed de desarrollo (tres usuarios `…@mesadragon.test`) y lo que crea cada prueba. Nunca datos reales del local.
 

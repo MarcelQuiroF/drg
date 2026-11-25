@@ -18,6 +18,44 @@ export const urlSegura = (valor) => {
     }
 };
 
+// Fechas y horas en la zona del negocio (#27), la misma que usa el servidor. Se fija la zona en
+// lugar de usar la del navegador para que un celular o una PC mal configurados no cambien el día.
+// No usar toISOString().split('T')[0]: da la fecha en UTC y en Bolivia desde las 20:00 ya es
+// mañana.
+export const ZONA_HORARIA = 'America/La_Paz';
+
+const partesLocales = (fecha) => {
+    const formato = new Intl.DateTimeFormat('en-US', {
+        timeZone: ZONA_HORARIA,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23'
+    });
+    return Object.fromEntries(formato.formatToParts(new Date(fecha)).map((p) => [p.type, p.value]));
+};
+
+// 'YYYY-MM-DD' (el formato de <input type="date">) del día en Bolivia. Por defecto, hoy.
+export const fechaLocalISO = (fecha = new Date()) => {
+    const p = partesLocales(fecha);
+    return `${p.year}-${p.month}-${p.day}`;
+};
+
+// 'HH:mm' (el formato de <input type="time">) de la hora en Bolivia.
+export const horaLocal = (fecha = new Date()) => {
+    const p = partesLocales(fecha);
+    return `${p.hour}:${p.minute}`;
+};
+
+// Suma (o resta) días a una fecha 'YYYY-MM-DD'. Se calcula sobre la fecha, no sobre la hora,
+// así que no lo afectan la zona horaria ni la hora del día.
+export const sumarDias = (fechaISO, dias) => {
+    const [anio, mes, dia] = fechaISO.split('-').map(Number);
+    return new Date(Date.UTC(anio, mes - 1, dia + dias)).toISOString().slice(0, 10);
+};
+
 let intervaloGlobal = null;
 
 export const iniciarAutoRefresco = (callback, segundos = 30) => {

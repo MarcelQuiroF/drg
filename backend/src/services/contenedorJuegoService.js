@@ -18,7 +18,10 @@ async function agregarJuego(datos) {
                 cantidad: datos.cantidad,
                 comentario: datos.comentario,
 
-                hora_inicio: new Date().toTimeString().split(' ')[0]
+                // Las dos horas del préstamo las pone PostgreSQL (LOCALTIME) en la zona de la conexión,
+                // que es la de Bolivia (config.js). Antes hora_inicio salía de la zona del proceso y
+                // hora_fin de un Date convertido en UTC: no estaban en la misma zona (#27)
+                hora_inicio: sequelize.literal('LOCALTIME(0)')
             },
             { transaction: t }
         );
@@ -47,7 +50,8 @@ async function terminarJuego(id) {
     const item = await ContenedorJuego.findByPk(id);
     if (!item) return null;
 
-    return await item.update({ hora_fin: new Date() });
+    await item.update({ hora_fin: sequelize.literal('LOCALTIME(0)') });
+    return await item.reload();
 }
 
 async function eliminarJuego(id) {

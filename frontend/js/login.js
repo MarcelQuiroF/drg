@@ -1,4 +1,5 @@
 import { API_URL } from './api.js';
+import { fechaLocalISO } from './utils.js';
 
 const loginForm = document.getElementById('loginForm');
 
@@ -11,7 +12,7 @@ if (avisoLogin && avisoEl) {
 }
 sessionStorage.removeItem('aviso_login');
 
-const fechaHoy = new Date().toISOString().split('T')[0];
+const fechaHoy = fechaLocalISO(); // el día en Bolivia, no en UTC (#27)
 const cierreGuardado = localStorage.getItem('dia_cerrado');
 
 if (cierreGuardado === fechaHoy) {

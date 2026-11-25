@@ -1,5 +1,12 @@
 import { authFetch } from '../api.js';
-import { mostrarNotificacion, cargarHTML, iniciarAutoRefresco, escaparHTML } from '../utils.js';
+import {
+    mostrarNotificacion,
+    cargarHTML,
+    iniciarAutoRefresco,
+    escaparHTML,
+    fechaLocalISO,
+    horaLocal
+} from '../utils.js';
 
 let RESERVA_ID_PARA_ELIMINAR = null;
 let ID_RESERVA_EDICION = null;
@@ -94,8 +101,7 @@ const abrirModalReserva = async (idReserva = null) => {
     await prepararSelectoresForm();
 
     if (!idReserva) {
-        const today = new Date();
-        document.getElementById('fecha-reserva').value = today.toISOString().split('T')[0];
+        document.getElementById('fecha-reserva').value = fechaLocalISO();
         document.getElementById('hora-reserva').value = '19:00';
     } else {
         try {
@@ -113,8 +119,8 @@ const abrirModalReserva = async (idReserva = null) => {
                 document.getElementById('mesa-select-form').value = data.mesa_id;
 
                 const d = new Date(data.hora);
-                document.getElementById('fecha-reserva').value = d.toISOString().split('T')[0];
-                document.getElementById('hora-reserva').value = d.toTimeString().slice(0, 5);
+                document.getElementById('fecha-reserva').value = fechaLocalISO(d);
+                document.getElementById('hora-reserva').value = horaLocal(d);
             }
         } catch (e) {
             console.error('Error al cargar reserva:', e);

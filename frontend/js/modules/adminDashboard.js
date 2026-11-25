@@ -1,5 +1,5 @@
 import { authFetch } from '../api.js';
-import { mostrarNotificacion, escaparHTML } from '../utils.js';
+import { mostrarNotificacion, escaparHTML, fechaLocalISO, sumarDias } from '../utils.js';
 
 let chartIngresosInst = null;
 let chartDistribucionInst = null;
@@ -13,12 +13,7 @@ export const initAdminDashboard = () => {
 
 // Nueva función para establecer por defecto la fecha de hoy en ambos inputs
 const establecerFechasPredeterminadas = () => {
-    const hoy = new Date();
-    const yyyy = hoy.getFullYear();
-    const mm = String(hoy.getMonth() + 1).padStart(2, '0');
-    const dd = String(hoy.getDate()).padStart(2, '0');
-
-    const fechaHoyStr = `${yyyy}-${mm}-${dd}`; // Formato requerido por el navegador
+    const fechaHoyStr = fechaLocalISO(); // Formato requerido por el navegador (#27)
 
     document.getElementById('fecha-inicio').value = fechaHoyStr;
     document.getElementById('fecha-fin').value = fechaHoyStr;
@@ -56,31 +51,17 @@ const configurarFiltros = () => {
 
 const obtenerRangoFechas = () => {
     const modo = document.querySelector('input[name="rangoTiempo"]:checked').value;
-    const hoy = new Date();
     let inicio = '';
     let fin = '';
 
-    // Formatear la fecha de hoy de forma segura
-    const yyyy = hoy.getFullYear();
-    const mm = String(hoy.getMonth() + 1).padStart(2, '0');
-    const dd = String(hoy.getDate()).padStart(2, '0');
-    const hoyStr = `${yyyy}-${mm}-${dd}`;
+    // Los días son de Bolivia (#27), igual que en el servidor
+    const hoyStr = fechaLocalISO();
     fin = hoyStr;
 
     if (modo === 'semana') {
-        const hace7Dias = new Date(hoy);
-        hace7Dias.setDate(hoy.getDate() - 7);
-        const y = hace7Dias.getFullYear();
-        const m = String(hace7Dias.getMonth() + 1).padStart(2, '0');
-        const d = String(hace7Dias.getDate()).padStart(2, '0');
-        inicio = `${y}-${m}-${d}`;
+        inicio = sumarDias(hoyStr, -7);
     } else if (modo === 'mes') {
-        const hace30Dias = new Date(hoy);
-        hace30Dias.setDate(hoy.getDate() - 30);
-        const y = hace30Dias.getFullYear();
-        const m = String(hace30Dias.getMonth() + 1).padStart(2, '0');
-        const d = String(hace30Dias.getDate()).padStart(2, '0');
-        inicio = `${y}-${m}-${d}`;
+        inicio = sumarDias(hoyStr, -30);
     } else if (modo === 'custom') {
         inicio = document.getElementById('fecha-inicio').value;
         fin = document.getElementById('fecha-fin').value;

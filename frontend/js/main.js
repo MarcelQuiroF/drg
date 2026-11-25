@@ -1,5 +1,5 @@
 import { authFetch } from './api.js';
-import { cerrarNotificacion } from './utils.js';
+import { cerrarNotificacion, fechaLocalISO } from './utils.js';
 import { cargarHTML } from './utils.js';
 
 import { initMesas } from './modules/mesas.js';
@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             btnCerrarDia.addEventListener('click', (e) => {
                 e.preventDefault();
                 if (confirm('¿Estás seguro de cerrar el día?')) {
-                    const fechaHoy = new Date().toISOString().split('T')[0];
+                    const fechaHoy = fechaLocalISO();
                     localStorage.setItem('dia_cerrado', fechaHoy);
                     window.location.href = 'cerrado.html';
                 }

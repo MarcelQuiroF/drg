@@ -7,6 +7,13 @@ const path = require('path');
 // existen en el entorno tienen prioridad sobre las del archivo.
 require('dotenv').config({ path: path.resolve(__dirname, '..', '..', '.env'), quiet: true });
 
+// Zona horaria del negocio (#27). Se fija aquí, en el primer archivo que cargan el servidor,
+// sequelize-cli y las pruebas, para que no dependa de cómo esté configurada la PC o el CI (que
+// corre en UTC): new Date(), setHours y toTimeString trabajan en la hora de Bolivia. Sequelize
+// usa la misma zona (config.js). Bolivia no tiene horario de verano: siempre es UTC-4.
+const ZONA_HORARIA = 'America/La_Paz';
+process.env.TZ = ZONA_HORARIA;
+
 const VARIABLES_OBLIGATORIAS = {
     DATABASE_URL: 'conexión a PostgreSQL (la usan las migraciones, el seed y la aplicación)',
     JWT_SECRET: 'clave para firmar los tokens de sesión'
@@ -32,4 +39,4 @@ function validarEntorno() {
     }
 }
 
-module.exports = { validarEntorno, VARIABLES_OBLIGATORIAS };
+module.exports = { validarEntorno, VARIABLES_OBLIGATORIAS, ZONA_HORARIA };
