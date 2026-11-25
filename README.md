@@ -108,10 +108,6 @@ Necesitan una base PostgreSQL **aparte** (`DATABASE_URL_TEST` en `backend/.env`,
 
 ESLint y Prettier se instalan en la raíz del repositorio (`npm install` en `drg/`). Antes de abrir un PR: `npm run check`. Detalle en [`CONTRIBUTING.md`](CONTRIBUTING.md#6-estilo-de-código).
 
-### 8. Integración continua
-
-Cada PR hacia `main` y cada push a `main` corren en GitHub Actions ([`ci.yml`](.github/workflows/ci.yml)) `npm run check` y `npm test` contra un PostgreSQL 16 de servicio. El badge de arriba muestra el estado de `main`.
-
 
 ## 👥 Estructura de Roles
 
