@@ -49,6 +49,13 @@ module.exports = [
         rules: reglasComunes
     },
     {
+        // Pruebas automáticas (#18): Jest define describe, test, expect, etc.
+        files: ['backend/tests/**/*.js', 'backend/jest.config.js'],
+        languageOptions: {
+            globals: { ...globals.jest }
+        }
+    },
+    {
         // sequelize-cli llama a up/down con (queryInterface, Sequelize) aunque no se usen los dos.
         files: ['backend/src/migrations/**/*.js', 'backend/src/seeders/**/*.js'],
         rules: {
