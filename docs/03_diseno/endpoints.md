@@ -1331,7 +1331,7 @@ Control estructural de los diferentes niveles o plantas del local comercial. Req
 
 ## 16. Módulo de Cierre Operativo (`/api/v1/reportes`) — ⚠ no disponible
 
-`GET /api/v1/reportes/cierre-dia` está definida en `routes/reporteRoute.js`, pero esa ruta **no está montada** en `app.js`, así que responde **404** (prueba T15 del análisis). Hoy el cierre del día se guarda solo en el navegador (`localStorage`).
+`GET /api/v1/reportes/cierre-dia` **no existe**: estaba definida en `routes/reporteRoute.js`, que nunca se montó en `app.js` (prueba T15 del análisis), y ese archivo se eliminó en #15. El cierre del día en el backend llega con #34. Hoy el cierre del día se guarda solo en el navegador (`localStorage`).
 
 El cierre y la reapertura del día en el servidor se diseñan de nuevo en #34 y #35; cuando estén listos, esta sección se reemplaza por los endpoints nuevos.
 

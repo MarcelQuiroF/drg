@@ -19,7 +19,7 @@ const clienteRoute = require('./routes/clienteRoute');
 const reservaRoute = require('./routes/reservaRoute');
 const comandaRoute = require('./routes/comandaRoute');
 const asistenciaRoute = require('./routes/asistenciaRoute');
-const reporteRoute = require('./routes/reportesRoute');
+const reportesRoute = require('./routes/reportesRoute');
 const configuracionRoutes = require('./routes/configuracionRoutes');
 const importacionRoute = require('./routes/importacionRoute');
 
@@ -56,7 +56,7 @@ app.use(`${API_PREFIX}/clientes`, clienteRoute);
 app.use(`${API_PREFIX}/reservas`, reservaRoute);
 app.use(`${API_PREFIX}/comandas`, comandaRoute);
 app.use(`${API_PREFIX}/asistencias`, asistenciaRoute);
-app.use(`${API_PREFIX}/reportes`, reporteRoute);
+app.use(`${API_PREFIX}/reportes`, reportesRoute);
 app.use(`${API_PREFIX}/configuracion`, configuracionRoutes);
 app.use(`${API_PREFIX}/importacion`, importacionRoute);
 
@@ -64,7 +64,3 @@ app.use(notFoundHandler);
 app.use(errorHandler); 
 
 module.exports = app;
-
-
-
-// const logger = require('./config/logger'); 

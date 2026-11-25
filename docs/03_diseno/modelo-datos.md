@@ -1,7 +1,7 @@
 # Modelo de datos de DRG – Mesa Dragón
 
 > **25/11/2026 · Versión 0.1** · Issue #11.
-> Describe la base **tal como la dejan las migraciones de `main`** (36 migraciones, de noviembre de 2025 a junio de 2026). No sale de los modelos de Sequelize ni de `models/models.txt` (que está desactualizado), porque en varios puntos no coinciden con la base real (ver la sección 5).
+> Describe la base **tal como la dejan las migraciones de `main`** (36 migraciones, de noviembre de 2025 a junio de 2026). No sale de los modelos de Sequelize porque en varios puntos no coinciden con la base real (ver la sección 5).
 
 ## Cómo se obtuvo
 

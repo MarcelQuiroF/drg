@@ -1,14 +1,9 @@
 const { 
     Orden, 
     Mesa, 
-    Empleado, 
     Descuento, 
     OrdenDescuento, 
-    ContenedorProducto, 
-    ContenedorJuego, 
-    Producto,
     ContenedorTransaccion,  
-    Juego, 
     sequelize,
     Configuracion,
     Reserva
@@ -16,27 +11,6 @@ const {
 
 const { actualizarTotalOrden } = require('../utils/orderUtils');
 const { Op } = require('sequelize');
-
-async function crearOrden(mesaId, usuarioId) {
-    return await sequelize.transaction(async (t) => {
-        const mesa = await Mesa.findByPk(mesaId, { transaction: t });
-        if (!mesa) throw new Error("La mesa no existe.");
-        
-        if (mesa.estado === 1) throw new Error("La mesa ya está ocupada.");
-
-        const nuevaOrden = await Orden.create({
-            mesa_id: mesaId,
-            total: 0,
-            finalizado: false
-        }, { transaction: t });
-
-        await mesa.update({ estado: 1 }, { transaction: t });
-
-        await registrarLlegadaAutomatica(mesaId, t);
-
-        return nuevaOrden;
-    });
-}
 
 async function crearOrden(mesaId, usuarioId) {
     return await sequelize.transaction(async (t) => {
@@ -192,38 +166,6 @@ async function removerDescuento(ordenId, descuentoId) {
         });
         await Descuento.destroy({
             where: { id: descuentoId },
-            transaction: t
-        });
-
-        const prods = await ContenedorProducto.findAll({
-            where: { orden_id: ordenId },
-            include: [Producto],
-            transaction: t
-        });
-        
-        let totalBase = prods.reduce((sum, item) => {
-            const precio = item.Producto ? parseFloat(item.Producto.precio) : 0;
-            const cantidad = item.cantidad || 0;
-            return sum + (precio * cantidad);
-        }, 0);
-
-        const juegos = await ContenedorJuego.findAll({
-            where: { orden_id: ordenId },
-            include: [Juego],
-            transaction: t
-        });
-
-        totalBase += juegos.reduce((sum, item) => {
-            const precio = item.Juego ? parseFloat(item.Juego.precio) : 0;
-            const cantidad = item.cantidad || 0;
-            return sum + (precio * cantidad);
-        }, 0);
-
-        const ordenActualizada = await Orden.findByPk(ordenId, {
-            include: [{ 
-                model: Descuento,
-                through: { where: { deletedAt: null } }
-            }],
             transaction: t
         });
 

@@ -1,6 +1,6 @@
 # Documentación de DRG – Mesa Dragón
 
-La documentación está ordenada **por disciplina**, en el mismo orden en que avanza un proyecto: primero se entiende el negocio, después se definen los requisitos, luego se diseña, se implementa, se prueba y se entrega. El código (`backend/`, `frontend/`, `nginx/`) está en la raíz del repositorio; esta carpeta solo tiene documentos.
+La documentación está ordenada **por disciplina**, en el mismo orden en que avanza un proyecto: primero se entiende el negocio, después se definen los requisitos, luego se diseña, se implementa, se prueba y se entrega. El código (`backend/`, `frontend/`) está en la raíz del repositorio; esta carpeta solo tiene documentos.
 
 | Carpeta | Qué contiene |
 |---------|--------------|

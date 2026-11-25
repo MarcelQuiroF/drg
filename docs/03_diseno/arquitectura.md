@@ -35,7 +35,7 @@ flowchart LR
 | Acceso a datos | Sequelize 6 + `pg`; migraciones y seed con `sequelize-cli` | `backend/src/models/`, `migrations/`, `seeders/` |
 | Base de datos | PostgreSQL | variable `DATABASE_URL` |
 | Frontend | HTML, CSS y JavaScript vanilla con módulos ES6, sin compilación | `frontend/` |
-| Despliegue | Todavía no hay: `backend/docker-compose.yml` y `nginx/default.conf` están vacíos | ver ADR-003 |
+| Despliegue | Todavía no hay: `backend/docker-compose.yml` solo tiene un comentario (se completa en #20); la configuración de Nginx llega en la Etapa 7 | ver ADR-003 |
 
 ## 2. Backend
 
@@ -66,10 +66,10 @@ flowchart LR
 
 | Capa | Qué hace | Observaciones |
 |------|----------|---------------|
-| Rutas (`routes/`, 19 archivos) | Definen método, URL y middlewares | `reporteRoute.js` (cierre del día) existe pero **no está montada**; `app.js` importa `reportesRoute.js` con el nombre `reporteRoute`. `configuracionRoutes.js` usa plural, a diferencia del resto |
-| Middlewares (`middlewares/`) | `authenticate` (token JWT), `authorize([...])` (rol), `errorHandler`, `notFoundHandler` | `validateSchema.js` está vacío: no hay validación de entrada (Etapa 5, con Zod) |
-| Controladores (`controllers/`, 19) | Leen `req`, llaman al servicio y arman la respuesta | **Seis usan los modelos directamente**, sin servicio: `asistencia`, `configuracion`, `empleado`, `importacion`, `reportes` y, en parte, `juego` (`listar` no usa el servicio, por eso ignora el filtro de categoría) |
-| Servicios (`services/`, 16) | Reglas del negocio y transacciones (crear orden, finalizar, pagos, descuentos, comandas, importación) | `clienteController.js` está mal ubicado aquí; `asistenciaService.js` no se usa y está roto (#15) |
+| Rutas (`routes/`, 18 archivos) | Definen método, URL y middlewares | No hay ruta de cierre del día: se hace en #34. `configuracionRoutes.js` usa plural, a diferencia del resto |
+| Middlewares (`middlewares/`) | `authenticate` (token JWT), `authorize([...])` (rol), `errorHandler`, `notFoundHandler` | No hay validación de entrada: llega en la Etapa 5, con Zod |
+| Controladores (`controllers/`, 18) | Leen `req`, llaman al servicio y arman la respuesta | **Seis usan los modelos directamente**, sin servicio: `asistencia`, `configuracion`, `empleado`, `importacion`, `reportes` y, en parte, `juego` (`listar` no usa el servicio, por eso ignora el filtro de categoría) |
+| Servicios (`services/`, 13) | Reglas del negocio y transacciones (crear orden, finalizar, pagos, descuentos, comandas, importación) | Asistencia no tiene servicio: el cálculo del atraso en el servidor llega con #29 |
 | Modelos (`models/`, 24) | Definición de tablas con `sequelize.define` | Todas las asociaciones están en `models/index.js`, no en `associate()` de cada modelo. Casi todos usan borrado lógico (`paranoid`) |
 
 ### 2.3 Módulos
@@ -138,7 +138,7 @@ sequenceDiagram
 ### 3.2 SPA casera
 
 - `cargarHTML(ruta, callback)` (`js/utils.js`) detiene el auto-refresco, trae una de las **21 vistas parciales** de `html/` (los otros 5 archivos son las páginas de la tabla anterior) con `fetch`, la inserta con `innerHTML` en `#cuerpo` y llama a la función `init…()` del módulo.
-- Los **13 módulos** de `js/modules/` (mesas, productos, órdenes, reservas, clientes, asistencia, impresión, admin…) arman la interfaz con plantillas de texto e `innerHTML` (unas 60 veces, con datos sin escapar: #23).
+- Los **12 módulos** de `js/modules/` (mesas, productos, órdenes, reservas, clientes, asistencia, impresión, admin…) arman la interfaz con plantillas de texto e `innerHTML` (unas 60 veces, con datos sin escapar: #23).
 - `js/api.js` tiene `authFetch()`, que agrega el token y vuelve al login ante un 401.
 - `iniciarAutoRefresco()` vuelve a pedir los datos de la vista cada 30 segundos y se detiene al cambiar de vista.
 - El estado compartido vive en variables de los módulos (por ejemplo `ORDEN_ACTUAL_ID`) y en `sessionStorage` (`mesaSeleccionada`).
@@ -146,7 +146,7 @@ sequenceDiagram
 
 ### 3.3 Estilos y dependencias
 
-- 18 hojas de estilo; cada vista parcial trae la suya con un `<link>`, y las hojas se van acumulando. Hay cuatro `:root` con variables distintas que se pisan entre sí (#71, #72).
+- 16 hojas de estilo; cada vista parcial trae la suya con un `<link>`, y las hojas se van acumulando. Hay cuatro `:root` con variables distintas que se pisan entre sí (#71, #72).
 - Chart.js, Font Awesome, Boxicons y Google Fonts se cargan **desde internet** (ADR-002).
 
 ## 4. Configuración y entorno
