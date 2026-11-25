@@ -7,9 +7,9 @@ DRG – Mesa Dragón **empezó como un proyecto universitario en equipo** en la 
 | Periodo | Materia | Trabajo principal |
 |---------|---------|-------------------|
 | 2.º semestre 2025 | SIS-225 Sistemas de Información | Entrevistas con el dueño, requerimientos y casos de uso |
-| 2.º semestre 2025 | *por confirmar* | Primera versión del backend (API REST) |
+| 2.º semestre 2025 | Tecnologías Web 1 | Primera versión del backend (API REST) |
 | 1.er semestre 2026 | SIS-226 Sistemas de Soporte a las Decisiones | Data Warehouse y tableros en Power BI (fuera del alcance de la entrega) |
-| 1.er semestre 2026 | TW · *nombre por confirmar* | Sistema web completo y video de presentación |
+| 1.er semestre 2026 | Tecnologías Web 2 | Sistema web completo y video de presentación |
 
 Desde noviembre de 2026, **Marcelo Quiroga continúa el proyecto en solitario** para corregirlo, completarlo y entregarlo al negocio.
 
@@ -32,7 +32,7 @@ A cargo de **Marcelo Quiroga**:
 - Pruebas automáticas, integración continua y documentación del repositorio.
 - Migración gradual a TypeScript.
 - Funcionalidades pendientes validadas con el negocio.
-- Nueva app móvil para meseros.
+- Nueva app móvil para meseros, hecha desde cero (no se usa la app Android original como base).
 - Despliegue en el local y entrega al dueño.
 
 El historial de este trabajo se puede seguir en las issues, los pull requests y los milestones del repositorio.
