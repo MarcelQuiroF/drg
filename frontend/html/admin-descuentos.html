@@ -1,0 +1,42 @@
+<link rel="stylesheet" href="../css/admin-empleados.css">
+<link rel="stylesheet" href="../css/admin-descuentos.css">
+
+<!-- Control de descuentos (#39, RF-49): los descuentos no tienen tope ni autorización (RN-06),
+     así que el administrador los revisa aquí, con su motivo y quién los aplicó. -->
+<header class="main-header">
+    <h1>Control de descuentos</h1>
+</header>
+
+<div class="contenido contenido-descuentos">
+    <form class="filtros-descuentos" id="filtros-descuentos">
+        <label>Desde <input type="date" id="descuentos-desde"></label>
+        <label>Hasta <input type="date" id="descuentos-hasta"></label>
+        <label>Empleado
+            <select id="descuentos-empleado">
+                <option value="">Todos</option>
+            </select>
+        </label>
+        <button type="submit" class="btn-add">Filtrar</button>
+        <button type="button" class="btn-limpiar" id="descuentos-limpiar">Ver todo</button>
+    </form>
+
+    <p class="resumen-descuentos" id="resumen-descuentos"></p>
+    <p class="error-descuentos" id="error-descuentos" hidden></p>
+
+    <div class="tabla-descuentos-contenedor">
+        <table class="tabla-descuentos">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Orden</th>
+                    <th>Mesa</th>
+                    <th>Descuento</th>
+                    <th>Descontado</th>
+                    <th>Motivo</th>
+                    <th>Aplicó</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-descuentos-cuerpo"></tbody>
+        </table>
+    </div>
+</div>

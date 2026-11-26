@@ -98,6 +98,9 @@ db.Descuento.belongsToMany(db.Orden, {
     otherKey: 'orden_id'
 });
 
+// Quién aplicó cada descuento (#39, control del administrador)
+db.Descuento.belongsTo(db.Empleado, { as: 'aplicador', foreignKey: 'empleado_id' });
+
 db.Empleado.hasMany(db.Horario, { foreignKey: 'empleado_id' });
 db.Horario.belongsTo(db.Empleado, { foreignKey: 'empleado_id' });
 

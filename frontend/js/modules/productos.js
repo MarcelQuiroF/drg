@@ -9,6 +9,8 @@ let ORDEN_ACTUAL_ID = null;
 let APERTURA_EN_CURSO = null;
 let ITEM_PARA_COMENTAR = null;
 let ITEM_PARA_ELIMINAR = null;
+// Descuento que el servidor avisó que supera el total y espera confirmación (#39)
+let DESCUENTO_POR_CONFIRMAR = null;
 
 export const cargarProductosPage = async (mesaId) => {
     const cuerpo = document.getElementById('cuerpo');
@@ -493,6 +495,8 @@ const abrirModalDescuento = () => {
     if (errorEl) errorEl.className = 'error-text-hidden';
     document.getElementById('discount-amount-input').value = '';
     document.getElementById('discount-reason-input').value = '';
+    DESCUENTO_POR_CONFIRMAR = null;
+    document.getElementById('btn-apply-discount').textContent = 'Aplicar';
 
     modal.classList.add('custom-modal-visible');
     overlay.classList.add('modal-overlay-visible');
@@ -626,6 +630,11 @@ const inicializarEventosProductos = () => {
             const body = { comentario: motivo };
             if (tipo === 'P') body.porcentaje = valor;
             else body.monto = valor;
+            // #39: si el servidor avisó que este mismo descuento supera lo que queda por pagar, el
+            // segundo clic ("Aplicar igual") lo confirma. Cambiar el tipo, el valor o el motivo
+            // vuelve a pedir el aviso.
+            const clave = JSON.stringify(body);
+            if (DESCUENTO_POR_CONFIRMAR === clave) body.confirmar = true;
 
             try {
                 const res = await authFetch(`/ordenes/${ORDEN_ACTUAL_ID}/descuento`, {
@@ -638,7 +647,13 @@ const inicializarEventosProductos = () => {
                     verificarOrdenActiva(sessionStorage.getItem('mesaSeleccionada'));
                 } else {
                     const err = await res.json();
-                    mostrarErrorDescuento('Error: ' + err.message);
+                    if (err.codigo === 'DESCUENTO_SUPERA_TOTAL') {
+                        DESCUENTO_POR_CONFIRMAR = clave;
+                        btnApplyDiscount.textContent = 'Aplicar igual';
+                        mostrarErrorDescuento('Aviso: ' + err.message);
+                    } else {
+                        mostrarErrorDescuento('Error: ' + err.message);
+                    }
                 }
             } catch (error) {
                 mostrarErrorDescuento('Error de conexión con el servidor.');

@@ -1,0 +1,79 @@
+/* Control de descuentos del administrador (#39) */
+.filtros-descuentos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.filtros-descuentos label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.filtros-descuentos input,
+.filtros-descuentos select {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+.btn-limpiar {
+    padding: 9px 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.resumen-descuentos {
+    font-weight: 600;
+    margin: 0 0 10px;
+}
+
+.error-descuentos {
+    color: #d01820;
+}
+
+.tabla-descuentos-contenedor {
+    overflow-x: auto;
+}
+
+.tabla-descuentos {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.tabla-descuentos th,
+.tabla-descuentos td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    vertical-align: top;
+}
+
+.tabla-descuentos th {
+    background: #f6f6f6;
+    font-size: 0.85rem;
+}
+
+.tabla-descuentos td.monto {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.tabla-descuentos .sin-registro {
+    color: #999;
+    font-style: italic;
+}
+
+/* cargarHTML pone .contenido en flex (fila): aquí va en columna */
+.contenido.contenido-descuentos {
+    flex-direction: column;
+}

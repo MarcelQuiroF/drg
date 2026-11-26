@@ -172,17 +172,45 @@ async function eliminarOrden(id) {
     });
 }
 
+// Largo de descuento.comentario en la base (varchar(255))
+const LARGO_MOTIVO = 255;
+
+// RN-06 (#39): todo descuento lleva un motivo y guarda quién lo aplicó. Sin tope ni autorización:
+// el control lo hace el administrador después (GET /descuentos). Si el descuento supera lo que
+// queda por pagar, la orden quedaría en 0: se avisa (409 DESCUENTO_SUPERA_TOTAL) y solo se aplica
+// si el pedido vuelve con confirmar = true.
 async function aplicarDescuento(ordenId, datos) {
+    const motivo = String(datos.comentario ?? '').trim();
+    if (!motivo) throw errorConEstado(400, 'El motivo del descuento es obligatorio (RN-06).');
+    if (motivo.length > LARGO_MOTIVO) {
+        throw errorConEstado(400, `El motivo no puede tener más de ${LARGO_MOTIVO} caracteres.`);
+    }
+
     return await sequelize.transaction(async (t) => {
         // El descuento por porcentaje se calcula sobre el subtotal: con la orden bloqueada, incluye
         // los ítems que se agregaron justo antes (#124)
-        await bloquearOrden(ordenId, t);
+        const orden = await bloquearOrden(ordenId, t);
+
+        if (!datos.confirmar) {
+            const enBs = await descuentoEnBs(ordenId, datos, t);
+            const porPagar = parseFloat(orden.total);
+            if (enBs > porPagar + 0.005) {
+                const error = errorConEstado(
+                    409,
+                    `El descuento (Bs ${enBs.toFixed(2)}) supera lo que queda por pagar (Bs ${porPagar.toFixed(2)}): ` +
+                        'la orden quedaría en Bs 0.00. Confirme para aplicarlo igual.'
+                );
+                error.datos = { codigo: 'DESCUENTO_SUPERA_TOTAL', descuento_bs: enBs, por_pagar: porPagar };
+                throw error;
+            }
+        }
 
         const nuevoDescuento = await Descuento.create(
             {
                 porcentaje: datos.porcentaje || 0,
                 monto: datos.monto || 0,
-                comentario: datos.comentario || ''
+                comentario: motivo,
+                empleado_id: datos.empleadoId ?? null
             },
             { transaction: t }
         );
@@ -199,6 +227,20 @@ async function aplicarDescuento(ordenId, datos) {
 
         return nuevoDescuento;
     });
+}
+
+// Cuánto vale en Bs un descuento nuevo sobre esta orden: el monto, o el porcentaje del subtotal
+// (precio cobrado × cantidad de productos y juegos), como en actualizarTotalOrden
+async function descuentoEnBs(ordenId, { monto, porcentaje }, transaction) {
+    if (parseFloat(monto) > 0) return parseFloat(monto);
+    const [[{ subtotal }]] = await sequelize.query(
+        `SELECT COALESCE((SELECT SUM(precio_unitario * cantidad) FROM contenedor_producto
+                          WHERE orden_id = :ordenId AND "deletedAt" IS NULL), 0)
+              + COALESCE((SELECT SUM(precio_unitario * cantidad) FROM contenedor_juego
+                          WHERE orden_id = :ordenId AND "deletedAt" IS NULL), 0) AS subtotal`,
+        { replacements: { ordenId }, transaction }
+    );
+    return Math.round(((parseFloat(subtotal) * parseFloat(porcentaje || 0)) / 100) * 100) / 100;
 }
 
 async function obtenerDescuentosPorOrden(ordenId) {

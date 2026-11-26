@@ -54,7 +54,15 @@ async function aplicarDescuento(req, res, next) {
             });
         }
 
-        const resultado = await ordenService.aplicarDescuento(id, { porcentaje, monto, comentario });
+        // Quién lo aplica sale de la sesión (#39); confirmar: el personal ya vio el aviso de que
+        // el descuento supera lo que queda por pagar
+        const resultado = await ordenService.aplicarDescuento(id, {
+            porcentaje,
+            monto,
+            comentario,
+            empleadoId: req.empleado.id,
+            confirmar: req.body.confirmar === true
+        });
 
         res.status(httpCodes.OK.code).json({
             message: 'Descuento aplicado correctamente.',

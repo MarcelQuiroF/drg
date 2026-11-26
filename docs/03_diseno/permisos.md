@@ -46,6 +46,7 @@ Las rutas no se protegen por **rol**, sino por **permiso** (ADR-008): cada ruta 
 | `ordenes.tomar` | Abrir órdenes, agregar, cambiar y quitar productos y juegos, editar notas | ✅ | ✅ |
 | `ordenes.eliminar` | Borrar una orden | ✅ ⚠ | ✅ ⚠ |
 | `ordenes.descontar` | Aplicar y quitar descuentos | ✅ | ✅ |
+| `descuentos.controlar` | Ver la lista de todos los descuentos aplicados (control del administrador) | ❌ | ❌ |
 | `ordenes.cobrar` | Cobrar una orden y registrar pagos | ✅ | ✅ |
 | `pagos.anular` | Anular un pago ya registrado | ✅ | ❌ ⚠ |
 | `comandas.gestionar` | Ver las comandas y avanzar su estado | ✅ | ✅ |
@@ -182,6 +183,7 @@ La columna **Permiso** dice qué permiso pide la ruta (ver el catálogo): `🌐 
 | Método | Ruta | Permiso | ADMIN | CAJERO | MESERO | Notas |
 |--------|------|---------|:-----:|:------:|:------:|-------|
 | GET | `/reportes/dashboard` | `reportes.ver` | ✅ | ❌ | ❌ | RF-51 |
+| GET | `/descuentos` | `descuentos.controlar` | ✅ | ❌ | ❌ | RF-49: control de los descuentos, que no tienen tope ni autorización (RN-06, #39) |
 | GET | `/configuracion` | solo sesión | ✅ | ✅ | ✅ | La pantalla de reservas lee las ventanas de tiempo |
 | GET | `/configuracion/descuentos-atraso` | `asistencia.registrar` | ✅ | ✅ | ✅ | Lo usa la pantalla de asistencia |
 | PUT | `/configuracion` | `configuracion.editar` | ✅ | ✅ | ✅ | RN-16: el cajero y el mesero ajustan los tiempos de reserva desde su pantalla. **T2 deja de ser un bug.** Desde #25 valida los valores: enteros ≥ 0 y solo claves que existen (400) |
