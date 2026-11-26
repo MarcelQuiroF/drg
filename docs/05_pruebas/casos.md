@@ -94,7 +94,8 @@ Las pruebas leen `ventana_bloqueo`, `ventana_llegada` y `minutos_tolerancia` de 
 | A4 | Borrar una asistencia aprobada sin firma | 🐞 | Se rechaza y no se borra (hoy 200 y borrado físico). Quitar una asistencia **sin aprobar** sí funciona (✅) | #30 | ✔ |
 | A5 | Guardar un horario con hora de salida | 🐞 | Se guardan entrada y salida (hoy solo la entrada) | #61 | ✔ |
 | A5b | Editar los horarios de un empleado con asistencias anteriores | 🐞 | El horario usado por las asistencias sigue existiendo (hoy se borra: `destroy` + `bulkCreate`) | #61 | ✔ |
-| A6 | El navegador envía un descuento por atraso que no corresponde | 🐞 | Un empleado puntual que manda el −100 % queda sin descuento (hoy guarda el enviado). Los bordes de RN-01 (9:59, 10:00… 25:01) se prueban en el PR de #29 | #29 | ✔ |
+| A6 | El navegador envía un descuento por atraso que no corresponde | ✅ | Un empleado puntual que manda el −100 % queda sin descuento, y uno que llega 30 min tarde y manda "sin descuento" queda con el −100 % (corregido en #29; antes se guardaba el enviado) | #29 | ✔ |
+| A7 | Bordes de RN-01 (`tests/asistencia/atraso.test.js`): llegada antes de la hora, a la hora, 9:59, 10:00, 19:59, 20:00, 25:00, 25:01 y 3 h | ✅ | 0, 0, 0, 10, 10, 20, 20, 100 y 100 %. Funciones puras al segundo y la API con el reloj del servidor fijado (`utils/reloj.js`). También: un horario de otro día → 400; FALTA y PERMISO sin descuento (⚠ P-07) | #29 | ✔ |
 | T11 | Registrar la llegada de un empleado sin horario ese día | ✅ | 400 con un mensaje claro (corregido en #28; antes 500). Decisión de Marcelo: sin horario se rechaza. También un horario de otro empleado → 400 | #28 | ✔ |
 
 ## Catálogo y espacio (`tests/catalogo/`)

@@ -211,7 +211,8 @@ Monitoreo de asistencia diaria y control de penalizaciones por atrasos. Requiere
     },
     "Horario": {
       "hora_entrada": "12:00:00"
-    }
+    },
+    "DescuentoAtraso": null
   }
 ]
 
@@ -228,8 +229,7 @@ Monitoreo de asistencia diaria y control de penalizaciones por atrasos. Requiere
 {
   "empleado_id": 3,
   "horario_id": 2,
-  "estado": "PRESENTE",
-  "descuento_id": 1
+  "estado": "PRESENTE"
 }
 
 ```
@@ -244,14 +244,17 @@ Monitoreo de asistencia diaria y control de penalizaciones por atrasos. Requiere
     "empleado_id": 3,
     "horario_id": 2,
     "estado": "PRESENTE",
+    "fecha_hora_llegada": "2026-11-25T14:12:30.000Z",
     "descuento_id": 1,
     "aprobado": false
-  }
+  },
+  "atraso": { "minutos": 12, "segundos": 750, "descuento_porcentual": 10 }
 }
 
 ```
 
-* **Errores:** `400` si falta `empleado_id` o `estado`, si falta `horario_id` (*"El empleado no tiene un horario para hoy…"*; antes 500, T11) o si el horario no existe o es de otro empleado (#28). Una llegada sin horario se rechaza porque sin la hora de entrada no se puede calcular el atraso (RN-01).
+* **Errores:** `400` si falta `empleado_id` o `estado`, si falta `horario_id` (*"El empleado no tiene un horario para hoy…"*; antes 500, T11), si el horario no existe o es de otro empleado (#28) o si el horario es de otro día de la semana (*"El horario indicado es del LUNES, no de hoy."*, #29). Una llegada sin horario se rechaza porque sin la hora de entrada no se puede calcular el atraso (RN-01).
+* **Atraso y descuento (RN-01, #29):** los calcula el **servidor**. La hora de llegada es la del servidor, en hora de Bolivia; el atraso se mide contra `hora_entrada` del horario de hoy y se trunca al segundo (llegar antes o a la hora es 0). El descuento es la fila de `descuento_atraso` con el mayor `cantidad_tiempo` alcanzado (umbral **inclusive**): con el seed, desde 10:00 min −10 %, desde 20:00 min −20 % y desde 25:01 min (más de 25) −100 %. Solo se calcula para `PRESENTE` (⚠ FALTA y PERMISO, sin descuento hasta confirmarlo con el dueño, P-07). Si el body trae `descuento_id`, **se ignora** (antes se guardaba el que mandaba el navegador, A6). `atraso` devuelve el resultado para que el frontend lo muestre.
 
 ### Aprobar Registro de Asistencia
 
@@ -883,22 +886,13 @@ Ajustes operativos globales del negocio y parámetros de penalizaciones. Requier
 
 ### Listar Parámetros de Descuentos por Atraso
 * **Ruta:** `GET /api/v1/configuracion/descuentos-atraso`
-* **Acceso:** Autenticado (Cualquier rol)
-* **Respuesta Exitosa (200 OK):**
+* **Acceso:** `ADMIN`, `CAJERO`, `MESERO` (permiso `asistencia.registrar`)
+* **Respuesta Exitosa (200 OK):** la tabla de RN-01, ordenada por `cantidad_tiempo` (el atraso **mínimo**, inclusive, desde el que se aplica cada fila; "más de 25 min" se guarda como `00:25:01`). `POST /asistencias` la usa para calcular el descuento (#29).
   ```json
   [
-    {
-      "id": 1,
-      "minutos_min": 1,
-      "minutos_max": 15,
-      "monto_descuento": "10.00"
-    },
-    {
-      "id": 2,
-      "minutos_min": 16,
-      "minutos_max": 30,
-      "monto_descuento": "25.00"
-    }
+    { "id": 1, "cantidad_tiempo": "00:10:00", "descuento": 0, "descuento_porcentual": 10 },
+    { "id": 2, "cantidad_tiempo": "00:20:00", "descuento": 0, "descuento_porcentual": 20 },
+    { "id": 3, "cantidad_tiempo": "00:25:01", "descuento": 0, "descuento_porcentual": 100 }
   ]
 
 

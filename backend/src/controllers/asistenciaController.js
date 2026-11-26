@@ -1,13 +1,16 @@
-const { Asistencia, Empleado, Horario } = require('../models');
+const { Asistencia, Empleado, Horario, DescuentoAtraso } = require('../models');
 const httpCodes = require('../utils/httpCodes');
 const { tienePermiso } = require('../config/permisos');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 const { fechaLocal, inicioDelDia, finDelDia } = require('../utils/fechas');
+const { esDelDia, segundosDeAtraso, descuentoQueCorresponde } = require('../utils/atraso');
+const reloj = require('../utils/reloj');
 
 async function registrarAsistencia(req, res, next) {
     try {
-        const { empleado_id, horario_id, estado, descuento_id } = req.body;
+        // descuento_id ya no se lee del body: el descuento lo calcula el servidor (RN-01, A6, #29)
+        const { empleado_id, horario_id, estado } = req.body;
 
         if (!empleado_id || !estado) {
             return res.status(httpCodes.BAD_REQUEST.code).json({
@@ -29,17 +32,39 @@ async function registrarAsistencia(req, res, next) {
             });
         }
 
+        // La hora de llegada es la del servidor, no la del navegador
+        const llegada = reloj.ahora();
+        if (!esDelDia(horario, llegada)) {
+            return res.status(httpCodes.BAD_REQUEST.code).json({
+                message: `El horario indicado es del ${horario.dia}, no de hoy.`
+            });
+        }
+
+        // RN-01: el atraso se mide contra la hora de entrada del horario de hoy y el descuento sale
+        // de la tabla descuento_atraso. Solo se calcula para PRESENTE: FALTA y PERMISO no son una
+        // llegada tarde (⚠ confirmar con el dueño el 10/12, P-07).
+        const segundos = estado === 'PRESENTE' ? segundosDeAtraso(llegada, horario.hora_entrada) : 0;
+        const tabla = await DescuentoAtraso.findAll({ attributes: ['id', 'cantidad_tiempo', 'descuento_porcentual'] });
+        const descuento = descuentoQueCorresponde(segundos, tabla);
+
         const nuevaAsistencia = await Asistencia.create({
             empleado_id,
             horario_id,
             estado,
-            descuento_id: descuento_id || null,
+            fecha_hora_llegada: llegada,
+            descuento_id: descuento ? descuento.id : null,
             aprobado: false
         });
 
         res.status(httpCodes.CREATED.code).json({
             message: 'Asistencia grabada con éxito.',
-            data: nuevaAsistencia
+            data: nuevaAsistencia,
+            // Lo que calculó el servidor, para que el frontend lo muestre sin calcular nada
+            atraso: {
+                minutos: Math.floor(segundos / 60),
+                segundos,
+                descuento_porcentual: descuento ? descuento.descuento_porcentual : 0
+            }
         });
     } catch (error) {
         next(error);
@@ -61,7 +86,9 @@ async function listarHoy(req, res, next) {
             },
             include: [
                 { model: Empleado, attributes: ['id', 'nombre', 'rol', 'ci'] },
-                { model: Horario, attributes: ['hora_entrada'] }
+                { model: Horario, attributes: ['hora_entrada'] },
+                // El descuento que calculó el servidor al registrar la llegada (#29)
+                { model: DescuentoAtraso, attributes: ['id', 'cantidad_tiempo', 'descuento_porcentual'] }
             ],
             order: [['fecha_hora_llegada', 'DESC']]
         });
