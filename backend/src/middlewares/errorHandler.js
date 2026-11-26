@@ -4,7 +4,10 @@ const httpCodes = require('../utils/httpCodes');
 // no un dato mal escrito (400). El nombre es el del índice en la base.
 const REGLAS_UNICAS = {
     // RN-10, #30: una llegada por empleado y día (las anuladas no cuentan)
-    asistencia_una_llegada_por_dia: 'El empleado ya registró su llegada hoy.'
+    asistencia_una_llegada_por_dia: 'El empleado ya registró su llegada hoy.',
+    // RF-22, #34: un solo día abierto a la vez y una jornada por fecha
+    jornada_una_abierta: 'Ya hay un día abierto.',
+    jornada_un_dia_por_fecha: 'El día de hoy ya se abrió. Para corregir un día cerrado, el administrador lo reabre.'
 };
 
 function notFoundHandler(req, res, next) {
@@ -37,6 +40,8 @@ function errorHandler(err, req, res, next) {
         success: false,
         status: statusCode,
         message: errorMessage,
+        // Datos para la pantalla (por ejemplo, las órdenes que impiden cerrar el día, #34)
+        ...(err.datos || {}),
         stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
 }

@@ -1,6 +1,6 @@
 # Matriz de permisos por rol y endpoint
 
-> **25/11/2026 · Versión 0.4** · Issues #9 y #25 · Requisitos RF-52, RF-58, RN-16 y RN-17 · ADR-008.
+> **25/11/2026 · Versión 0.5** · Issues #9, #25 y #34 · Requisitos RF-22, RF-52, RF-58, RN-16 y RN-17 · ADR-008.
 > Dice **qué puede hacer cada rol en cada endpoint** de la API (`/api/v1`). Es la especificación: las pruebas de `backend/tests/auth/` se generan desde este documento y fallan si el código no coincide (ver *Cómo se mantiene esta matriz*).
 
 ## Roles
@@ -58,10 +58,11 @@ Las rutas no se protegen por **rol**, sino por **permiso** (ADR-008): cada ruta 
 | `reportes.ver` | Ver el dashboard | ❌ | ❌ |
 | `configuracion.editar` | Cambiar los tiempos de reserva y otros valores | ✅ | ✅ |
 | `importacion.usar` | Importar desde Excel y descargar las plantillas | ❌ | ❌ |
+| `dia.abrir_cerrar` | Ver el estado del día, abrirlo y cerrarlo (con CI y contraseña) | ✅ | ✅ |
 
 ⚠ `ordenes.eliminar` está pendiente de P-21; `pagos.anular` y `asistencia.aprobar` son las dos diferencias entre cajero y mesero que hay que confirmar con el dueño (ver *Diferencias entre CAJERO y MESERO*).
 
-**Permisos previstos** por el backlog (se agregan al catálogo cuando se implementen): `dia.abrir_cerrar` (CAJERO y MESERO, #34), `dia.reabrir` (solo ADMIN, #35), `descuentos.controlar` (solo ADMIN, #39), `productos.disponibilidad` (pendiente de P-12, #53) y `permisos.gestionar` (solo ADMIN, fijo, #87).
+**Permisos previstos** por el backlog (se agregan al catálogo cuando se implementen): `dia.reabrir` (solo ADMIN, #35), `descuentos.controlar` (solo ADMIN, #39), `productos.disponibilidad` (pendiente de P-12, #53) y `permisos.gestionar` (solo ADMIN, fijo, #87).
 
 ## Leyenda
 
@@ -177,6 +178,14 @@ La columna **Permiso** dice qué permiso pide la ruta (ver el catálogo): `🌐 
 | PUT | `/asistencias/:id/aprobar` | `asistencia.aprobar` | ✅ | ✅ ⚠ | ❌ | Además pide la firma (CI y contraseña) de un ADMIN o CAJERO. RN-10: el cajero confirma (valor de prueba) |
 | DELETE | `/asistencias/:id` | `asistencia.aprobar` | ✅ | ✅ ⚠ | ❌ | Tiene que anular con firma, no borrar (#30) |
 
+### Apertura y cierre del día
+
+| Método | Ruta | Permiso | ADMIN | CAJERO | MESERO | Notas |
+|--------|------|---------|:-----:|:------:|:------:|-------|
+| GET | `/jornadas/actual` | `dia.abrir_cerrar` | ✅ | ✅ | ✅ | La pantalla principal pregunta si el día está abierto (#34) |
+| POST | `/jornadas` | `dia.abrir_cerrar` | ✅ | ✅ | ✅ | RF-22, RN-16: además pide el CI y la contraseña de quien abre, que también tiene que tener el permiso (#34) |
+| POST | `/jornadas/actual/cerrar` | `dia.abrir_cerrar` | ✅ | ✅ | ✅ | Igual que abrir. Con órdenes abiertas responde 409 (⚠ decisión de Marcelo, confirmar con el dueño) |
+
 ### Reportes, configuración e importación
 
 | Método | Ruta | Permiso | ADMIN | CAJERO | MESERO | Notas |
@@ -190,7 +199,7 @@ La columna **Permiso** dice qué permiso pide la ruta (ver el catálogo): `🌐 
 | GET | `/importacion/plantillas/productos` | `importacion.usar` | ✅ | ❌ | ❌ | T17 |
 | GET | `/importacion/plantillas/juegos` | `importacion.usar` | ✅ | ❌ | ❌ | T17 |
 
-No existe `GET /reportes/cierre-dia`: la ruta que lo definía nunca estuvo montada en `app.js` (T15) y se eliminó en #15. El cierre del día se rehace en #34.
+No existe `GET /reportes/cierre-dia`: la ruta que lo definía nunca estuvo montada en `app.js` (T15) y se eliminó en #15. Desde #34 el cierre del día es `POST /jornadas/actual/cerrar`.
 
 ## Diferencias entre CAJERO y MESERO
 
@@ -229,7 +238,6 @@ Antes de #25 las rutas se protegían por rol con `authorize([...])` y algunas no
 
 | Endpoint (nombre tentativo) | Permiso | ADMIN | CAJERO | MESERO | Fuente |
 |-----------------------------|---------|:-----:|:------:|:------:|--------|
-| Abrir y cerrar el día (#34) | `dia.abrir_cerrar` | ✅ | ✅ | ✅ | RF-22 y RN-16: el cajero o el mesero |
 | Reabrir un día cerrado (#35) | `dia.reabrir` | ✅ | ❌ ⚠ | ❌ | RF-56: el administrador, valor de prueba (P-09) |
 | Mover una orden a otra mesa (#38) | `ordenes.tomar` | ✅ | ✅ | ✅ | RF-55: "el personal" |
 | Listado de descuentos aplicados (#39) | `descuentos.controlar` | ✅ | ❌ | ❌ | RF-49 |
@@ -257,3 +265,4 @@ Antes de #25 las rutas se protegían por rol con `authorize([...])` y algunas no
 | 0.2 | 25/11/2026 | Decisión de Marcelo (RN-16): el mesero cobra, cambia la configuración, abre el día y registra asistencias. Quedan dos diferencias con el cajero |
 | 0.3 | 25/11/2026 | Permisos por acción (ADR-008): catálogo de 20 permisos, columna *Permiso* en cada ruta y regla del ADMIN con todos los permisos (RN-17) |
 | 0.4 | 25/11/2026 | #25: el código usa `requierePermiso` en todas las rutas y el mapa de `config/permisos.js`. Se quitan las columnas *Hoy* y *Dif.* (el código coincide con la matriz) y la tabla de diferencias pasa a *Lo que cambió con #25* |
+| 0.5 | 25/11/2026 | #34: permiso `dia.abrir_cerrar` (CAJERO y MESERO) y las 3 rutas de *Apertura y cierre del día* |

@@ -1,5 +1,4 @@
 import { API_URL } from './api.js';
-import { fechaLocalISO } from './utils.js';
 
 const loginForm = document.getElementById('loginForm');
 
@@ -12,12 +11,9 @@ if (avisoLogin && avisoEl) {
 }
 sessionStorage.removeItem('aviso_login');
 
-const fechaHoy = fechaLocalISO(); // el día en Bolivia, no en UTC (#27)
-const cierreGuardado = localStorage.getItem('dia_cerrado');
-
-if (cierreGuardado === fechaHoy) {
-    window.location.href = 'cerrado.html';
-}
+// El estado del día (abierto o cerrado) ya no se guarda en este navegador: lo consulta la pantalla
+// principal al servidor después del login (#34). Se borra la marca vieja de las versiones anteriores.
+localStorage.removeItem('dia_cerrado');
 
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {

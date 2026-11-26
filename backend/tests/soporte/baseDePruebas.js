@@ -132,11 +132,24 @@ async function reiniciarDatos(sequelize) {
     }
     const seed = require('../../src/seeders/20251120000000-master-seed');
     await seed.up(sequelize.getQueryInterface(), Sequelize);
+    await abrirDiaDePrueba(sequelize);
+}
+
+// Desde #34 no se toman órdenes ni se cobra con el día cerrado. Cada archivo empieza con el día de
+// hoy (en Bolivia) abierto por el cajero del seed, como en el local después de abrir. Las pruebas de
+// la apertura y el cierre (tests/jornada/) lo cierran o lo borran ellas mismas.
+async function abrirDiaDePrueba(sequelize) {
+    await sequelize.query(
+        `INSERT INTO jornada (fecha, abierta_por, abierta_en, "createdAt", "updatedAt")
+         SELECT (now() AT TIME ZONE 'America/La_Paz')::date, id, now(), now(), now()
+         FROM empleado WHERE ci = '2345678LP'`
+    );
 }
 
 module.exports = {
     motivosParaRechazar,
     verificarBaseDePruebas,
     recrearEsquema,
-    reiniciarDatos
+    reiniciarDatos,
+    abrirDiaDePrueba
 };

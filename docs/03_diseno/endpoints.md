@@ -4,9 +4,9 @@
 
 Este documento detalla las rutas del servidor, los datos requeridos para las solicitudes, las restricciones de acceso por roles y los formatos de respuesta exitosa.
 
-> **Revisado el 25/11/2026** (issue #12) contra las rutas montadas en `backend/src/app.js`: las **69 rutas** del código están documentadas aquí.
+> **Revisado el 25/11/2026** (issue #12) contra las rutas montadas en `backend/src/app.js`: **todas** las rutas del código están documentadas aquí (cada PR que agrega una ruta la documenta).
 > Desde #25 cada ruta pide un **permiso por acción** (`requierePermiso`, ADR-008). La fuente es la [matriz de permisos](permisos.md): el campo **Acceso** de este documento solo resume qué roles tienen ese permiso hoy.
-> El cierre del día (sección 16) no está disponible: la ruta existe en el código, pero no está montada.
+> Desde #34 el día se abre y se cierra en el servidor (sección 16): con el día cerrado, abrir órdenes, agregar ítems y cobrar responden 409.
 
 ---
 
@@ -745,7 +745,7 @@ Control operativo de consumos en mesa, procesamiento de cuentas y aplicación de
 * **Errores:**
   * `400`: falta `mesa_id`.
   * `404`: la mesa no existe.
-  * `409`: la mesa ya tiene una orden abierta, la mesa está desactivada o su piso está desactivado (#45).
+  * `409`: la mesa ya tiene una orden abierta, la mesa está desactivada o su piso está desactivado (#45), o el día está cerrado (`"codigo": "DIA_CERRADO"`, #34).
 
 ### Finalizar y Cerrar Cuenta de una Orden
 
@@ -1452,11 +1452,71 @@ Control estructural de los diferentes niveles o plantas del local comercial. Req
 }
 
 
-## 16. Módulo de Cierre Operativo (`/api/v1/reportes`) — ⚠ no disponible
+## 16. Módulo de Apertura y Cierre del Día (`/api/v1/jornadas`)
 
-`GET /api/v1/reportes/cierre-dia` **no existe**: estaba definida en `routes/reporteRoute.js`, que nunca se montó en `app.js` (prueba T15 del análisis), y ese archivo se eliminó en #15. El cierre del día en el backend llega con #34. Hoy el cierre del día se guarda solo en el navegador (`localStorage`).
+El día de trabajo (jornada) se abre y se cierra en el servidor (#34, RF-22). Antes el cierre se guardaba solo en el `localStorage` del navegador que lo cerraba (T15): otro navegador no lo veía y el servidor seguía aceptando órdenes. `GET /api/v1/reportes/cierre-dia` nunca existió (T15, se eliminó en #15).
 
-El cierre y la reapertura del día en el servidor se diseñan de nuevo en #34 y #35; cuando estén listos, esta sección se reemplaza por los endpoints nuevos.
+* **Permiso:** `dia.abrir_cerrar` (ADMIN, CAJERO y MESERO; RN-16).
+* **Reglas:**
+  * Un solo día abierto a la vez y una jornada por fecha (restricciones únicas en la base). La fecha es el día de Bolivia en que se abrió.
+  * Abrir y cerrar piden el **CI y la contraseña de quien lo hace** (como la llegada, RF-43): quien tiene la sesión presta la pantalla. Tiene que ser un empleado activo con el permiso.
+  * **Con el día cerrado (o sin abrir), estas rutas responden `409`** con `"codigo": "DIA_CERRADO"`: `POST /ordenes`, `POST /ordenes/:id/finalizar`, `POST /ordenes-productos`, `POST /ordenes-juegos` y `POST /pagos`. Lo demás (ver mesas, órdenes, reservas…) sigue funcionando.
+  * No se puede cerrar con órdenes abiertas (⚠ decisión de Marcelo, confirmar con el dueño el 10/12): hay que cobrarlas o borrarlas antes.
+  * Reabrir un día cerrado es #35.
+
+### Estado del Día
+
+* **Ruta:** `GET /api/v1/jornadas/actual`
+* **Respuesta Exitosa (200 OK):** la jornada abierta; si no hay ninguna, la última cerrada con su resumen; si nunca se abrió un día, `{ "abierta": false, "jornada": null }`.
+  ```json
+  {
+    "abierta": false,
+    "jornada": {
+      "id": 12,
+      "fecha": "2026-11-25",
+      "abierta_por": 3,
+      "abierta_en": "2026-11-25T13:02:11.000Z",
+      "cerrada_por": 2,
+      "cerrada_en": "2026-11-26T02:40:05.000Z",
+      "resumen": {
+        "ordenes": 2,
+        "ingresos": 68,
+        "efectivo": 38,
+        "qr": 30,
+        "descuentos": { "cantidad": 1, "monto": 11 }
+      },
+      "abridor": { "id": 3, "nombre": "Mesero de Prueba" },
+      "cerrador": { "id": 2, "nombre": "Cajero de Prueba" }
+    }
+  }
+  ```
+
+### Abrir el Día
+
+* **Ruta:** `POST /api/v1/jornadas`
+* **Cuerpo de la Solicitud (JSON):** `{ "ci": "3456789LP", "contrasenia": "..." }` (de quien abre)
+* **Respuesta Exitosa (201 Created):** `{ "message": "Día abierto.", "jornada": { … } }` con `abierta_por` = el empleado de esas credenciales.
+* **Errores:**
+  * `400`: falta el CI o la contraseña.
+  * `403`: CI o contraseña incorrectos, empleado inactivo o sin el permiso (no `401`: la sesión de quien presta la pantalla sigue siendo válida, #26).
+  * `409`: ya hay un día abierto (`"El día 24/11/2026 sigue abierto: ciérrelo primero."`), o el día de hoy ya se cerró (se reabre con #35).
+
+### Cerrar el Día
+
+* **Ruta:** `POST /api/v1/jornadas/actual/cerrar`
+* **Cuerpo de la Solicitud (JSON):** `{ "ci": "2345678LP", "contrasenia": "..." }` (de quien cierra; puede ser otra persona que la que abrió)
+* **Respuesta Exitosa (200 OK):** `{ "message": "Día cerrado.", "jornada": { … } }` con `cerrada_por`, `cerrada_en` y el `resumen` guardado.
+* **Resumen** (valor de prueba hasta que el dueño responda P-09): órdenes cobradas, total, efectivo, QR y descuentos (cantidad y Bs) de lo cobrado **entre la apertura y el cierre**. Sale de la misma consulta que el dashboard (#31: órdenes cobradas, por la fecha de su último pago), así que coinciden. Los descuentos en Bs son lo que valían los ítems menos lo cobrado.
+* **Errores:**
+  * `400` y `403`: como al abrir.
+  * `409`: no hay un día abierto, o hay órdenes abiertas. En ese caso la respuesta trae la lista:
+    ```json
+    {
+      "message": "No se puede cerrar el día: hay 1 orden(es) abierta(s). Cóbrelas o bórrelas antes.",
+      "codigo": "ORDENES_ABIERTAS",
+      "ordenesAbiertas": [{ "id": 51, "total": 36, "mesa": { "id": 1, "nombre": "Mesa 1 (Ventana)", "numero": 1 } }]
+    }
+    ```
 
 ---
 

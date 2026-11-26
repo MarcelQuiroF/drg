@@ -1,15 +1,9 @@
-const {
-    ContenedorProducto,
-    ContenedorJuego,
-    ContenedorTransaccion,
-    Reserva,
-    Producto,
-    Juego,
-    sequelize
-} = require('../models');
+const { ContenedorProducto, ContenedorJuego, ContenedorTransaccion, Reserva, Producto, Juego } = require('../models');
 const httpCodes = require('../utils/httpCodes');
 const { fechaLocal, inicioDelDia, finDelDia, diasDelRango } = require('../utils/fechas');
-const { Op, QueryTypes } = require('sequelize');
+const { Op } = require('sequelize');
+// Misma consulta que el resumen del cierre del día (#34)
+const { ordenesCobradas } = require('../services/cobrosService');
 
 // Dashboard (#31). UNA sola fuente para todos los números: las órdenes COBRADAS y sus pagos.
 // - Una orden cuenta el día de su cobro: la fecha de su último pago (en hora de Bolivia, #27).
@@ -21,20 +15,6 @@ const { Op, QueryTypes } = require('sequelize');
 // - Los promedios dividen por los días reales del rango, contando los dos extremos.
 // Antes, la gráfica y el total de órdenes salían de Orden.total con las órdenes abiertas, el
 // promedio de "la semana" dividía por 8 y el ranking de juegos contaba filas.
-
-// Órdenes cobradas cuyo último pago cae en el rango, con esa fecha. Sin rango, todas.
-async function ordenesCobradas(fechaInicio, fechaFin) {
-    const filtro = fechaInicio ? 'HAVING MAX(t.fecha) BETWEEN :fechaInicio AND :fechaFin' : '';
-    return sequelize.query(
-        `SELECT t.orden_id, MAX(t.fecha) AS fecha_cobro
-         FROM contenedor_transaccion t
-         JOIN orden o ON o.id = t.orden_id AND o.finalizado = true AND o."deletedAt" IS NULL
-         WHERE t."deletedAt" IS NULL
-         GROUP BY t.orden_id
-         ${filtro}`,
-        { type: QueryTypes.SELECT, replacements: { fechaInicio, fechaFin } }
-    );
-}
 
 function rangoPedido({ inicio, fin }) {
     if (!inicio && !fin) return null;

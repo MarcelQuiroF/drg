@@ -146,3 +146,64 @@ body {
     .title-small { font-size: 2rem; }
     .title-large { font-size: 2.8rem; }
 }
+/* Apertura y cierre del día en el servidor (#34) */
+/* `hidden` tiene que ganarle a los display de .btn (flex) y de los bloques */
+[hidden] {
+    display: none !important;
+}
+
+.resumen {
+    margin: 0 auto 20px;
+    max-width: 360px;
+    text-align: left;
+    color: #e0e0e0;
+}
+
+.resumen table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.resumen td {
+    padding: 4px 0;
+    border-bottom: 1px solid #333;
+}
+
+.resumen td:last-child {
+    text-align: right;
+    font-weight: 700;
+}
+
+.aviso-ordenes {
+    margin: 0 auto 20px;
+    max-width: 360px;
+    color: #ffb4b4;
+    text-align: left;
+}
+
+.form-dia {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 280px;
+    margin: 0 auto 25px;
+}
+
+.form-dia input {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #888;
+    background: #111;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.form-dia .card-text {
+    margin-bottom: 5px;
+}
+
+.error-dia {
+    color: #ff5a5e;
+    margin: 0;
+    font-size: 0.9rem;
+}

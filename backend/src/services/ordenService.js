@@ -11,6 +11,8 @@ const {
 } = require('../models');
 
 const { bloquearOrden, actualizarTotalOrden, errorConEstado } = require('../utils/orderUtils');
+// El día tiene que estar abierto (#34): candado de la jornada, siempre antes que los demás
+const { bloquearDiaAbierto } = require('../utils/jornada');
 const { Op } = require('sequelize');
 
 // Abre una orden en una mesa libre o reservada. La fila de la mesa se lee con bloqueo
@@ -20,6 +22,7 @@ const { Op } = require('sequelize');
 // eslint-disable-next-line no-unused-vars -- usuarioId se guardará en la orden con #46 (RF-13)
 async function crearOrden(mesaId, usuarioId) {
     return await sequelize.transaction(async (t) => {
+        await bloquearDiaAbierto(t);
         const mesa = await Mesa.findByPk(mesaId, { transaction: t, lock: t.LOCK.UPDATE });
         if (!mesa) throw errorConEstado(404, 'La mesa no existe.');
         if (!mesa.activo) throw errorConEstado(409, 'La mesa está desactivada.');
@@ -117,6 +120,7 @@ async function finalizarOrden(id, pagos) {
     const pagosValidos = normalizarPagos(pagos);
 
     return await sequelize.transaction(async (t) => {
+        await bloquearDiaAbierto(t);
         // Con la orden bloqueada, nadie agrega ítems entre que se lee el total y se cierra la
         // orden: antes podía quedar cerrada con ítems que no se cobraron (#124).
         const orden = await bloquearOrden(id, t);

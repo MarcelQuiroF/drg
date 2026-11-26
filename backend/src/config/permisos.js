@@ -29,7 +29,8 @@ const CATALOGO = Object.freeze({
     'empleados.gestionar': 'Crear y editar empleados y horarios',
     'reportes.ver': 'Ver el dashboard',
     'configuracion.editar': 'Cambiar los tiempos de reserva y otros valores',
-    'importacion.usar': 'Importar desde Excel y descargar las plantillas'
+    'importacion.usar': 'Importar desde Excel y descargar las plantillas',
+    'dia.abrir_cerrar': 'Ver el estado del día, abrirlo y cerrarlo (con CI y contraseña)'
 });
 
 const ROL_ADMIN = 'ADMIN';
@@ -48,7 +49,8 @@ const OPERACION = [
     'clientes.gestionar',
     'reservas.gestionar',
     'asistencia.registrar',
-    'configuracion.editar'
+    'configuracion.editar',
+    'dia.abrir_cerrar'
 ];
 
 // El ADMIN no figura: tiene siempre TODOS los permisos del catálogo, también los que se agreguen
