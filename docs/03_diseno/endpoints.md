@@ -859,35 +859,6 @@ Control operativo de consumos en mesa, procesamiento de cuentas y aplicación de
   "message": "Orden eliminada del sistema."
 }
 
-### Control de Descuentos (solo el administrador)
-
-* **Ruta:** `GET /api/v1/descuentos`
-* **Acceso:** `ADMIN` (permiso `descuentos.controlar`; RF-49). Los descuentos no tienen tope ni autorización (RN-06): el control es este listado.
-* **Parámetros de consulta (opcionales):** `desde` y `hasta` (`YYYY-MM-DD`, días de Bolivia, los dos extremos incluidos; van juntos) y `empleado_id`.
-* Lista los descuentos **vigentes** (los quitados de la orden no aparecen) de órdenes que no se borraron, del más nuevo al más viejo.
-* `descontado`: lo que de verdad descontó en Bs, calculado como el total: un porcentaje sobre el subtotal y, si los descuentos suman más que el subtotal, solo hasta llegar a 0 (en el orden en que se aplicaron). La suma de `descontado` es lo que las órdenes dejaron de cobrar. En una orden abierta puede cambiar si se agregan ítems.
-* Los descuentos de antes de #39 no guardaron quién los aplicó: llegan con `"empleado": null`.
-* **Respuesta Exitosa (200 OK):**
-```json
-{
-  "descuentos": [
-    {
-      "id": 14,
-      "fecha": "2026-11-26T02:55:10.000Z",
-      "orden": { "id": 6, "cobrada": false, "total": 0 },
-      "mesa": { "id": 1, "nombre": "Mesa 1 (Ventana)", "numero": 1 },
-      "tipo": "MONTO",
-      "valor": 100,
-      "descontado": 36,
-      "motivo": "Comida entregada por error",
-      "empleado": { "id": 3, "nombre": "Mesero de Prueba" }
-    }
-  ],
-  "totales": { "cantidad": 1, "descontado": 36 }
-}
-```
-* **Errores:** `400` con una sola fecha, una fecha mal escrita, el rango al revés o un `empleado_id` que no es un número; `403` para cajero y mesero.
-
 ---
 
 ## 8. Módulo de Reportes y Métricas (`/api/v1/reportes`)
@@ -932,6 +903,35 @@ Procesamiento de datos estadísticos agregados para auditoría del negocio. Requ
 }
 
 ```
+
+### Control de Descuentos (solo el administrador)
+
+* **Ruta:** `GET /api/v1/descuentos`
+* **Acceso:** `ADMIN` (permiso `descuentos.controlar`; RF-49). Los descuentos no tienen tope ni autorización (RN-06): el control es este listado.
+* **Parámetros de consulta (opcionales):** `desde` y `hasta` (`YYYY-MM-DD`, días de Bolivia, los dos extremos incluidos; van juntos) y `empleado_id`.
+* Lista los descuentos **vigentes** (los quitados de la orden no aparecen) de órdenes que no se borraron, del más nuevo al más viejo.
+* `descontado`: lo que de verdad descontó en Bs, calculado como el total: un porcentaje sobre el subtotal y, si los descuentos suman más que el subtotal, solo hasta llegar a 0 (en el orden en que se aplicaron). La suma de `descontado` es lo que las órdenes dejaron de cobrar. En una orden abierta puede cambiar si se agregan ítems.
+* Los descuentos de antes de #39 no guardaron quién los aplicó: llegan con `"empleado": null`.
+* **Respuesta Exitosa (200 OK):**
+```json
+{
+  "descuentos": [
+    {
+      "id": 14,
+      "fecha": "2026-11-26T02:55:10.000Z",
+      "orden": { "id": 6, "cobrada": false, "total": 0 },
+      "mesa": { "id": 1, "nombre": "Mesa 1 (Ventana)", "numero": 1 },
+      "tipo": "MONTO",
+      "valor": 100,
+      "descontado": 36,
+      "motivo": "Comida entregada por error",
+      "empleado": { "id": 3, "nombre": "Mesero de Prueba" }
+    }
+  ],
+  "totales": { "cantidad": 1, "descontado": 36 }
+}
+```
+* **Errores:** `400` con una sola fecha, una fecha mal escrita, el rango al revés o un `empleado_id` que no es un número; `403` para cajero y mesero.
 
 ## 9. Módulo de Configuración del Sistema (`/api/v1/configuracion`)
 
