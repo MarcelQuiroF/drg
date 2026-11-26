@@ -125,6 +125,7 @@ La columna **Permiso** dice qué permiso pide la ruta (ver el catálogo): `🌐 
 | GET | `/ordenes/:id` | `ordenes.ver` | ✅ | ✅ | ✅ | |
 | POST | `/ordenes` | `ordenes.tomar` | ✅ | ✅ | ✅ | Con el día cerrado responde 409 (#34) |
 | PUT | `/ordenes/:id` | `ordenes.tomar` | ✅ | ✅ | ✅ | Notas. No si la orden está cobrada (#41) |
+| POST | `/ordenes/:id/mover` | `ordenes.tomar` | ✅ | ✅ | ✅ | RF-55: mover la orden a otra mesa libre y sin reserva próxima (RN-15, #38) |
 | DELETE | `/ordenes/:id` | `ordenes.eliminar` | ✅ | ✅ | ✅ ⚠ | ⚠ Quién puede borrar o cancelar una orden con ítems ya enviados a cocina: pendiente (P-21, #44) |
 | POST | `/ordenes/:id/finalizar` | `ordenes.cobrar` | ✅ | ✅ | ✅ | RF-17 y RN-16: cobran el cajero y el mesero |
 | POST | `/ordenes/:id/descuento` | `ordenes.descontar` | ✅ | ✅ | ✅ | RN-06: cajero y mesero, sin tope. Motivo obligatorio (#39) |
@@ -231,7 +232,6 @@ Antes de #25 las rutas se protegían por rol con `authorize([...])` y algunas no
 |-----------------------------|---------|:-----:|:------:|:------:|--------|
 | Abrir y cerrar el día (#34) | `dia.abrir_cerrar` | ✅ | ✅ | ✅ | RF-22 y RN-16: el cajero o el mesero |
 | Reabrir un día cerrado (#35) | `dia.reabrir` | ✅ | ❌ ⚠ | ❌ | RF-56: el administrador, valor de prueba (P-09) |
-| Mover una orden a otra mesa (#38) | `ordenes.tomar` | ✅ | ✅ | ✅ | RF-55: "el personal" |
 | Listado de descuentos aplicados (#39) | `descuentos.controlar` | ✅ | ❌ | ❌ | RF-49 |
 | Tamaños de juego (#37) | `catalogo.gestionar` | ✅ | ❌ | ❌ | RF-57 (lectura: todos, para mostrar el precio) |
 | `PUT /categorias/:id` (#56) | `catalogo.gestionar` | ✅ | ❌ | ❌ | RF-35 |

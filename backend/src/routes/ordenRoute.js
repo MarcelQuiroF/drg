@@ -12,6 +12,9 @@ router.post('/', requierePermiso('ordenes.tomar'), ordenController.crear);
 
 router.post('/:id/finalizar', requierePermiso('ordenes.cobrar'), ordenController.finalizar);
 
+// #38 (RF-55): mover la orden a otra mesa libre y sin reserva próxima
+router.post('/:id/mover', requierePermiso('ordenes.tomar'), ordenController.mover);
+
 router.delete('/:id', requierePermiso('ordenes.eliminar'), ordenController.eliminar);
 
 router.post('/:id/descuento', requierePermiso('ordenes.descontar'), ordenController.aplicarDescuento);

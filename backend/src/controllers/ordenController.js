@@ -137,6 +137,16 @@ async function actualizarNotas(req, res, next) {
     }
 }
 
+// #38: mover una orden abierta a otra mesa libre y sin reserva próxima
+async function mover(req, res, next) {
+    try {
+        const orden = await ordenService.moverOrden(req.params.id, req.body.mesa_id);
+        res.status(httpCodes.OK.code).json({ message: 'Orden movida.', orden });
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     crear,
     quitarDescuento,
@@ -146,5 +156,6 @@ module.exports = {
     obtenerPorId,
     listarDescuentos,
     aplicarDescuento,
-    actualizarNotas
+    actualizarNotas,
+    mover
 };

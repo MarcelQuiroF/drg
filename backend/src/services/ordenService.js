@@ -273,6 +273,86 @@ async function actualizarNotasDeOrden(ordenId, nuevasNotas) {
     return orden;
 }
 
+// Mueve una orden abierta a otra mesa (#38, RF-55, RN-15): todo lo que cuelga de la orden (ítems,
+// juegos, descuentos y pagos parciales) va con ella, porque se guarda por orden_id. La mesa de
+// origen queda libre y la de destino ocupada.
+//
+// Bloqueos, siempre en el mismo orden para que dos operaciones no se esperen una a la otra
+// (deadlock):
+// 1. La orden (bloquearOrden, #124). El cobro y el borrado ya bloquean orden → mesa; si mover
+//    bloqueara mesa → orden, se podría trabar con un cobro de la misma orden.
+// 2. Las dos mesas, de menor a mayor id. Con dos movimientos cruzados a la vez (la orden de la
+//    mesa 3 a la 7 y la de la 7 a la 3), los dos piden primero la 3: el segundo espera y después
+//    ve el destino ocupado (409). Si cada uno bloqueara primero "su" mesa, los dos quedarían
+//    esperando la del otro y PostgreSQL cortaría uno con un error de deadlock (500).
+// Todas las consultas usan la transacción (lección de #45: si no, el pool se agota).
+async function moverOrden(ordenId, mesaDestinoId) {
+    const destinoId = Number(mesaDestinoId);
+    if (!Number.isInteger(destinoId) || destinoId <= 0) {
+        throw errorConEstado(400, 'Indique la mesa de destino (mesa_id).');
+    }
+
+    return await sequelize.transaction(async (t) => {
+        const orden = await bloquearOrden(ordenId, t);
+        if (orden.mesa_id === destinoId) throw errorConEstado(400, 'La orden ya está en esa mesa.');
+
+        const mesas = {};
+        for (const id of [orden.mesa_id, destinoId].filter((id) => id != null).sort((a, b) => a - b)) {
+            mesas[id] = await Mesa.findByPk(id, { transaction: t, lock: t.LOCK.UPDATE, paranoid: false });
+        }
+        const destino = mesas[destinoId];
+        if (!destino || destino.deletedAt) throw errorConEstado(404, 'La mesa de destino no existe.');
+        if (!destino.activo) throw errorConEstado(409, 'La mesa de destino está desactivada.');
+        const piso = await Piso.findByPk(destino.piso_id, { transaction: t });
+        if (!piso || !piso.activo) throw errorConEstado(409, 'El piso de la mesa de destino está desactivado.');
+
+        const abiertas = await Orden.count({ where: { mesa_id: destinoId, finalizado: false }, transaction: t });
+        if (destino.estado === 1 || abiertas > 0) throw errorConEstado(409, 'La mesa de destino está ocupada.');
+
+        const reserva = await reservaProxima(destinoId, t);
+        if (reserva) {
+            const hora = new Date(reserva.hora).toLocaleTimeString('es-BO', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+            throw errorConEstado(409, `La mesa de destino tiene una reserva a las ${hora}.`);
+        }
+
+        // ⚠ Quién movió la orden no queda registrado: no hay bitácora todavía (#46, #66)
+        const origen = mesas[orden.mesa_id];
+        await orden.update({ mesa_id: destinoId }, { transaction: t });
+        await destino.update({ estado: 1 }, { transaction: t });
+        if (origen) await origen.update({ estado: 0 }, { transaction: t });
+
+        return orden;
+    });
+}
+
+// Reserva PENDIENTE de la mesa que todavía puede llegar (RN-15 con la ventana de RN-12): desde las
+// que se atrasan sin pasar la tolerancia (minutos_tolerancia) hasta las que empiezan dentro de
+// ventana_bloqueo, la misma ventana con la que el sistema separa dos reservas (un grupo se queda
+// entre 1 y 2 horas). Decisión de Marcelo (sesión 6.1); RN-12 sigue como valor de prueba.
+async function reservaProxima(mesaId, transaction) {
+    const [configBloqueo, configTolerancia] = await Promise.all([
+        Configuracion.findOne({ where: { clave: 'ventana_bloqueo' }, transaction }),
+        Configuracion.findOne({ where: { clave: 'minutos_tolerancia' }, transaction })
+    ]);
+    const ventana = configBloqueo ? configBloqueo.valor : 120;
+    const tolerancia = configTolerancia ? configTolerancia.valor : 20;
+    const ahora = Date.now();
+
+    return Reserva.findOne({
+        where: {
+            mesa_id: mesaId,
+            estado: 'PENDIENTE',
+            hora: { [Op.between]: [new Date(ahora - tolerancia * 60000), new Date(ahora + ventana * 60000)] }
+        },
+        order: [['hora', 'ASC']],
+        transaction
+    });
+}
+
 module.exports = {
     crearOrden,
     listarOrdenes,
@@ -283,5 +363,6 @@ module.exports = {
     obtenerDescuentosPorOrden,
     removerDescuento,
     registrarLlegadaAutomatica,
-    actualizarNotasDeOrden
+    actualizarNotasDeOrden,
+    moverOrden
 };
