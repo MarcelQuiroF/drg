@@ -18,6 +18,7 @@ const CATALOGO = Object.freeze({
     'ordenes.tomar': 'Abrir órdenes, agregar, cambiar y quitar productos y juegos, editar notas',
     'ordenes.eliminar': 'Borrar una orden',
     'ordenes.descontar': 'Aplicar y quitar descuentos',
+    'descuentos.controlar': 'Ver la lista de todos los descuentos aplicados (control del administrador)',
     'ordenes.cobrar': 'Cobrar una orden y registrar pagos',
     'pagos.anular': 'Anular un pago ya registrado',
     'comandas.gestionar': 'Ver las comandas y avanzar su estado',

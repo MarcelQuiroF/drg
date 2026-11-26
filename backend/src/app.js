@@ -20,6 +20,7 @@ const reservaRoute = require('./routes/reservaRoute');
 const comandaRoute = require('./routes/comandaRoute');
 const asistenciaRoute = require('./routes/asistenciaRoute');
 const reportesRoute = require('./routes/reportesRoute');
+const descuentoRoute = require('./routes/descuentoRoute');
 const configuracionRoutes = require('./routes/configuracionRoutes');
 const importacionRoute = require('./routes/importacionRoute');
 
@@ -57,6 +58,7 @@ app.use(`${API_PREFIX}/reservas`, reservaRoute);
 app.use(`${API_PREFIX}/comandas`, comandaRoute);
 app.use(`${API_PREFIX}/asistencias`, asistenciaRoute);
 app.use(`${API_PREFIX}/reportes`, reportesRoute);
+app.use(`${API_PREFIX}/descuentos`, descuentoRoute);
 app.use(`${API_PREFIX}/configuracion`, configuracionRoutes);
 app.use(`${API_PREFIX}/importacion`, importacionRoute);
 

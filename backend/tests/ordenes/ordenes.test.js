@@ -263,9 +263,16 @@ describe('Descuentos (RN-06: sin tope ni autorización)', () => {
         expect(await totalDe(orden)).toBe(0);
     });
 
-    test('P4 · un descuento de monto mayor al total deja el total en 0.00, nunca negativo', async () => {
+    test('P4 · un descuento de monto mayor al total avisa (409) y, confirmado, deja el total en 0.00, nunca negativo', async () => {
         const orden = await ordenDe61();
-        const res = await api.post(`/ordenes/${orden.id}/descuento`).send({ monto: 9999, comentario: 'prueba' });
+        // #39: antes de dejar la orden en 0, el servidor avisa y no aplica nada
+        const aviso = await api.post(`/ordenes/${orden.id}/descuento`).send({ monto: 9999, comentario: 'prueba' });
+        expect(aviso.status).toBe(409);
+        expect(aviso.body.codigo).toBe('DESCUENTO_SUPERA_TOTAL');
+        expect(await totalDe(orden)).toBe(61);
+        const res = await api
+            .post(`/ordenes/${orden.id}/descuento`)
+            .send({ monto: 9999, comentario: 'prueba', confirmar: true });
         expect(res.status).toBe(200);
         expect(await totalDe(orden)).toBe(0);
     });

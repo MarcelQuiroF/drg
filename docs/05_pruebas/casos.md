@@ -36,8 +36,8 @@ Archivos: `login.test.js`, `matrizPermisos.test.js` y `catalogoPermisos.test.js`
 | T2b | Configuración con un valor negativo | ✅ | 400 y no se guarda (corregido en #25; antes 200 y se guardaba). También un decimal, un texto, vacío, `null`, un booleano, una clave que no existe y una lista vacía; el número como texto sí se acepta; si un valor falla no se guarda ninguno | #25 | ✔ |
 | T17 | MESERO o CAJERO descargan una plantilla de importación | ✅ | 403 (corregido en #25; antes 200). Lo cubre MATRIZ y la prueba de los pasos de #25 | #25 | ✔ |
 | F5 (API) | MESERO ve la asistencia del día, la lista de empleados y registra llegadas | ✅ | 200 (corregido en #25; antes 403). Lo cubre MATRIZ | #25 | ✔ |
-| MATRIZ | Las 69 rutas de `permisos.md` × (sin sesión + 3 roles): 265 pruebas generadas desde el documento | ✅ | Sin sesión: 401 (o pasa, si es pública). Rol con permiso: no 401/403. Rol sin permiso: 403 con el `permiso` que faltó. Desde #25 no queda ninguna diferencia (antes, 7 como 🐞) | #25 | ✔ |
-| PERM | Catálogo y rutas frente a `permisos.md` | ✅ | El catálogo (20) y las columnas CAJERO/MESERO son iguales a `config/permisos.js`; el ADMIN tiene todos (también un permiso nuevo, RN-17); un rol desconocido, ninguno; las 69 rutas montadas declaran **exactamente** el permiso de su fila; login y perfil devuelven `permisos` | #25 | ✔ |
+| MATRIZ | Cada ruta de `permisos.md` × (sin sesión + 3 roles): 4 pruebas por ruta, generadas desde el documento | ✅ | Sin sesión: 401 (o pasa, si es pública). Rol con permiso: no 401/403. Rol sin permiso: 403 con el `permiso` que faltó. Desde #25 no queda ninguna diferencia (antes, 7 como 🐞) | #25 | ✔ |
+| PERM | Catálogo y rutas frente a `permisos.md` | ✅ | El catálogo y las columnas CAJERO/MESERO son iguales a `config/permisos.js`; el ADMIN tiene todos (también un permiso nuevo, RN-17); un rol desconocido, ninguno; las rutas montadas son exactamente las de la matriz y declaran **exactamente** el permiso de su fila; login y perfil devuelven `permisos` | #25 | ✔ |
 
 ## Órdenes, pagos, comandas y dashboard (`tests/ordenes/`)
 
@@ -54,8 +54,13 @@ Archivos: `login.test.js`, `matrizPermisos.test.js` y `catalogoPermisos.test.js`
 | T7b | Comandas después de #33 (`tests/ordenes/comandas.test.js`) | ✅ | Corrige **T7**: los ítems de una orden cobrada o borrada no aparecen y ninguna comanda llega sin orden. Un producto **borrado del catálogo** con unidades pendientes sigue en las comandas (antes desaparecía), en el filtro de su zona y se puede entregar. Avanzar una comanda sigue bloqueando la orden (#124): 4 avances y 4 unidades nuevas a la vez no pierden ninguna | #33 | ✔ |
 | T13 | Editar las notas de una orden cobrada | 🐞 | 409 (hoy 200) | #41 | ✔ |
 | P2 | Cambiar la cantidad o el comentario de un juego de la orden | 🐞 | Se actualiza (hoy 404: la ruta no existe) | #42 | ✔ |
-| P3 | MESERO aplica un descuento del 100 % | 🔄 RN-06 | 200 y total 0.00: sin tope ni autorización | #39 | ✔ |
-| P4 | Descuento de monto mayor al total (9999) | 🔄 RN-06 | 200 y el total queda en 0.00, nunca negativo. El aviso es parte de #39 (⏳) | #39 | ✔ |
+| P3 | MESERO aplica un descuento del 100 % | 🔄 RN-06 | 200 y total 0.00: sin tope ni autorización. Un descuento **igual** al total no avisa (#39) | #39 | ✔ |
+| P4 | Descuento de monto mayor al total (9999) | ✅ | **409 `DESCUENTO_SUPERA_TOTAL`** sin aplicar nada (#39; antes 200 directo); con `confirmar: true`, 200 y el total queda en 0.00, nunca negativo (RN-06) | #39 | ✔ |
+| DC1 | Descuento sin motivo (`tests/ordenes/descuentos.test.js`) | ✅ | Sin comentario, vacío, solo espacios o de más de 255 caracteres: 400 y no se aplica nada (#39; antes 200 con motivo vacío). El motivo se guarda sin los espacios de los bordes | #39 | ✔ |
+| DC2 | Quién aplicó el descuento | ✅ | Se guarda el empleado de la sesión (mesero o cajero); un `empleado_id` en el body no cuenta | #39 | ✔ |
+| DC3 | Aviso por un descuento mayor a lo que queda por pagar | ✅ | 70 Bs sobre 61: 409 con `descuento_bs` 70 y `por_pagar` 61; confirmado, se aplica (0.00). Se compara con lo que queda (50 % y después 40 Bs: 409 con `por_pagar` 30.5) | #39 | ✔ |
+| DC4 | Control de descuentos del ADMIN (`GET /descuentos`) | ✅ | Fecha, orden, mesa, tipo y valor, **Bs realmente descontados** (50 + 20 sobre 61 → 50 y 11; 10 % → 6.10; total 67.10), motivo y empleado; sin los quitados ni los de órdenes borradas; filtros por empleado y por días de Bolivia (22:00 del 24 = día 24); descuento viejo sin empleado → `null`; filtros mal escritos → 400; cajero y mesero → 403 | #39 | ✔ |
+| DC5 | `orden_descuento` (clave compuesta + borrado lógico, hallazgo de la 4.1) | ✅ | Aplicar, quitar y volver a aplicar el mismo descuento funciona: cada vez es un `descuento` nuevo, el par no se repite. Pasa también con `main` (regresión): vigila que no aparezca el problema de #78 | #39 | ✔ |
 | P5 | Finalizar una orden con total 0 | ✅ | Se cierra sin pagos y sin una transacción de 0 Bs (#21). El flujo único de pago (#36) puede revisarlo | #21 | ✔ |
 | P6 | Pago con QR mayor al total | ⏳ | RN-14: el QR de más no se registra; el detalle lo define #36 | #36 | — |
 | P7 | Reducir la cantidad de un producto ya enviado a cocina | 🐞 | La comanda muestra la cantidad nueva (hoy la vieja) | #43 | ✔ |

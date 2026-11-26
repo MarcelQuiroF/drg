@@ -4,7 +4,7 @@
 
 Este documento detalla las rutas del servidor, los datos requeridos para las solicitudes, las restricciones de acceso por roles y los formatos de respuesta exitosa.
 
-> **Revisado el 25/11/2026** (issue #12) contra las rutas montadas en `backend/src/app.js`: las **69 rutas** del código están documentadas aquí.
+> **Revisado el 25/11/2026** (issue #12) contra las rutas montadas en `backend/src/app.js`: **todas** las rutas del código están documentadas aquí (cada PR que agrega una ruta la documenta).
 > Desde #25 cada ruta pide un **permiso por acción** (`requierePermiso`, ADR-008). La fuente es la [matriz de permisos](permisos.md): el campo **Acceso** de este documento solo resume qué roles tienen ese permiso hoy.
 > El cierre del día (sección 16) no está disponible: la ruta existe en el código, pero no está montada.
 
@@ -781,23 +781,30 @@ Control operativo de consumos en mesa, procesamiento de cuentas y aplicación de
 
 ### Aplicar Descuento a una Orden
 * **Ruta:** `POST /api/v1/ordenes/:id/descuento`
-* **Acceso:** `ADMIN`, `CAJERO`, `MESERO`
-* **Cuerpo de la Solicitud (JSON):**
+* **Acceso:** `ADMIN`, `CAJERO`, `MESERO` (permiso `ordenes.descontar`; RN-06: sin tope ni autorización)
+* **Cuerpo de la Solicitud (JSON):** un monto en Bs **o** un porcentaje del subtotal, y el motivo.
   ```json
   {
-    "descuento_id": 2
+    "monto": 11,
+    "comentario": "Cumpleaños"
   }
-
-
+  ```
+  ```json
+  { "porcentaje": 10, "comentario": "Cliente frecuente" }
+  ```
+* **Motivo obligatorio** (RN-06, #39): `comentario` sin espacios en los bordes, de 1 a 255 caracteres.
+* **Quién lo aplicó** se guarda en `descuento.empleado_id`, a partir de la sesión (lo que mande el navegador no cuenta).
+* **Aviso si supera lo que queda por pagar** (#39): si el descuento en Bs (el monto, o el porcentaje del subtotal) es **mayor** que el total actual de la orden, la orden quedaría en 0. El servidor no aplica nada y responde `409` con `"codigo": "DESCUENTO_SUPERA_TOTAL"`, `descuento_bs` y `por_pagar`. Para aplicarlo igual, se repite el pedido con `"confirmar": true`. Un descuento igual al total (100 %) no avisa.
 * **Respuesta Exitosa (200 OK):**
 ```json
 {
-  "message": "Descuento aplicado correctamente a la orden."
+  "message": "Descuento aplicado correctamente.",
+  "descuento": { "id": 14, "porcentaje": 0, "monto": "11.00", "comentario": "Cumpleaños", "empleado_id": 3 }
 }
-
 ```
-
-
+* **Errores:**
+  * `400`: sin monto ni porcentaje, o sin motivo (o de más de 255 caracteres).
+  * `404`: la orden no existe. `409`: la orden ya está cobrada, o el descuento supera el total y no se confirmó.
 
 ### Listar Descuentos Aplicados a una Orden
 * **Ruta:** `GET /api/v1/ordenes/:id/descuentos`
@@ -851,6 +858,35 @@ Control operativo de consumos en mesa, procesamiento de cuentas y aplicación de
 {
   "message": "Orden eliminada del sistema."
 }
+
+### Control de Descuentos (solo el administrador)
+
+* **Ruta:** `GET /api/v1/descuentos`
+* **Acceso:** `ADMIN` (permiso `descuentos.controlar`; RF-49). Los descuentos no tienen tope ni autorización (RN-06): el control es este listado.
+* **Parámetros de consulta (opcionales):** `desde` y `hasta` (`YYYY-MM-DD`, días de Bolivia, los dos extremos incluidos; van juntos) y `empleado_id`.
+* Lista los descuentos **vigentes** (los quitados de la orden no aparecen) de órdenes que no se borraron, del más nuevo al más viejo.
+* `descontado`: lo que de verdad descontó en Bs, calculado como el total: un porcentaje sobre el subtotal y, si los descuentos suman más que el subtotal, solo hasta llegar a 0 (en el orden en que se aplicaron). La suma de `descontado` es lo que las órdenes dejaron de cobrar. En una orden abierta puede cambiar si se agregan ítems.
+* Los descuentos de antes de #39 no guardaron quién los aplicó: llegan con `"empleado": null`.
+* **Respuesta Exitosa (200 OK):**
+```json
+{
+  "descuentos": [
+    {
+      "id": 14,
+      "fecha": "2026-11-26T02:55:10.000Z",
+      "orden": { "id": 6, "cobrada": false, "total": 0 },
+      "mesa": { "id": 1, "nombre": "Mesa 1 (Ventana)", "numero": 1 },
+      "tipo": "MONTO",
+      "valor": 100,
+      "descontado": 36,
+      "motivo": "Comida entregada por error",
+      "empleado": { "id": 3, "nombre": "Mesero de Prueba" }
+    }
+  ],
+  "totales": { "cantidad": 1, "descontado": 36 }
+}
+```
+* **Errores:** `400` con una sola fecha, una fecha mal escrita, el rango al revés o un `empleado_id` que no es un número; `403` para cajero y mesero.
 
 ---
 

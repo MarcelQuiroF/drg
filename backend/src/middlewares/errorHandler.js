@@ -37,6 +37,9 @@ function errorHandler(err, req, res, next) {
         success: false,
         status: statusCode,
         message: errorMessage,
+        // Datos que acompañan a un error de negocio para la pantalla (códigos como DIA_CERRADO o
+        // DESCUENTO_SUPERA_TOTAL, listas, montos): error.datos (#34, #39)
+        ...(err.datos || {}),
         stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
 }

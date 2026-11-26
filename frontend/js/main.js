@@ -13,6 +13,7 @@ import { initAdminProductos } from './modules/adminProductos.js';
 import { initAdminEspacio } from './modules/adminEspacio.js';
 import { initAdminEmpleados } from './modules/adminEmpleados.js';
 import { initAdminImportacion } from './modules/adminImportacion.js';
+import { initAdminDescuentos } from './modules/adminDescuentos.js';
 
 const token = localStorage.getItem('token_drg');
 const rol = localStorage.getItem('usuario_rol');
@@ -89,6 +90,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.getElementById('menu-admin-importacion')?.addEventListener('click', () => {
             cargarHTML('../html/admin-importacion.html', initAdminImportacion);
+        });
+
+        // Control de descuentos (#39, RF-49)
+        document.getElementById('menu-admin-descuentos')?.addEventListener('click', () => {
+            cargarHTML('../html/admin-descuentos.html', initAdminDescuentos);
         });
     } else {
         cargarHTML('../html/mesas.html', initMesas);

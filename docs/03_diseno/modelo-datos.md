@@ -42,6 +42,7 @@ erDiagram
     producto ||--o{ contenedor_producto : "producto_id"
     cliente |o--o{ contenedor_transaccion : "cliente_id"
     orden |o--o{ contenedor_transaccion : "orden_id"
+    empleado |o--o{ descuento : "empleado_id"
     empleado ||--o{ horario : "empleado_id"
     categoria ||--o{ juego_categoria : "categoria_id"
     juego ||--o{ juego_categoria : "juego_id"
@@ -121,6 +122,7 @@ erDiagram
         int porcentaje
         numeric monto
         varchar comentario "NULL"
+        int empleado_id FK "NULL"
     }
     descuento_atraso {
         int id PK
@@ -251,8 +253,8 @@ erDiagram
 | `orden` | Cuenta abierta de una mesa | `total` (se recalcula con precios actuales, #22), `finalizado`, `notas`. `mesa_id` admite nulos. No guarda qué empleado la abrió (#46) |
 | `contenedor_producto` | Productos de una orden | `cantidad`, `comentario` y los contadores de la comanda: `cantidad_recibido`, `cantidad_preparando`, `cantidad_terminado`, `cantidad_enviado`. `precio_unitario` (`numeric(10,2)`): precio cobrado por unidad, fijado al agregar el ítem (#22, ADR-007) |
 | `contenedor_juego` | Juegos prestados en una orden | `cantidad`, `comentario`, `hora_inicio` y `hora_fin` (tipo `time`, sin fecha ni zona horaria; desde #27 las pone PostgreSQL con `LOCALTIME`, en hora de Bolivia). `precio_unitario` (`numeric(10,2)`): precio cobrado por unidad, fijado al agregar el juego (#22, ADR-007) |
-| `descuento` | Un descuento aplicado | `porcentaje` y `monto` (los dos obligatorios; el que no se usa va en 0) y `comentario` opcional (pasa a obligatorio: #39). Se crea uno por cada vez que se aplica |
-| `orden_descuento` | Relación entre la orden y sus descuentos | Clave primaria compuesta y borrado lógico |
+| `descuento` | Un descuento aplicado | `porcentaje` y `monto` (los dos obligatorios; el que no se usa va en 0) y `comentario` (el motivo: obligatorio para los nuevos desde #39, lo exige el servidor; en la base sigue admitiendo vacío por los descuentos viejos). `empleado_id` (desde #39): quién lo aplicó, FK a `empleado` con `RESTRICT`; nulo en los descuentos de antes. Se crea uno **nuevo** por cada vez que se aplica, aunque sea el mismo motivo: por eso el par (orden, descuento) de `orden_descuento` nunca se repite |
+| `orden_descuento` | Relación entre la orden y sus descuentos | Clave primaria compuesta y borrado lógico. Es la misma combinación que rompía `producto_categoria` (#78), pero aquí no falla: volver a aplicar un descuento quitado crea otro `descuento` (otro par). Lo vigila una prueba de #39 (DC5); si algún día se reutilizan descuentos (por ejemplo, un catálogo de descuentos fijos), hay que quitarle el borrado lógico como en #78 |
 | `contenedor_transaccion` | Pagos de una orden | `tipo` (`EFECTIVO` o `QR`, texto libre), `cantidad`, `fecha`, `activo` y `cliente_id` opcional. Anular un pago hace un borrado lógico; `activo` se guarda siempre en `true`. `orden_id` admite nulos y queda en `NULL` si se borra la orden |
 
 ### Clientes y reservas
@@ -296,6 +298,7 @@ Desde la migración `20261125160000-alinear-base-con-modelos` (#28), lo que es *
 | `empleado` | sus `horario` | `CASCADE`; pero si el horario tiene asistencias, el borrado se rechaza |
 | `empleado`, `horario` o `descuento_atraso` | las `asistencia` que los usan | `RESTRICT` (antes `CASCADE`: borrar una fila de la tabla de atrasos borraba todas las asistencias con ese descuento, #28) |
 | `producto` o `juego` | sus ítems de orden (`contenedor_producto`, `contenedor_juego`) | `RESTRICT` (antes `CASCADE`: se borraban sus ventas, #28) |
+| `empleado` | los `descuento` que aplicó | `RESTRICT` (#39) |
 | `producto`, `juego`, `categoria` | sus relaciones en `producto_categoria` y `juego_categoria` | `CASCADE` |
 
 ## 5. Diferencias entre la base y los modelos de Sequelize
