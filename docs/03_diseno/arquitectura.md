@@ -149,6 +149,7 @@ sequenceDiagram
 
 - 16 hojas de estilo; cada vista parcial trae la suya con un `<link>`, y las hojas se van acumulando. Hay cuatro `:root` con variables distintas que se pisan entre sí (#71, #72).
 - Chart.js, Font Awesome, Boxicons y Google Fonts se cargan **desde internet** (ADR-002).
+- **Imágenes:** las fotos de productos y juegos están en `frontend/assets/imagenes/` y `assets/productos/` tiene solo las imágenes por defecto (`default-*.png`). `producto.imagen` y `juego.imagen` guardan el nombre del archivo (o una URL, o la imagen subida como `data:`). Las tres pantallas que las muestran (POS, panel del admin y catálogo de clientes) arman la ruta con `rutaImagen()` de `utils.js` (#96).
 
 ## 4. Configuración y entorno
 

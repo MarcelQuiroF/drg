@@ -1,4 +1,4 @@
-import { urlSegura } from './utils.js';
+import { urlSegura, rutaImagen } from './utils.js';
 
 // Ruta relativa: funciona en cualquier servidor y puerto, igual que js/api.js.
 const API_URL = '/api/v1';
@@ -74,11 +74,8 @@ function renderizarJuegos(juegos) {
         const card = clon.querySelector('.game-card');
 
         const imgEl = clon.querySelector('.game-img');
-        if (juego.imagen) {
-            imgEl.src = juego.imagen.startsWith('http') ? juego.imagen : `../assets/productos/${juego.imagen}`;
-        } else {
-            imgEl.src = '../assets/productos/default-game.png';
-        }
+        // La misma carpeta que el POS y el admin (#96)
+        imgEl.src = rutaImagen(juego.imagen, '../assets/productos/default-game.png');
 
         clon.querySelector('.game-title').textContent = juego.nombre;
 
