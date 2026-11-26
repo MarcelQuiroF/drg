@@ -238,7 +238,7 @@ erDiagram
 | Tabla | Para qué | Notas |
 |-------|----------|-------|
 | `categoria` | Categorías de productos y de juegos | Una sola tabla para los dos |
-| `producto` | Comida y bebida | `zona` es texto libre (`COCINA`, `CAFETERIA`, `Barra`…: #32). Tiene **dos** booleanos, `activado` y `estado`, sin un propósito claro (#53) |
+| `producto` | Comida y bebida | `zona`: `COCINA` o `CAFETERIA` (lista cerrada desde #32: `CHECK producto_zona_valida` en la base e `isIn` en el modelo; antes texto libre, con `Barra`, `Cocina`…). Tiene **dos** booleanos, `activado` y `estado`, sin un propósito claro (#53) |
 | `juego` | Juegos de mesa | `precio` propio por juego (pasa a tamaños: ADR-007), jugadores mínimo y máximo, `tiempo_partida` en minutos (obligatorio, #28), `enlace` a las reglas |
 | `producto_categoria`, `juego_categoria` | Relación N a N con `categoria` | Clave primaria compuesta y **sin** borrado lógico: quitar una categoría borra la fila, así que se puede volver a asignar (#78) |
 
@@ -310,7 +310,7 @@ Las diferencias encontradas en #11 y en las pruebas (T4, T11, C2, C3) se resolvi
 | `orden.finalizado`, `asistencia.aprobado` | Por defecto `true` en la base y `false` en el modelo | la base (migración) | `DEFAULT false` |
 | Claves foráneas de `asistencia`, de los ítems de venta y de `reserva` | `ON DELETE CASCADE` | la base (migración) | `RESTRICT` (sección 4) |
 
-Siguen sin lista de valores en la base `asistencia.estado`, `contenedor_transaccion.tipo`, `producto.zona` y `empleado.rol` (texto libre). La app valida `estado`, `tipo` (#21) y `rol` (#109); la zona se cierra en #32.
+Siguen sin lista de valores en la base `asistencia.estado`, `contenedor_transaccion.tipo` y `empleado.rol` (texto libre). La app valida `estado`, `tipo` (#21) y `rol` (#109). `producto.zona` tiene un `CHECK` desde #32 (migración `20261125180000-cerrar-zonas-de-producto`, que normalizó los datos viejos).
 
 ## 6. Próximos cambios previstos
 

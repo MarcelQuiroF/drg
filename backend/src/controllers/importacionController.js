@@ -1,6 +1,7 @@
 const xlsx = require('xlsx');
 const { Producto, Juego, Categoria, sequelize } = require('../models');
 const httpCodes = require('../utils/httpCodes');
+const { ZONAS_PRODUCTO, normalizarZona } = require('../config/zonasProducto');
 
 async function importarProductos(req, res, next) {
     const t = await sequelize.transaction();
@@ -17,6 +18,14 @@ async function importarProductos(req, res, next) {
 
             if (!nombre || precio === undefined || !categoria_id) {
                 throw new Error(`Faltan datos obligatorios (nombre, precio, o categoria_id) en la fila ${filaReal}.`);
+            }
+
+            // La zona es una lista cerrada (#32): antes se importaba cualquier texto y el producto
+            // no aparecía en el POS
+            if (!ZONAS_PRODUCTO.includes(normalizarZona(zona))) {
+                throw new Error(
+                    `La zona "${zona ?? ''}" de la fila ${filaReal} no es válida: use ${ZONAS_PRODUCTO.join(' o ')}.`
+                );
             }
 
             // Verificar si la categoría existe

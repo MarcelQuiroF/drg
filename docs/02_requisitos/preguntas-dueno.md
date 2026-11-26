@@ -204,7 +204,7 @@ Lista corta para la presentación del MVP al dueño, en orden de importancia:
 7. **P-07** · ¿Quién confirma la llegada de un empleado? (Prueba: el cajero.)
 8. **P-08** · ¿El sistema solo reporta atrasos, o también calcula sueldos? (Prueba: solo atrasos.)
 9. **P-10** · Impresoras (cuántas, tipo, marca y modelo). ¿El mesero tiene que ver al instante cuándo está listo un pedido?
-10. **P-12** · ¿Las zonas son solo Cocina y Cafetería? ¿Quién marca un producto como agotado?
+10. **P-12** · ¿Las zonas son solo Cocina y Cafetería? ¿Quién marca un producto como agotado? (Desde #32 la zona es una lista cerrada `COCINA`/`CAFETERIA`; si hace falta otra, se agrega con una migración.)
 11. **P-13 a P-15** · Equipos del local, respaldos y los Excel actuales.
 12. **P-16** · ¿Cuántos pisos y mesas hay hoy?
 13. **P-17 a P-20** · Clientes frecuentes, catálogo por QR, bitácora, piloto y entrega.

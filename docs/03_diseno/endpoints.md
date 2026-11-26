@@ -305,7 +305,7 @@ Gestión del catálogo de comidas, bebidas y consumibles del establecimiento. Re
   {
     "id": 1,
     "nombre": "Hamburguesa Dragón",
-    "zona": "Cocina",
+    "zona": "COCINA",
     "precio": "35.00",
     "activado": true,
     "estado": true,
@@ -326,7 +326,7 @@ Gestión del catálogo de comidas, bebidas y consumibles del establecimiento. Re
 {
   "id": 1,
   "nombre": "Hamburguesa Dragón",
-  "zona": "Cocina",
+  "zona": "COCINA",
   "precio": "35.00",
   "activado": true,
   "estado": true,
@@ -341,11 +341,12 @@ Gestión del catálogo de comidas, bebidas y consumibles del establecimiento. Re
 
 * **Ruta:** `POST /api/v1/productos`
 * **Acceso:** `ADMIN`
+* **Zona (#32):** obligatoria y de una lista cerrada: **`COCINA`** o **`CAFETERIA`** (RF-14; la lista está en `config/zonasProducto.js` y la base tiene el `CHECK producto_zona_valida`). Se guarda normalizada: `"cocina"` o `" Cafetería "` quedan como `COCINA` y `CAFETERIA`. Cualquier otro valor (`Barra`, `Postres`, vacío) o sin zona → `400` *"La zona tiene que ser COCINA o CAFETERIA."*. Lo mismo al editar (`PUT`). Antes se aceptaba cualquier texto y el producto no aparecía en ninguna pestaña del POS (P1).
 * **Cuerpo de la Solicitud (JSON):**
 ```json
 {
   "nombre": "Papas Fritas Medianas",
-  "zona": "Cocina",
+  "zona": "COCINA",
   "precio": 15.00,
   "imagen": "papas_medianas.png",
   "categorias": [1, 3]
@@ -361,7 +362,7 @@ Gestión del catálogo de comidas, bebidas y consumibles del establecimiento. Re
 {
   "id": 5,
   "nombre": "Papas Fritas Medianas",
-  "zona": "Cocina",
+  "zona": "COCINA",
   "precio": "15.00",
   "activado": true,
   "estado": true,
@@ -396,7 +397,7 @@ Gestión del catálogo de comidas, bebidas y consumibles del establecimiento. Re
 {
   "id": 5,
   "nombre": "Papas Fritas Medianas",
-  "zona": "Cocina",
+  "zona": "COCINA",
   "precio": "18.00",
   "activado": false,
   "estado": true
@@ -1625,7 +1626,7 @@ Cada importación corre dentro de una **transacción**: si una fila tiene un err
 * **Ruta:** `POST /api/v1/importacion/productos`
 * **Acceso:** `ADMIN`
 * **Cuerpo:** `multipart/form-data` con el archivo en el campo `archivoExcel`.
-* **Columnas del Excel:** `nombre`, `zona`, `precio`, `imagen`, `categoria_id`. Obligatorias: `nombre`, `precio` (acepta 0) y `categoria_id`, que tiene que existir.
+* **Columnas del Excel:** `nombre`, `zona`, `precio`, `imagen`, `categoria_id`. Obligatorias: `nombre`, `precio` (acepta 0) y `categoria_id`, que tiene que existir. `zona`: `COCINA` o `CAFETERIA`, sin importar mayúsculas, espacios ni tildes (#32); otra zona → `400` *"La zona "Barra" de la fila 3 no es válida: use COCINA o CAFETERIA."* y no se importa ninguna fila.
 * **Respuesta Exitosa (200 OK):**
 ```json
 {

@@ -128,7 +128,8 @@ const renderizarCatalogo = (contenedor, items, esJuego) => {
         let tipoActual = 'comida';
         if (esJuego) {
             tipoActual = 'juego';
-        } else if (p.zona && (p.zona.toUpperCase() === 'BARRA' || p.zona.toUpperCase() === 'CAFETERIA')) {
+        } else if (p.zona === 'CAFETERIA') {
+            // Desde #32 la zona es COCINA o CAFETERIA (ya no llega 'Barra')
             tipoActual = 'bebida';
         }
 
