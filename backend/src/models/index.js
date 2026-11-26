@@ -110,6 +110,10 @@ db.Asistencia.belongsTo(db.Horario, { foreignKey: 'horario_id' });
 db.DescuentoAtraso.hasMany(db.Asistencia, { foreignKey: 'descuento_id' });
 db.Asistencia.belongsTo(db.DescuentoAtraso, { foreignKey: 'descuento_id' });
 
+// Quién abrió y quién cerró cada jornada (#34)
+db.Jornada.belongsTo(db.Empleado, { as: 'abridor', foreignKey: 'abierta_por' });
+db.Jornada.belongsTo(db.Empleado, { as: 'cerrador', foreignKey: 'cerrada_por' });
+
 db.Orden.hasMany(db.ContenedorTransaccion, { foreignKey: 'orden_id' });
 db.ContenedorTransaccion.belongsTo(db.Orden, { foreignKey: 'orden_id' });
 

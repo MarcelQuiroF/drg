@@ -66,7 +66,7 @@ flowchart LR
 
 | Capa | Qué hace | Observaciones |
 |------|----------|---------------|
-| Rutas (`routes/`, 18 archivos) | Definen método, URL y middlewares | No hay ruta de cierre del día: se hace en #34. `configuracionRoutes.js` usa plural, a diferencia del resto |
+| Rutas (`routes/`, un archivo por módulo) | Definen método, URL y middlewares | `configuracionRoutes.js` usa plural, a diferencia del resto |
 | Middlewares (`middlewares/`) | `authenticate` (token JWT), `requierePermiso(...)` (permiso por acción, #25), `errorHandler`, `notFoundHandler` | No hay validación de entrada: llega en la Etapa 5, con Zod |
 | Controladores (`controllers/`, 18) | Leen `req`, llaman al servicio y arman la respuesta | **Seis usan los modelos directamente**, sin servicio: `asistencia`, `configuracion`, `empleado`, `importacion`, `reportes` y, en parte, `juego` (`listar` no usa el servicio, por eso ignora el filtro de categoría) |
 | Servicios (`services/`, 13) | Reglas del negocio y transacciones (crear orden, finalizar, pagos, descuentos, comandas, importación) | Asistencia no tiene servicio: el cálculo del atraso en el servidor llega con #29 |
@@ -121,7 +121,7 @@ sequenceDiagram
 - **Reservas:** la expiración (`EXPIRADA`) y el cambio de estado de las mesas se recalculan **en cada consulta** de mesas y de reservas. La lógica está repetida en `reservaService` y `mesaService` (#51).
 - **Comandas:** cada ítem de producto tiene contadores `cantidad_recibido`, `cantidad_preparando`, `cantidad_terminado` y `cantidad_enviado`; `POST /comandas/:id/avanzar` mueve unidades de un estado al siguiente dentro de una transacción. **Hoy ningún módulo del frontend llama a `/comandas`**: la vista de impresión lee los ítems con `/ordenes-productos`.
 - **Asistencia:** el atraso y el descuento se calculan **en el navegador** (`asistencia.js`) y el servidor guarda lo que recibe (#29). La aprobación pide el CI y la contraseña de un ADMIN o CAJERO.
-- **Cierre del día:** no existe en el servidor; se guarda en `localStorage` (#34).
+- **Apertura y cierre del día (#34):** tabla `jornada`, una abierta a la vez (índice único parcial). Abrir una orden, agregar ítems y cobrar llaman a `utils/jornada.bloquearDiaAbierto(t)` al empezar su transacción (`SELECT … FOR SHARE` sobre la jornada abierta); el cierre la lee con `FOR UPDATE`. Así un cierre espera a las operaciones en curso y las que llegan durante el cierre reciben 409. Orden de los bloqueos: jornada → orden → mesa. El resumen del cierre usa la misma consulta que el dashboard (`services/cobrosService.js`).
 - **Zona horaria (#27):** todo trabaja en `America/La_Paz`. `config/env.js` fija `TZ` al arrancar (para `new Date()`, `setHours`, etc.) y Sequelize usa la misma zona en la conexión (`timezone` en `config/config.js`, para `now()`, `LOCALTIME` y la conversión de un `Date` a `time`). Los días se arman con `utils/fechas.js` (`fechaLocal`, `inicioDelDia`, `finDelDia`), nunca con `toISOString()`. En el frontend, `fechaLocalISO` y `horaLocal` de `utils.js` usan `Intl` con la zona fija, sin depender de la configuración del navegador. Las columnas `timestamptz` guardan instantes y no cambian; las `time` guardan la hora del reloj de Bolivia.
 
 ## 3. Frontend

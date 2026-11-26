@@ -1,10 +1,13 @@
 const { ContenedorTransaccion, Mesa, sequelize } = require('../models');
 const { bloquearOrden } = require('../utils/orderUtils');
+// El día tiene que estar abierto (#34): candado de la jornada, siempre antes que los demás
+const { bloquearDiaAbierto } = require('../utils/jornada');
 
 // Los pagos parciales también bloquean la orden (#124): dos pagos a la vez veían la misma suma
 // pagada, y un ítem agregado mientras se cobraba quedaba fuera del total.
 async function registrarPago(datos) {
     return await sequelize.transaction(async (t) => {
+        await bloquearDiaAbierto(t);
         const orden = await bloquearOrden(datos.orden_id, t);
 
         if (datos.cantidad <= 0) throw new Error('El monto del pago debe ser mayor a 0.');

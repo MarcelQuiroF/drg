@@ -43,6 +43,8 @@ erDiagram
     cliente |o--o{ contenedor_transaccion : "cliente_id"
     orden |o--o{ contenedor_transaccion : "orden_id"
     empleado ||--o{ horario : "empleado_id"
+    empleado ||--o{ jornada : "abierta_por"
+    empleado |o--o{ jornada : "cerrada_por"
     categoria ||--o{ juego_categoria : "categoria_id"
     juego ||--o{ juego_categoria : "juego_id"
     piso |o--o{ mesa : "piso_id"
@@ -145,6 +147,15 @@ erDiagram
         time hora_entrada
         time hora_salida "NULL"
         int empleado_id FK
+    }
+    jornada {
+        int id PK
+        date fecha UK
+        int abierta_por FK
+        timestamptz abierta_en
+        int cerrada_por FK "NULL"
+        timestamptz cerrada_en "NULL"
+        jsonb resumen "NULL"
     }
     juego {
         int id PK
@@ -276,6 +287,7 @@ erDiagram
 | Tabla | Para qué | Notas |
 |-------|----------|-------|
 | `configuracion` | Valores que el personal puede ajustar | `clave` única, `valor` entero. Claves en uso: `ventana_bloqueo`, `minutos_tolerancia` y `ventana_llegada`. El seed las carga con 120, 30 y 30 minutos (valor de prueba de RN-12, RN-02 y decisión de Marcelo del 25/11, #13 y #98); si no existen, el código usa 120, 20 y 30 minutos (#51) |
+| `jornada` | El día de trabajo, abierto y cerrado en el servidor (#34) | `fecha` (día de Bolivia en que se abrió, única: `jornada_un_dia_por_fecha`), `abierta_por` / `abierta_en`, `cerrada_por` / `cerrada_en` (nulos mientras está abierta; `CHECK jornada_cierre_completo`: los dos o ninguno) y `resumen` (JSONB congelado al cerrar: órdenes, total, efectivo, QR y descuentos; valor de prueba de P-09). **Un solo día abierto a la vez:** índice único parcial `jornada_una_abierta` sobre `(true)` `WHERE cerrada_en IS NULL`. Con el día cerrado, abrir órdenes, agregar ítems y cobrar responden 409 |
 | `registro`, `registro_orden`, `registro_reserva`, `registro_asistencia` | Pensadas como bitácora | **Nada las llena** (#66). En `registro_asistencia` la clave hacia `asistencia` se llama `atraso_id`, un nombre confuso |
 
 ## 4. Reglas de borrado de las claves foráneas
@@ -295,6 +307,7 @@ Desde la migración `20261125160000-alinear-base-con-modelos` (#28), lo que es *
 | `cliente` | `contenedor_transaccion.cliente_id` | `SET NULL` |
 | `empleado` | sus `horario` | `CASCADE`; pero si el horario tiene asistencias, el borrado se rechaza |
 | `empleado`, `horario` o `descuento_atraso` | las `asistencia` que los usan | `RESTRICT` (antes `CASCADE`: borrar una fila de la tabla de atrasos borraba todas las asistencias con ese descuento, #28) |
+| `empleado` | las `jornada` que abrió o cerró | `RESTRICT` (#34) |
 | `producto` o `juego` | sus ítems de orden (`contenedor_producto`, `contenedor_juego`) | `RESTRICT` (antes `CASCADE`: se borraban sus ventas, #28) |
 | `producto`, `juego`, `categoria` | sus relaciones en `producto_categoria` y `juego_categoria` | `CASCADE` |
 
@@ -319,7 +332,7 @@ Siguen sin lista de valores en la base `asistencia.estado`, `contenedor_transacc
 | Cambio | Issue / ADR |
 |--------|-------------|
 | Tabla `tamano_juego` y `juego.tamano_id`; se elimina `juego.precio` | #37, ADR-007 |
-| Tabla de jornadas (apertura, cierre y reapertura del día) | #34, #35 |
+| Reapertura de un día cerrado (quién reabrió y por qué) en `jornada` | #35 |
 | Empleado que abre la orden y que registra cada pago o descuento | #46, #39 |
 | Cantidad de personas en `reserva` | #40 |
 | Número de mesa único por piso | #48 |

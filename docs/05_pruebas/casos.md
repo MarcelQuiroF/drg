@@ -36,8 +36,8 @@ Archivos: `login.test.js`, `matrizPermisos.test.js` y `catalogoPermisos.test.js`
 | T2b | Configuración con un valor negativo | ✅ | 400 y no se guarda (corregido en #25; antes 200 y se guardaba). También un decimal, un texto, vacío, `null`, un booleano, una clave que no existe y una lista vacía; el número como texto sí se acepta; si un valor falla no se guarda ninguno | #25 | ✔ |
 | T17 | MESERO o CAJERO descargan una plantilla de importación | ✅ | 403 (corregido en #25; antes 200). Lo cubre MATRIZ y la prueba de los pasos de #25 | #25 | ✔ |
 | F5 (API) | MESERO ve la asistencia del día, la lista de empleados y registra llegadas | ✅ | 200 (corregido en #25; antes 403). Lo cubre MATRIZ | #25 | ✔ |
-| MATRIZ | Las 69 rutas de `permisos.md` × (sin sesión + 3 roles): 265 pruebas generadas desde el documento | ✅ | Sin sesión: 401 (o pasa, si es pública). Rol con permiso: no 401/403. Rol sin permiso: 403 con el `permiso` que faltó. Desde #25 no queda ninguna diferencia (antes, 7 como 🐞) | #25 | ✔ |
-| PERM | Catálogo y rutas frente a `permisos.md` | ✅ | El catálogo (20) y las columnas CAJERO/MESERO son iguales a `config/permisos.js`; el ADMIN tiene todos (también un permiso nuevo, RN-17); un rol desconocido, ninguno; las 69 rutas montadas declaran **exactamente** el permiso de su fila; login y perfil devuelven `permisos` | #25 | ✔ |
+| MATRIZ | Cada ruta de `permisos.md` × (sin sesión + 3 roles): 4 pruebas por ruta, generadas desde el documento | ✅ | Sin sesión: 401 (o pasa, si es pública). Rol con permiso: no 401/403. Rol sin permiso: 403 con el `permiso` que faltó. Desde #25 no queda ninguna diferencia (antes, 7 como 🐞) | #25 | ✔ |
+| PERM | Catálogo y rutas frente a `permisos.md` | ✅ | El catálogo y las columnas CAJERO/MESERO son iguales a `config/permisos.js`; el ADMIN tiene todos (también un permiso nuevo, RN-17); un rol desconocido, ninguno; las rutas montadas son exactamente las de la matriz y declaran **exactamente** el permiso de su fila; login y perfil devuelven `permisos` | #25 | ✔ |
 
 ## Órdenes, pagos, comandas y dashboard (`tests/ordenes/`)
 
@@ -124,6 +124,18 @@ Las pruebas leen `ventana_bloqueo`, `ventana_llegada` y `minutos_tolerancia` de 
 | E2 | Crear o editar un empleado con un rol que no es `ADMIN`, `CAJERO` ni `MESERO` (vacío, `COCINERO`, en minúsculas, nulo) | ✅ | 400 y no se guarda nada | #109 | ✔ |
 | E3 | Quitar el rol o desactivar al último ADMIN activo (también con un ADMIN inactivo de más, y dos cambios simultáneos) | ✅ | 409 y no cambia nada; con dos ADMIN activos, uno sí se puede cambiar (RN-18) | #109 | ✔ |
 
+## Apertura y cierre del día (`tests/jornada/`)
+
+| Código | Caso | Cat. | Resultado esperado | Issue | Estado |
+|--------|------|:----:|--------------------|-------|:------:|
+| D1 | Estado del día (`GET /jornadas/actual`) | ✅ | Abierto con su fecha y quién lo abrió; después de cerrar, **cualquier usuario** lo ve cerrado con su resumen (T15 en la API); sin jornadas, `{ abierta: false, jornada: null }` | #34 | ✔ |
+| D2 | CI y contraseña de quien abre o cierra (RF-22, RN-16) | ✅ | Sin credenciales 400; contraseña incorrecta o rol sin `dia.abrir_cerrar` 403 (no 401) y nada cambia; abre uno y cierra otro, y queda registrado quién (no el dueño de la sesión) | #34 | ✔ |
+| D3 | Resumen del cierre (P-09, valor de prueba) | ✅ | 2 órdenes: 68 Bs, efectivo 38, QR 30, 1 descuento de 11 Bs; coincide con el dashboard del día (#31); solo cuenta lo cobrado entre la apertura y el cierre | #34 | ✔ |
+| D4 | Operar con el día cerrado | ✅ | Abrir una orden, agregar productos o juegos, cobrar y `POST /pagos`: 409 `DIA_CERRADO` sin cambiar nada; ver mesas y órdenes sigue funcionando | #34 | ✔ |
+| D5 | Cerrar con órdenes abiertas (⚠ decisión de Marcelo) | ✅ | 409 `ORDENES_ABIERTAS` con la lista de órdenes y mesas; el día sigue abierto. Cobrada o borrada la orden, se cierra | #34 | ✔ |
+| D6 | Abrir: uno a la vez y una jornada por fecha | ✅ | Con un día abierto, 409; hoy ya cerrado, 409 (se reabre, #35); al día siguiente, jornada nueva; a las 21:00 de Bolivia la fecha es la de Bolivia (no UTC); 3 aperturas a la vez → una 201; la base rechaza un INSERT a mano (índices `jornada_una_abierta` y `jornada_un_dia_por_fecha`) | #34 | ✔ |
+| D7 | Cerrar mientras se abren órdenes (carrera) | ✅ | Un cierre y 8 aperturas a la vez: nunca queda una orden abierta con el día cerrado. Con un cierre en curso (fila bloqueada), las aperturas esperan y reciben 409: **sin el `FOR SHARE` esta prueba falla** (comprobado). Dos cierres a la vez: uno 200, otro 409 | #34 | ✔ |
+
 ## Solo del navegador (pruebas manuales)
 
 | Código | Caso | Resultado esperado | Issue |
@@ -135,5 +147,5 @@ Las pruebas leen `ventana_bloqueo`, `ventana_llegada` y `minutos_tolerancia` de 
 | P1 (UI) | Un producto de zona `CAFETERIA` en el POS | Aparece en la pestaña de bebidas | #32 |
 | P10 | Cobrar una orden de más de 1000 Bs | El monto a cobrar es el total de la API | #36 |
 | R1 | Abrir *Nueva reserva* después de las 20:00 | La fecha por defecto es la de hoy. **Probado en Chrome el 25/11 (#27)** con el navegador en UTC y el reloj a las 21:00 de Bolivia | #27 ✅ |
-| T15 | Cerrar el día y entrar desde otro navegador | El día figura cerrado (hoy solo en el navegador que lo cerró) | #34 ⏳ |
+| T15 | Cerrar el día y entrar desde otro navegador | El día figura cerrado, con su resumen, y abrir una orden responde 409. **Probado en Chrome el 25/11 (#34):** el mesero abre el día con sus credenciales; cerrar con una orden abierta muestra la mesa; cobrada, el cajero cierra; otro navegador (cajero) entra directo a *Día cerrado* con el mismo resumen y `index.html` lo devuelve ahí; `localStorage` ya no guarda `dia_cerrado` | #34 ✅ |
 | T1 (UI) | Con un token vencido o con otra firma, abrir cualquier pantalla. Con la sesión del MESERO, pedir una ruta de ADMIN. Aprobar una asistencia con la contraseña del supervisor mal escrita | Vuelve al login con *"La sesión venció…"* o *"Token inválido…"*; el 403 muestra *Sin permiso* y no cierra la sesión; la firma incorrecta tampoco la cierra (probado en Chrome el 25/11) | #26 |

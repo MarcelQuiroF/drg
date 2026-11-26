@@ -1,10 +1,13 @@
 const { ContenedorProducto, Producto, sequelize } = require('../models');
 const { bloquearOrden, actualizarTotalOrden } = require('../utils/orderUtils');
+// El día tiene que estar abierto (#34): candado de la jornada, siempre antes que los demás
+const { bloquearDiaAbierto } = require('../utils/jornada');
 
 // Todas las operaciones empiezan bloqueando la orden (bloquearOrden, #124): sin eso, pedidos
 // simultáneos del mismo producto perdían unidades y el total quedaba por debajo de lo pedido.
 async function agregarItem(datos) {
     return await sequelize.transaction(async (t) => {
+        await bloquearDiaAbierto(t);
         await bloquearOrden(datos.orden_id, t);
 
         const producto = await Producto.findByPk(datos.producto_id, { transaction: t });

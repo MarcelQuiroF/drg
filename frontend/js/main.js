@@ -1,5 +1,5 @@
 import { authFetch } from './api.js';
-import { cerrarNotificacion, fechaLocalISO } from './utils.js';
+import { cerrarNotificacion } from './utils.js';
 import { cargarHTML } from './utils.js';
 
 import { initMesas } from './modules/mesas.js';
@@ -61,6 +61,14 @@ document.addEventListener('click', (e) => {
     }
 });
 
+// Estado del día en el servidor (#34): sin un día abierto no se toman órdenes
+async function verificarDiaAbierto() {
+    const res = await authFetch('/jornadas/actual');
+    if (!res.ok) return;
+    const { abierta } = await res.json();
+    if (!abierta) window.location.href = 'cerrado.html';
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const sidebar = document.getElementById('sidebar');
     const menuBtn = document.getElementById('menu-btn');
@@ -111,17 +119,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.getElementById('menu-reservar')?.addEventListener('click', cargarReservasPage);
 
-        const btnCerrarDia = document.querySelector('a[href="cerrado.html"]');
-        if (btnCerrarDia) {
-            btnCerrarDia.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (confirm('¿Estás seguro de cerrar el día?')) {
-                    const fechaHoy = fechaLocalISO();
-                    localStorage.setItem('dia_cerrado', fechaHoy);
-                    window.location.href = 'cerrado.html';
-                }
-            });
-        }
+        // "Cerrar día" lleva a cerrado.html, que cierra en el servidor con el CI y la contraseña (#34).
+        // Con el día cerrado (aquí o desde otro navegador), la pantalla principal manda ahí.
+        verificarDiaAbierto();
     }
 
     try {
