@@ -24,7 +24,10 @@ module.exports = (sequelize, DataTypes) => {
             descuento_id: {
                 type: DataTypes.INTEGER,
                 allowNull: true
-            }
+            },
+
+            // Quién la anuló (#30). Anular = borrado lógico (deletedAt) + esta columna, nunca físico
+            anulada_por: { type: DataTypes.INTEGER, allowNull: true }
         },
         {
             tableName: 'asistencia',

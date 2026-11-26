@@ -88,10 +88,11 @@ Las pruebas leen `ventana_bloqueo`, `ventana_llegada` y `minutos_tolerancia` de 
 
 | Código | Caso | Cat. | Resultado esperado | Issue | Estado |
 |--------|------|:----:|--------------------|-------|:------:|
-| A1 | Registrar dos veces la llegada del mismo empleado el mismo día | 🐞 | La segunda responde 409 (hoy 201) | #30 | ✔ |
+| A1 | Registrar dos veces la llegada del mismo empleado el mismo día | ✅ | La segunda responde **409** (corregido en #30; antes 201). También con 6 pedidos a la vez (uno 201, cinco 409), con un INSERT directo (lo rechaza la base) y con el día de Bolivia (23:30 y 00:30 son días distintos; 19:00 y 21:00 del mismo día chocan). Después de anular, se puede registrar otra vez | #30 | ✔ |
 | A2 | Aprobar con contraseña incorrecta o con la firma de un MESERO | ✅ | **403** y la asistencia sigue sin aprobar (era 401, que el frontend toma como sesión vencida y cerraba la sesión del cajero, #26) | #26 | ✔ |
 | A3 | Aprobar con la firma del ADMIN o del CAJERO | ✅ | 200 y queda aprobada | — | ✔ |
-| A4 | Borrar una asistencia aprobada sin firma | 🐞 | Se rechaza y no se borra (hoy 200 y borrado físico). Quitar una asistencia **sin aprobar** sí funciona (✅) | #30 | ✔ |
+| A4 | Borrar una asistencia aprobada sin firma | ✅ | **400** y sigue aprobada (corregido en #30; antes 200 y borrado físico). Con firma incorrecta o de un MESERO, 403; con la del ADMIN, se anula. Anular nunca borra: queda `deletedAt` y `anulada_por`. Una asistencia **sin aprobar** se anula sin firma | #30 | ✔ |
+| A8 | Llegada con las credenciales del propio empleado (RF-43, `tests/asistencia/llegadaYAnulacion.test.js`) | ✅ | Sin credenciales 400; contraseña incorrecta o empleado inactivo 403; credenciales de otro empleado que el elegido 400; la contraseña no vuelve en la respuesta (#30) | #30 | ✔ |
 | A5 | Guardar un horario con hora de salida | 🐞 | Se guardan entrada y salida (hoy solo la entrada) | #61 | ✔ |
 | A5b | Editar los horarios de un empleado con asistencias anteriores | 🐞 | El horario usado por las asistencias sigue existiendo (hoy se borra: `destroy` + `bulkCreate`) | #61 | ✔ |
 | A6 | El navegador envía un descuento por atraso que no corresponde | ✅ | Un empleado puntual que manda el −100 % queda sin descuento, y uno que llega 30 min tarde y manda "sin descuento" queda con el −100 % (corregido en #29; antes se guardaba el enviado) | #29 | ✔ |

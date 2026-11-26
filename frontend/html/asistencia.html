@@ -68,6 +68,15 @@
     </div>
     
     <form id="form-asistencia" class="form-grid" style="margin-top: 15px;">
+        <p style="grid-column: 1 / -1; margin: 0;">El empleado escribe su CI y su contraseña para registrar su llegada.</p>
+        <div class="form-group">
+            <label for="asistencia-ci">CI del empleado</label>
+            <input type="text" id="asistencia-ci" class="form-input" required autocomplete="off">
+        </div>
+        <div class="form-group">
+            <label for="asistencia-contrasenia">Contraseña del empleado</label>
+            <input type="password" id="asistencia-contrasenia" class="form-input" required autocomplete="off">
+        </div>
         <div class="form-group">
             <label for="asistencia-estado">Estado</label>
             <select id="asistencia-estado" class="form-input">
@@ -86,10 +95,10 @@
 
 <div id="modal-aprobar" class="custom-modal-hidden">
     <div class="modal-header" style="background-color: #38b6ff;">
-        <h3>Aprobar Registro</h3>
+        <h3 id="modal-aprobar-titulo">Aprobar Registro</h3>
     </div>
     <div class="asistencia-detalles">
-        <p style="text-align: center; margin-bottom: 15px;">Ingresa tus credenciales de Administrador o Cajero para validar este registro.</p>
+        <p id="modal-aprobar-texto" style="text-align: center; margin-bottom: 15px;">Ingresa tus credenciales de Administrador o Cajero para validar este registro.</p>
         
         <form id="form-aprobar" class="form-grid">
             <div class="form-group" style="margin-bottom: 15px;">
@@ -103,7 +112,7 @@
             
             <div class="form-actions" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
                 <button type="button" id="btn-cerrar-aprobar" class="btn-secondary">Cancelar</button>
-                <button type="submit" class="btn-primary" style="background-color: #38b6ff;">Aprobar</button>
+                <button type="submit" id="btn-firmar-aprobar" class="btn-primary" style="background-color: #38b6ff;">Aprobar</button>
             </div>
         </form>
     </div>
