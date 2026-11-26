@@ -1455,3 +1455,15 @@ border-radius: 0;
     box-shadow: 0 0 5px rgba(46, 125, 50, 0.3);
 }
 
+
+/* Reservas: cantidad de personas mayor a la capacidad de la mesa (#40) */
+.aviso-capacidad:not([hidden]) {
+    display: block;
+    margin-top: 4px;
+    color: #b26a00;
+}
+
+.supera-capacidad {
+    color: #b26a00;
+    cursor: help;
+}

@@ -100,6 +100,7 @@ const abrirModalReserva = async (idReserva = null) => {
     limpiarErrorModal();
     await prepararSelectoresForm();
 
+    document.getElementById('personas-reserva').value = '';
     if (!idReserva) {
         document.getElementById('fecha-reserva').value = fechaLocalISO();
         document.getElementById('hora-reserva').value = '19:00';
@@ -121,15 +122,30 @@ const abrirModalReserva = async (idReserva = null) => {
                 const d = new Date(data.hora);
                 document.getElementById('fecha-reserva').value = fechaLocalISO(d);
                 document.getElementById('hora-reserva').value = horaLocal(d);
+                document.getElementById('personas-reserva').value = data.cantidad_personas ?? '';
             }
         } catch (e) {
             console.error('Error al cargar reserva:', e);
         }
     }
 
+    revisarCapacidad();
     modal.classList.replace('custom-modal-hidden', 'custom-modal-visible');
     overlay.classList.replace('modal-overlay-hidden', 'modal-overlay-visible');
 };
+
+// RF-25 (#40): si la cantidad de personas supera la capacidad de la mesa elegida, se avisa en el
+// formulario; se puede guardar igual (decisión de Marcelo, ⚠ confirmar con el dueño)
+function revisarCapacidad() {
+    const aviso = document.getElementById('aviso-capacidad');
+    const personas = Number(document.getElementById('personas-reserva').value);
+    const mesa = TODAS_LAS_MESAS.find((m) => m.id === Number(document.getElementById('mesa-select-form').value));
+    const supera = mesa && personas > mesa.cantidadMaxima;
+    aviso.textContent = supera
+        ? `⚠ La mesa tiene capacidad para ${mesa.cantidadMaxima}. Se puede guardar igual (juntando sillas).`
+        : '';
+    aviso.hidden = !supera;
+}
 
 const cerrarModalReserva = () => {
     document.getElementById('reserva-modal').classList.replace('custom-modal-visible', 'custom-modal-hidden');
@@ -163,11 +179,16 @@ async function manejarGuardarReserva() {
     const payload = {
         cliente_id: document.getElementById('cliente-select-id').value,
         mesa_id: document.getElementById('mesa-select-form').value,
-        hora: `${document.getElementById('fecha-reserva').value}T${document.getElementById('hora-reserva').value}:00`
+        hora: `${document.getElementById('fecha-reserva').value}T${document.getElementById('hora-reserva').value}:00`,
+        // Vacío = sin dato (RF-25: se pide siempre, pero es opcional)
+        cantidad_personas: document.getElementById('personas-reserva').value.trim()
     };
 
     if (!payload.cliente_id || !payload.mesa_id || !payload.hora.includes('T')) {
-        return mostrarErrorModal('Todos los campos son obligatorios.');
+        return mostrarErrorModal('Cliente, mesa, fecha y hora son obligatorios.');
+    }
+    if (payload.cantidad_personas !== '' && !/^[1-9]\d*$/.test(payload.cantidad_personas)) {
+        return mostrarErrorModal('La cantidad de personas tiene que ser un número entero mayor a 0.');
     }
 
     try {
@@ -180,8 +201,13 @@ async function manejarGuardarReserva() {
             return mostrarErrorModal(data.message || 'Error al guardar.');
         }
 
+        const guardada = await res.json().catch(() => ({}));
         cerrarModalReserva();
-        mostrarNotificacion('¡Éxito!', 'Reserva guardada.', false);
+        mostrarNotificacion(
+            '¡Éxito!',
+            guardada.aviso ? `Reserva guardada. ${guardada.aviso}` : 'Reserva guardada.',
+            false
+        );
         cargarReservasPage();
     } catch (error) {
         console.error('DEBUG - El error es:', error);
@@ -265,7 +291,7 @@ const initReservas = async () => {
         }
     });
 
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">Cargando dragones...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">Cargando dragones...</td></tr>';
 
     try {
         const response = await authFetch('/reservas');
@@ -273,11 +299,11 @@ const initReservas = async () => {
             const datos = await response.json();
             renderizarReservas(tbody, datos);
         } else {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Error al obtener reservas.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Error al obtener reservas.</td></tr>';
         }
     } catch (e) {
         console.error(e);
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Error de conexión.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Error de conexión.</td></tr>';
     }
 
     document.getElementById('btn-abrir-settings')?.addEventListener('click', abrirModalSettings);
@@ -301,6 +327,12 @@ const initReservas = async () => {
     }
 
     document.getElementById('piso-select')?.addEventListener('change', (e) => actualizarMesasPorPiso(e.target.value));
+    // #40: el aviso de capacidad se actualiza al cambiar la mesa o la cantidad de personas
+    document.getElementById('mesa-select-form')?.addEventListener('change', revisarCapacidad);
+    document.getElementById('personas-reserva')?.addEventListener('input', () => {
+        limpiarErrorModal();
+        revisarCapacidad();
+    });
 
     document.getElementById('btn-crear-cliente-reserva')?.addEventListener('click', (e) => {
         e.preventDefault();
@@ -401,7 +433,7 @@ const renderizarReservas = async (tbody, reservas) => {
 
     if (reservas.length === 0) {
         tbody.innerHTML =
-            '<tr><td colspan="5" style="text-align:center; padding: 30px;">No hay reservas programadas.</td></tr>';
+            '<tr><td colspan="6" style="text-align:center; padding: 30px;">No hay reservas programadas.</td></tr>';
         return;
     }
 
@@ -432,6 +464,18 @@ const renderizarReservas = async (tbody, reservas) => {
         const fechaStr = `${d.getDate().toString().padStart(2, '0')}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
         const horaStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+        // RF-25 (#40): cantidad de personas, marcada si supera la capacidad de la mesa
+        const personas = reserva.cantidad_personas;
+        const capacidad = reserva.Mesa?.cantidadMaxima;
+        const superaCapacidad = personas != null && capacidad != null && personas > capacidad;
+        const marcaHTML = superaCapacidad
+            ? ` <span class="supera-capacidad" title="La mesa tiene capacidad para ${escaparHTML(capacidad)}">⚠</span>`
+            : '';
+        const personasHTML =
+            personas == null
+                ? '<span style="color: var(--color-text-secondary)">—</span>'
+                : `${escaparHTML(personas)}${marcaHTML}`;
+
         tr.innerHTML = `
             <td>
                 <div class="client-info-cell">
@@ -447,6 +491,7 @@ const renderizarReservas = async (tbody, reservas) => {
                 </div>
                 <small style="color: var(--color-text-secondary)">${escaparHTML(reserva.Mesa?.nombre || '')}</small>
             </td>
+            <td>${personasHTML}</td>
             <td>
                 <div class="action-buttons">
                     <i class="fa-solid fa-pen-to-square btn-editar" style="cursor:pointer; color: #2e7d32; font-size: 1.2rem; margin-right:15px;" title="Editar"></i>
