@@ -1510,10 +1510,13 @@ Control y agendamiento de mesas para asegurar la disponibilidad del espacio a lo
   {
     "hora": "2026-05-29T19:30:00.000Z",
     "cliente_id": 12,
-    "mesa_id": 4
+    "mesa_id": 4,
+    "cantidad_personas": 6
   }
 
-* **Respuesta Exitosa (201 Created):**
+* **`cantidad_personas`** (RF-25, #40): opcional. Si viene, entero mayor a 0 (también como texto, `"6"`). Vacío (`""`) o `null` es "sin dato". Otro valor (0, negativo, decimal, texto) → `400`.
+* **Más personas que la capacidad de la mesa** (`cantidadMaxima`): **se guarda igual** y la respuesta trae `aviso`, porque se pueden juntar sillas (decisión de Marcelo, ⚠ confirmar con el dueño). Si no supera, `aviso` es `null`.
+* **Respuesta Exitosa (201 Created):** la reserva y `aviso`.
 ```json
 {
   "id": 9,
@@ -1521,7 +1524,9 @@ Control y agendamiento de mesas para asegurar la disponibilidad del espacio a lo
   "estado": "PENDIENTE",
   "cliente_id": 12,
   "mesa_id": 4,
-  "createdAt": "2026-05-27T18:50:00.000Z"
+  "cantidad_personas": 6,
+  "createdAt": "2026-05-27T18:50:00.000Z",
+  "aviso": "La reserva es para 6 personas y la mesa Mesa 4 tiene capacidad para 4."
 }
 
 ```
@@ -1535,14 +1540,20 @@ Control y agendamiento de mesas para asegurar la disponibilidad del espacio a lo
     "estado": "LLEGO"
   }
 
-* **Respuesta Exitosa (200 OK):**
+* También cambia `cantidad_personas` (`""` la borra), con las mismas reglas y el mismo `aviso` que al crear, calculado con la mesa final (#40).
+* **Respuesta Exitosa (200 OK):** `{ "message": "Reserva actualizada.", "data": { …la reserva… }, "aviso": null }`
 ```json
 {
-  "id": 8,
-  "hora": "2026-05-28T20:00:00.000Z",
-  "estado": "LLEGO",
-  "cliente_id": 12,
-  "mesa_id": 4
+  "message": "Reserva actualizada.",
+  "data": {
+    "id": 8,
+    "hora": "2026-05-28T20:00:00.000Z",
+    "estado": "LLEGO",
+    "cliente_id": 12,
+    "mesa_id": 4,
+    "cantidad_personas": null
+  },
+  "aviso": null
 }
 
 ```

@@ -57,7 +57,15 @@ async function crearReserva(datos) {
         throw new Error('La mesa ya está reservada en un horario cercano.');
     }
 
-    return await Reserva.create(datos);
+    const reserva = await Reserva.create(datos);
+    return { reserva, aviso: avisoDeCapacidad(reserva.cantidad_personas, mesa) };
+}
+
+// RF-25 (#40): superar la capacidad de la mesa no se bloquea (se pueden juntar sillas; decisión de
+// Marcelo, ⚠ confirmar con el dueño). Se devuelve un aviso para que la pantalla lo muestre.
+function avisoDeCapacidad(personas, mesa) {
+    if (personas == null || !mesa || personas <= mesa.cantidadMaxima) return null;
+    return `La reserva es para ${personas} personas y la mesa ${mesa.nombre} tiene capacidad para ${mesa.cantidadMaxima}.`;
 }
 
 async function listarReservas(filtros = {}) {
@@ -79,7 +87,8 @@ async function listarReservas(filtros = {}) {
         where: whereClause,
         include: [
             { model: Cliente, attributes: ['nombre', 'telefono'] },
-            { model: Mesa, attributes: ['nombre', 'numero'] }
+            // cantidadMaxima: la lista marca las reservas con más personas que la capacidad (#40)
+            { model: Mesa, attributes: ['nombre', 'numero', 'cantidadMaxima'] }
         ],
         order: [['hora', 'ASC']]
     });
@@ -103,7 +112,9 @@ async function actualizarReserva(id, datos) {
         }
     }
 
-    return await reserva.update(datos);
+    const actualizada = await reserva.update(datos);
+    const mesa = await Mesa.findByPk(actualizada.mesa_id);
+    return { reserva: actualizada, aviso: avisoDeCapacidad(actualizada.cantidad_personas, mesa) };
 }
 
 async function obtenerReservaPorId(id) {

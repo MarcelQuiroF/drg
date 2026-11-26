@@ -156,6 +156,12 @@
                             <input type="time" id="hora-reserva">
                         </div>
                     </div>
+                    <!-- RF-25 (#40): opcional; si supera la capacidad de la mesa se avisa, no se bloquea -->
+                    <div class="form-group">
+                        <label for="personas-reserva">Cantidad de personas (opcional)</label>
+                        <input type="number" id="personas-reserva" min="1" step="1" placeholder="Ej.: 4">
+                        <small id="aviso-capacidad" class="aviso-capacidad" hidden></small>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">

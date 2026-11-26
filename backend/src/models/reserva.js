@@ -19,7 +19,21 @@ module.exports = (sequelize, DataTypes) => {
                 defaultValue: 'PENDIENTE'
             },
             cliente_id: DataTypes.INTEGER,
-            mesa_id: DataTypes.INTEGER
+            mesa_id: DataTypes.INTEGER,
+            // RF-25 (#40): opcional; si viene, entero positivo. Vacío ('' del formulario) = sin dato
+            cantidad_personas: {
+                type: DataTypes.INTEGER,
+                allowNull: true,
+                set(valor) {
+                    this.setDataValue('cantidad_personas', valor === '' || valor === undefined ? null : valor);
+                },
+                validate: {
+                    isInt: {
+                        args: { min: 1, max: 2147483647 },
+                        msg: 'La cantidad de personas tiene que ser un número entero mayor a 0.'
+                    }
+                }
+            }
         },
         {
             tableName: 'reserva',

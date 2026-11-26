@@ -223,6 +223,7 @@ erDiagram
         timestamptz hora
         int mesa_id FK
         enum estado
+        int cantidad_personas "NULL"
     }
 ```
 
@@ -260,7 +261,7 @@ erDiagram
 | Tabla | Para qué | Notas |
 |-------|----------|-------|
 | `cliente` | Clientes que reservan | `nombre`, `ci` y `telefono` opcionales. **El CI no es único en la base**: solo lo valida el servicio, y solo al crear (#64) |
-| `reserva` | Reserva de una mesa | `hora` (`timestamptz`), `estado` ENUM `PENDIENTE`, `LLEGO`, `CANCELADA`, `EXPIRADA`. No guarda la cantidad de personas (#40) |
+| `reserva` | Reserva de una mesa | `hora` (`timestamptz`), `estado` ENUM `PENDIENTE`, `LLEGO`, `CANCELADA`, `EXPIRADA`. `cantidad_personas` (desde #40, RF-25): opcional, entero mayor a 0 (`CHECK reserva_personas_positiva`); puede superar la capacidad de la mesa (solo se avisa) |
 
 ### Personal
 
@@ -321,7 +322,6 @@ Siguen sin lista de valores en la base `asistencia.estado`, `contenedor_transacc
 | Tabla `tamano_juego` y `juego.tamano_id`; se elimina `juego.precio` | #37, ADR-007 |
 | Tabla de jornadas (apertura, cierre y reapertura del día) | #34, #35 |
 | Empleado que abre la orden y que registra cada pago o descuento | #46, #39 |
-| Cantidad de personas en `reserva` | #40 |
 | Número de mesa único por piso | #48 |
 | Zonas de producto como lista cerrada | #32 |
 | Tabla de tickets de impresión | ADR-006, #67 |

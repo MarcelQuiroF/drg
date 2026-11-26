@@ -10,8 +10,9 @@ async function crear(req, res, next) {
             });
         }
 
-        const nueva = await reservaService.crearReserva(req.body);
-        res.status(httpCodes.CREATED.code).json(nueva);
+        const { reserva, aviso } = await reservaService.crearReserva(req.body);
+        // Misma forma de antes (la reserva) más `aviso` si supera la capacidad de la mesa (#40)
+        res.status(httpCodes.CREATED.code).json({ ...reserva.toJSON(), aviso });
     } catch (error) {
         if (
             error.message === 'La reserva debe ser para una fecha futura.' ||
@@ -55,8 +56,8 @@ async function obtenerPorId(req, res, next) {
 
 async function actualizar(req, res, next) {
     try {
-        const actualizado = await reservaService.actualizarReserva(req.params.id, req.body);
-        res.status(httpCodes.OK.code).json({ message: 'Reserva actualizada.', data: actualizado });
+        const { reserva, aviso } = await reservaService.actualizarReserva(req.params.id, req.body);
+        res.status(httpCodes.OK.code).json({ message: 'Reserva actualizada.', data: reserva, aviso });
     } catch (error) {
         next(error);
     }
