@@ -151,3 +151,20 @@ export const cerrarNotificacion = () => {
         overlay.classList.add('modal-overlay-hidden');
     }
 };
+
+// Fotos de productos y juegos (#96): una sola carpeta y una sola función para las tres pantallas
+// que las muestran (POS, panel del admin y catálogo de clientes). Antes el catálogo las buscaba en
+// assets/productos/ y el POS y el admin en assets/imagenes/: la misma foto se veía en un lado y
+// daba 404 en el otro. assets/productos/ queda solo para las imágenes por defecto.
+export const CARPETA_IMAGENES = '../assets/imagenes/';
+
+// imagen: lo que guarda la base (un nombre de archivo, una URL, una ruta o una imagen data:).
+// porDefecto: la imagen a usar si no hay ninguna.
+export function rutaImagen(imagen, porDefecto) {
+    const valor = String(imagen ?? '').trim();
+    if (!valor) return porDefecto;
+    // Imagen subida desde el panel (data:image/…), URL externa o ruta ya armada: se usa tal cual
+    if (/^(data:image\/|https?:\/\/)/i.test(valor) || valor.startsWith('.') || valor.startsWith('/')) return valor;
+    // Un nombre de archivo: va a la carpeta de fotos (codificado por si tiene espacios)
+    return CARPETA_IMAGENES + encodeURIComponent(valor);
+}

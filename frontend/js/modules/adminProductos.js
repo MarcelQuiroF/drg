@@ -1,5 +1,5 @@
 import { authFetch } from '../api.js';
-import { escaparHTML } from '../utils.js';
+import { escaparHTML, rutaImagen } from '../utils.js';
 
 let allInventory = [];
 let allCategories = [];
@@ -159,16 +159,8 @@ const renderInventory = () => {
                 JUEGO: '../assets/productos/default-game.png'
             }[item.category] || '../assets/productos/default-burger.png';
 
-        // MODIFICADO: Resolución inteligente del path para nombres de archivos puros
-        if (item.imagen) {
-            if (item.imagen.startsWith('data:image') || item.imagen.startsWith('http') || item.imagen.startsWith('.')) {
-                img.src = item.imagen;
-            } else {
-                img.src = `../assets/imagenes/${item.imagen}`;
-            }
-        } else {
-            img.src = imgDefault;
-        }
+        // Misma función que el POS y el catálogo de clientes (#96)
+        img.src = rutaImagen(item.imagen, imgDefault);
 
         img.onerror = () => {
             img.src = imgDefault;
@@ -271,16 +263,7 @@ const openModal = (item = null) => {
 
     const previewImg = document.getElementById('preview-img');
     if (previewImg) {
-        // MODIFICADO: Ajuste de path para previsualización correcta en el modal
-        if (item?.imagen) {
-            if (item.imagen.startsWith('data:image') || item.imagen.startsWith('http') || item.imagen.startsWith('.')) {
-                previewImg.src = item.imagen;
-            } else {
-                previewImg.src = `../assets/imagenes/${item.imagen}`;
-            }
-        } else {
-            previewImg.src = '../assets/productos/default-burger.png';
-        }
+        previewImg.src = rutaImagen(item?.imagen, '../assets/productos/default-burger.png');
     }
 
     const selectZona = document.getElementById('prod-zona');

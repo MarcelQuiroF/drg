@@ -1,6 +1,6 @@
 import { authFetch } from '../api.js';
 import { cargarImpresionPage } from './impresion.js';
-import { cargarHTML, activarMenu, mostrarNotificacion, cerrarNotificacion, escaparHTML } from '../utils.js';
+import { cargarHTML, activarMenu, mostrarNotificacion, cerrarNotificacion, escaparHTML, rutaImagen } from '../utils.js';
 import { initMesas } from './mesas.js';
 
 let ORDEN_ACTUAL_ID = null;
@@ -133,21 +133,8 @@ const renderizarCatalogo = (contenedor, items, esJuego) => {
             tipoActual = 'bebida';
         }
 
-        // MODIFICADO: Resolución inteligente para buscar en assets/imagenes de manera condicional
-        if (p.imagen && p.imagen.trim() !== '') {
-            if (
-                p.imagen.startsWith('data:image') ||
-                p.imagen.startsWith('http') ||
-                p.imagen.startsWith('.') ||
-                p.imagen.startsWith('/')
-            ) {
-                img.src = p.imagen;
-            } else {
-                img.src = `../assets/imagenes/${p.imagen}`;
-            }
-        } else {
-            img.src = IMAGENES_DEFECTO[tipoActual];
-        }
+        // Misma función que el admin y el catálogo de clientes (#96)
+        img.src = rutaImagen(p.imagen, IMAGENES_DEFECTO[tipoActual]);
 
         img.onerror = () => {
             img.src = IMAGENES_DEFECTO[tipoActual];
