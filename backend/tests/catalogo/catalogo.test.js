@@ -122,9 +122,9 @@ describe('Productos', () => {
         expect(await Producto.findOne({ where: { nombre: 'Producto huérfano' }, paranoid: false })).toBeNull();
     });
 
-    test.failing('P1 · una zona que no es COCINA ni CAFETERIA responde 400 (#32)', async () => {
+    test('P1 · una zona que no es COCINA ni CAFETERIA responde 400 (#32)', async () => {
         const res = await admin.post('/productos').send({ nombre: 'Limonada', precio: 10, zona: 'Barra' });
-        expect(res.status).toBe(400); // hoy 201 con cualquier texto
+        expect(res.status).toBe(400); // antes 201 con cualquier texto
     });
 });
 
