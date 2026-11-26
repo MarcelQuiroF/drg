@@ -1,6 +1,6 @@
 # Modelo de datos de DRG – Mesa Dragón
 
-> **25/11/2026 · Versión 0.4** · Issues #11, #22, #28 y #30.
+> **25/11/2026 · Versión 0.5** · Issues #11, #22, #28, #30 y #32.
 > Describe la base **tal como la dejan las migraciones de `main`** (36 migraciones, de noviembre de 2025 a junio de 2026). No sale de los modelos de Sequelize porque en varios puntos no coinciden con la base real (ver la sección 5).
 
 ## Cómo se obtuvo
@@ -323,7 +323,6 @@ Siguen sin lista de valores en la base `asistencia.estado`, `contenedor_transacc
 | Empleado que abre la orden y que registra cada pago o descuento | #46, #39 |
 | Cantidad de personas en `reserva` | #40 |
 | Número de mesa único por piso | #48 |
-| Zonas de producto como lista cerrada | #32 |
 | Tabla de tickets de impresión | ADR-006, #67 |
 
 ## Historial
@@ -334,3 +333,4 @@ Siguen sin lista de valores en la base `asistencia.estado`, `contenedor_transacc
 | 0.2 | 25/11/2026 | `precio_unitario` en `contenedor_producto` y `contenedor_juego` (#22) |
 | 0.3 | 25/11/2026 | #28: `DEFAULT false` en `orden.finalizado` y `asistencia.aprobado`; claves foráneas de historial con `RESTRICT`; sección 5 con cómo se resolvió cada diferencia |
 | 0.4 | 25/11/2026 | #30: `asistencia.anulada_por` e índice único parcial de una llegada por empleado y día (migración `20261125170000-una-llegada-por-dia-y-anulacion`) |
+| 0.5 | 25/11/2026 | #32: `producto.zona` como lista cerrada (`COCINA`, `CAFETERIA`) con `CHECK producto_zona_valida` (migración `20261125180000-cerrar-zonas-de-producto`); se quita de *Próximos cambios* (#136) |
