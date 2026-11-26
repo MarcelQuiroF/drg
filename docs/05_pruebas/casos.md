@@ -46,8 +46,9 @@ Archivos: `login.test.js`, `matrizPermisos.test.js` y `catalogoPermisos.test.js`
 | T5 | Orden con 2 Cappuccino (18) + 1 Catan (25) | ✅ | Total 61.00 | — | ✔ |
 | T6 | Finalizar con QR 30 + EFECTIVO 31 | ✅ | Dos transacciones: QR 30.00 y EFECTIVO 31.00 (corregido en #21; antes, una EFECTIVO 61.00). Sin pagos, con un tipo o monto inválido o si la suma no da el total: 400 y la orden sigue abierta | #21 | ✔ |
 | T14 / F4 | Dashboard después de T6 | ✅ | QR 30, efectivo 31 (corregido en #21; antes, QR 0). Aparte, ✅: con transacciones QR y EFECTIVO bien registradas el dashboard ya las separa; el fallo está en el cobro | #21 | ✔ |
-| F3 | Dashboard con una orden cobrada (61) y otra abierta | 🐞 | Ingresos 61 (✅ pasa hoy), gráfica 61 (hoy 122), órdenes 1 (hoy 2), promedio 61 / 7 (hoy 61 / 8). Una prueba por métrica | #31 | ✔ |
-| F3b | Ranking de juegos con un juego pedido 3 veces | 🐞 | Suma la cantidad (3), como el de comida (hoy cuenta 1 fila) | #31 | ✔ |
+| F3 | Dashboard con una orden cobrada (61) y otra abierta | ✅ | Ingresos 61, gráfica 61 (antes 122), órdenes 1 (antes 2), promedio 61 / 7 (antes 61 / 8) y distribución 36 / 25 (antes 72 / 50). Corregido en #31: una sola fuente, las órdenes cobradas. "Últimos 7 días" = el día y los 6 anteriores | #31 | ✔ |
+| F3b | Ranking de juegos con un juego pedido 3 veces | ✅ | Suma la cantidad (3), como el de comida (antes contaba 1 fila, #31) | #31 | ✔ |
+| F3c | Fuente única del dashboard (#31) | ✅ | Un pago parcial de una orden abierta no cuenta hasta cobrarla; una orden cobrada al día siguiente cuenta ese día (23:30 de Bolivia); con un descuento, comida + juegos = lo cobrado; una orden cobrada y borrada no cuenta; un día divide por 1 y diciembre por 31; rango incompleto o al revés → 400 | #31 | ✔ |
 | T7 | Comandas de una orden ya cobrada o borrada | 🐞 | El ítem no aparece (hoy sí, en los dos casos) | #33 | ✔ |
 | T10 | Orden con Sandwich (35); se borra el Sandwich; se agrega un Cappuccino (18) | ✅ | Total 53.00 (corregido en #22; antes 18.00). También con un juego borrado (T10b), con un precio que cambia (la orden cobra el guardado) y en los ingresos por comida y juegos del dashboard | #22 | ✔ |
 | T13 | Editar las notas de una orden cobrada | 🐞 | 409 (hoy 200) | #41 | ✔ |

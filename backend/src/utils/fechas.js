@@ -36,4 +36,14 @@ function finDelDia(dia) {
     return new Date(`${dia}T23:59:59.999`);
 }
 
-module.exports = { ZONA_HORARIA, fechaLocal, inicioDelDia, finDelDia };
+// Cantidad de días de un rango de días locales, contando los dos extremos: del 09 al 15 son 7.
+// Se cuenta por fechas y no por milisegundos (con fin a las 23:59:59.999, Math.ceil daba un día
+// de más, #31). Bolivia no tiene horario de verano: todos los días duran 24 h.
+function diasDelRango(inicio, fin) {
+    validarDia(inicio);
+    validarDia(fin);
+    const UN_DIA = 24 * 60 * 60 * 1000;
+    return Math.round((Date.parse(`${fin}T00:00:00Z`) - Date.parse(`${inicio}T00:00:00Z`)) / UN_DIA) + 1;
+}
+
+module.exports = { ZONA_HORARIA, fechaLocal, inicioDelDia, finDelDia, diasDelRango };
