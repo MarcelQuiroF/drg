@@ -2,6 +2,10 @@ const { ContenedorProducto, Producto, Orden, Mesa, sequelize } = require('../mod
 const { Op } = require('sequelize');
 const { bloquearOrden } = require('../utils/orderUtils');
 
+// Lo que cocina y cafetería tienen que preparar (#33): ítems con unidades sin entregar de órdenes
+// EN CURSO. No aparecen los de una orden cobrada (T7: se preparaba algo ya cobrado) ni los de una
+// orden borrada (antes llegaban con Orden: null). Sí aparecen los de un producto borrado del
+// catálogo: el pedido ya está hecho y hay que prepararlo (antes desaparecían, hallazgo de la 4.1).
 async function listarPendientes(zona) {
     const whereProducto = {};
     if (zona) {
@@ -15,11 +19,17 @@ async function listarPendientes(zona) {
             {
                 model: Producto,
                 where: whereProducto,
-                attributes: ['nombre', 'zona']
+                attributes: ['nombre', 'zona'],
+                required: true,
+                // El include con where es un INNER JOIN que respetaba el borrado lógico del producto
+                paranoid: false
             },
             {
                 model: Orden,
                 attributes: ['id', 'finalizado'],
+                // INNER JOIN: sin orden (borrada, paranoid) no hay comanda; y solo órdenes abiertas
+                required: true,
+                where: { finalizado: false },
                 include: [{ model: Mesa, attributes: ['nombre', 'numero'] }]
             }
         ],
