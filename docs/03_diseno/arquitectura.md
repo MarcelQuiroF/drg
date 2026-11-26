@@ -41,7 +41,7 @@ flowchart LR
 
 ### 2.1 Arranque
 
-1. `server.js` comprueba la conexión a la base (`sequelize.authenticate()`) y levanta Express en `PORT` (3000 por defecto). Si la base no responde, el proceso termina.
+1. `server.js` comprueba la conexión a la base (`sequelize.authenticate()`) y levanta Express en `PORT` (3000 por defecto) con `escuchar()` (`utils/escuchar.js`). Si la base no responde o el puerto está ocupado (o sin permiso), muestra un mensaje claro y el proceso termina con código 1 (#110).
 2. `app.js` arma la aplicación, en este orden:
    1. `cors()` abierto a cualquier origen (#69), `express.json()` y `express.urlencoded()`.
    2. `express.static(frontend/)` y `GET /`, que devuelve `html/login.html`.
