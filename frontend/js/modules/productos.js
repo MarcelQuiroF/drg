@@ -2,6 +2,7 @@ import { authFetch } from '../api.js';
 import { cargarImpresionPage } from './impresion.js';
 import { cargarHTML, activarMenu, mostrarNotificacion, cerrarNotificacion, escaparHTML, rutaImagen } from '../utils.js';
 import { initMesas } from './mesas.js';
+import { abrirMoverOrden } from './moverOrden.js';
 
 let ORDEN_ACTUAL_ID = null;
 // Promesa de la apertura en curso: mientras se abre la orden, los demás clics esperan a la
@@ -760,6 +761,14 @@ const inicializarEventosProductos = () => {
     // NUEVO: Funcionalidad de la X en Eliminar
     const closeDeleteModal = document.getElementById('close-delete-modal');
     if (closeDeleteModal) closeDeleteModal.onclick = cerrarModalEliminar;
+
+    // MOVER LA ORDEN A OTRA MESA (#38): después de moverla, la vista pasa a la mesa nueva
+    const btnMover = document.getElementById('btn-mover-orden');
+    if (btnMover)
+        btnMover.onclick = () =>
+            abrirMoverOrden(ORDEN_ACTUAL_ID, sessionStorage.getItem('mesaSeleccionada'), (mesaDestino) =>
+                cargarProductosPage(mesaDestino)
+            );
 
     // OVERLAY GLOBAL
     const overlay = document.getElementById('modal-overlay');

@@ -4,7 +4,7 @@
 
 Este documento detalla las rutas del servidor, los datos requeridos para las solicitudes, las restricciones de acceso por roles y los formatos de respuesta exitosa.
 
-> **Revisado el 25/11/2026** (issue #12) contra las rutas montadas en `backend/src/app.js`: las **69 rutas** del código están documentadas aquí.
+> **Revisado el 25/11/2026** (issue #12) contra las rutas montadas en `backend/src/app.js`: **todas** las rutas del código están documentadas aquí (cada PR que agrega una ruta la documenta).
 > Desde #25 cada ruta pide un **permiso por acción** (`requierePermiso`, ADR-008). La fuente es la [matriz de permisos](permisos.md): el campo **Acceso** de este documento solo resume qué roles tienen ese permiso hoy.
 > El cierre del día (sección 16) no está disponible: la ruta existe en el código, pero no está montada.
 
@@ -851,6 +851,21 @@ Control operativo de consumos en mesa, procesamiento de cuentas y aplicación de
 {
   "message": "Orden eliminada del sistema."
 }
+
+### Mover una Orden a Otra Mesa
+
+* **Ruta:** `POST /api/v1/ordenes/:id/mover`
+* **Acceso:** `ADMIN`, `CAJERO`, `MESERO` (permiso `ordenes.tomar`; RF-55)
+* **Cuerpo de la Solicitud (JSON):** `{ "mesa_id": 7 }` (la mesa de destino)
+* Se mueve la orden completa: sus productos, juegos, descuentos y pagos parciales cuelgan de la orden y van con ella. La mesa de origen queda libre (`estado` 0) y la de destino ocupada (1). Las comandas pendientes muestran la mesa nueva.
+* **RN-15:** la mesa de destino tiene que estar libre, activa (también su piso) y **sin una reserva `PENDIENTE` próxima**: desde las atrasadas que no pasaron `minutos_tolerancia` hasta las que empiezan dentro de `ventana_bloqueo` (120 min por defecto, la misma ventana que separa dos reservas).
+* Todo en una transacción. Bloquea primero la orden y después las dos mesas **de menor a mayor id**, para que dos movimientos cruzados a la vez no se traben (deadlock).
+* ⚠ Quién movió la orden no queda registrado: no hay bitácora todavía (#46, #66).
+* **Respuesta Exitosa (200 OK):** `{ "message": "Orden movida.", "orden": { "id": 46, "mesa_id": 7, … } }`
+* **Errores:**
+  * `400`: falta `mesa_id` (o no es un número), o la orden ya está en esa mesa.
+  * `404`: la orden o la mesa de destino no existen.
+  * `409`: la orden ya está cobrada; la mesa de destino está ocupada, desactivada (o su piso), o tiene una reserva próxima (`"La mesa de destino tiene una reserva a las 20:30."`).
 
 ---
 
