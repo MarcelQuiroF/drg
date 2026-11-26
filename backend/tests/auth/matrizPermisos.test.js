@@ -16,8 +16,11 @@ const rutaConIds = (ruta) => ruta.replace(/:\w+/g, ID_INEXISTENTE);
 
 const MATRIZ = leerMatriz();
 
-test('la matriz de permisos.md tiene las 69 rutas montadas', () => {
-    expect(MATRIZ).toHaveLength(69);
+// Que cada ruta montada tenga su fila (y ninguna sobre) lo comprueba catalogoPermisos.test.js; aquí
+// basta con que el documento se haya leído. Sin un número fijo, agregar una ruta no obliga a
+// cambiar esta prueba.
+test('la matriz de permisos.md tiene filas', () => {
+    expect(MATRIZ.length).toBeGreaterThan(0);
 });
 
 describe.each(MATRIZ.map((f) => [`${f.metodo} ${f.ruta}`, f]))('%s', (_nombre, fila) => {
