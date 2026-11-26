@@ -161,7 +161,7 @@ El CI corre lo mismo (`npm run check` y `npm test`) en cada PR. Más detalle en 
 | `password authentication failed for user "…"` | Usuario o contraseña incorrectos en `DATABASE_URL` | Corregirlos (y codificar los caracteres especiales, paso 3.2) |
 | `permission denied to create database` | El usuario de PostgreSQL no puede crear bases | Usar el usuario `postgres`, o crear la base a mano y volver a correr `npm run db:preparar` |
 | `npm warn EBADENGINE Unsupported engine` con `required: { node: '26.x' }` | La versión de Node no es la 26 | Instalar Node 26 (sección 2) |
-| Dice `Servidor Express escuchando…` pero la página no carga o muestra otra cosa | Ya había algo en el puerto 3000 (¿otro `npm start` en otra terminal?). Por un bug (#110), el servidor no avisa que el puerto está ocupado | Cerrar el otro proceso, o cambiar `PORT` en `backend/.env` |
+| `Error al iniciar el servidor: El puerto 3000 ya está en uso…` y el comando termina | Ya hay algo en el puerto 3000 (¿otro `npm start` en otra terminal?) | Cerrar el otro proceso, o cambiar `PORT` en `backend/.env`. (Antes de #110 decía `Servidor Express escuchando…` y a los segundos se cerraba sin avisar) |
 
 **Volver a empezar con una base limpia** (borra **todos** los datos de la base de `DATABASE_URL`; solo en desarrollo):
 
