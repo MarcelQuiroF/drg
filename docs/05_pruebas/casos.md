@@ -50,6 +50,7 @@ Archivos: `login.test.js`, `matrizPermisos.test.js` y `catalogoPermisos.test.js`
 | F3b | Ranking de juegos con un juego pedido 3 veces | 🐞 | Suma la cantidad (3), como el de comida (hoy cuenta 1 fila) | #31 | ✔ |
 | T7 | Comandas de una orden ya cobrada o borrada | 🐞 | El ítem no aparece (hoy sí, en los dos casos) | #33 | ✔ |
 | T10 | Orden con Sandwich (35); se borra el Sandwich; se agrega un Cappuccino (18) | ✅ | Total 53.00 (corregido en #22; antes 18.00). También con un juego borrado (T10b), con un precio que cambia (la orden cobra el guardado) y en los ingresos por comida y juegos del dashboard | #22 | ✔ |
+| T7b | Comandas después de #33 (`tests/ordenes/comandas.test.js`) | ✅ | Corrige **T7**: los ítems de una orden cobrada o borrada no aparecen y ninguna comanda llega sin orden. Un producto **borrado del catálogo** con unidades pendientes sigue en las comandas (antes desaparecía), en el filtro de su zona y se puede entregar. Avanzar una comanda sigue bloqueando la orden (#124): 4 avances y 4 unidades nuevas a la vez no pierden ninguna | #33 | ✔ |
 | T13 | Editar las notas de una orden cobrada | 🐞 | 409 (hoy 200) | #41 | ✔ |
 | P2 | Cambiar la cantidad o el comentario de un juego de la orden | 🐞 | Se actualiza (hoy 404: la ruta no existe) | #42 | ✔ |
 | P3 | MESERO aplica un descuento del 100 % | 🔄 RN-06 | 200 y total 0.00: sin tope ni autorización | #39 | ✔ |

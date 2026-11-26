@@ -1003,15 +1003,15 @@ Clasificación del catálogo de productos y juegos disponibles.
 
 ## 11. Módulo de Comandas (`/api/v1/comandas`)
 
-Gestión del estado de preparación de los productos en las distintas zonas de despacho (Cocina, Bar, etc.). Requiere token JWT en la cabecera (`Authorization: Bearer <token>`).
+Gestión del estado de preparación de los productos en las zonas de despacho (`COCINA` y `CAFETERIA`). Requiere token JWT en la cabecera (`Authorization: Bearer <token>`).
 
 ### Listar Comandas Pendientes y en Preparación
 
 * **Ruta:** `GET /api/v1/comandas`
 
 * **Acceso:** Autenticado (Cualquier rol operativo)
-
-
+* **Parámetros Query (opcional):** `?zona=COCINA` o `?zona=CAFETERIA`.
+* **Qué devuelve (#33):** los ítems con unidades sin entregar (`cantidad_enviado < cantidad`) de órdenes **en curso**: no aparecen los de una orden **cobrada** ni los de una orden **borrada** (antes sí, T7; los de una orden borrada llegaban con `Orden: null`). Los de un producto **borrado del catálogo** siguen apareciendo, con su nombre y su zona, porque el pedido ya está hecho (antes desaparecían de la cocina). Cada ítem trae `Orden` (`id`, `finalizado`, `Mesa`).
 * **Respuesta Exitosa (200 OK):**
 ```json
 [
@@ -1025,8 +1025,9 @@ Gestión del estado de preparación de los productos en las distintas zonas de d
     "comentario": "Sin cebolla",
     "Producto": {
       "nombre": "Hamburguesa Dragón",
-      "zona": "Cocina"
-    }
+      "zona": "COCINA"
+    },
+    "Orden": { "id": 45, "finalizado": false, "Mesa": { "nombre": "Mesa 3", "numero": 3 } }
   }
 ]
 
@@ -1037,7 +1038,7 @@ Gestión del estado de preparación de los productos en las distintas zonas de d
 ### Avanzar el Estado de una Comanda
 * **Ruta:** `POST /api/v1/comandas/:id/avanzar`
 * **Acceso:** Autenticado (Cualquier rol operativo)
-* **Descripción:** Cambia el flujo interno de cantidades (ej. mueve de `cantidad_recibido` a `cantidad_preparando`, o a `cantidad_terminado`).
+* **Descripción:** Cambia el flujo interno de cantidades (ej. mueve de `cantidad_recibido` a `cantidad_preparando`, o a `cantidad_terminado`). Bloquea la orden mientras cambia los contadores (#124). Se puede avanzar un ítem de una orden ya cobrada (lo cobrado se entrega), aunque ya no aparezca en la lista.
 * **Respuesta Exitosa (200 OK):**
   ```json
   {
